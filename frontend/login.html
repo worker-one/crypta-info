@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Crypta.Info</title>
+    <link rel="stylesheet" href="css/main.css"> <!-- Includes all necessary CSS -->
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+             <a href="/" class="logo">
+                 <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <span>Crypta.Info</span>
+            </a>
+            <!-- Optional: Simplified Nav for Login page -->
+             <nav id="main-nav">
+                 <a href="register.html" class="btn btn-primary">Register</a>
+             </nav>
+        </div>
+    </header>
+
+    <main class="container auth-page">
+        <h1>Login</h1>
+        <!-- The Form -->
+        <form id="login-form" class="auth-form">
+            <!-- Error Message Area -->
+            <div id="login-error-message" class="error-message"></div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="login-submit-btn">Login</button>
+            </div>
+        </form>
+        <!-- Links to Register/Forgot Password -->
+        <p class="auth-switch">
+            Don't have an account? <a href="register.html">Register here</a>. <br>
+            <a href="#forgot-password">Forgot password?</a> <!-- Add forgot password page later -->
+        </p>
+    </main>
+
+    <footer class="main-footer">
+         <div class="container">
+            <p>© 2024 Crypta.Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Main script handles initialization and event binding -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Crypta.Info</title>
+    <!-- Use the same CSS structure as the main page -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <span>Crypta.Info</span>
+            </a>
+            <nav id="main-nav">
+                <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+                <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="admin-container">
+            <h1>Cryptocurrency Exchange Admin Panel</h1>
+
+            <div id="admin-auth-check">
+                <p>Checking admin permissions...</p>
+            </div>
+
+            <div id="admin-content">
+                <!-- Exchanges Management Section -->
+                <div class="panel-section">
+                    <h2>Exchanges Management</h2>
+                    <button id="showAddFormBtn" class="btn btn-secondary">Add New Exchange</button>
+                    <div id="exchangesList">
+                        <h3>Current Exchanges</h3>
+                        <div id="exchangesTableContainer">
+                            <table class="exchanges-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Slug</th>
+                                        <th>Country ID</th>
+                                        <th>KYC Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exchangesTableBody">
+                                    <!-- Exchanges will be listed here by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="exchangesPagination">
+                            <!-- Pagination controls will be added here by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Exchange Form Section -->
+                <div id="addExchangeForm" class="panel-section" style="display: none;">
+                    <h2>Add New Exchange</h2>
+                    <form id="exchangeForm" class="exchange-form">
+                        <div class="form-group">
+                            <label for="name">Exchange Name*</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="slug">Slug*</label>
+                            <input type="text" id="slug" name="slug" required pattern="^[a-z0-9-]+$" title="Use lowercase letters, numbers, and hyphens only.">
+                        </div>
+                        <div class="form-group">
+                            <label for="logo_url">Logo URL</label>
+                            <input type="url" id="logo_url" name="logo_url">
+                        </div>
+                        <div class="form-group">
+                            <label for="website_url">Website URL*</label>
+                            <input type="url" id="website_url" name="website_url" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="year_founded">Year Founded</label>
+                            <input type="number" id="year_founded" name="year_founded" min="1990" max="2030">
+                        </div>
+                        <div class="form-group">
+                            <label for="registration_country_id">Registration Country ID</label>
+                            <input type="number" id="registration_country_id" name="registration_country_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="headquarters_country_id">Headquarters Country ID</label>
+                            <input type="number" id="headquarters_country_id" name="headquarters_country_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="fee_structure_summary">Fee Structure Summary</label>
+                            <textarea id="fee_structure_summary" name="fee_structure_summary"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="kyc_type">KYC Type*</label>
+                            <select id="kyc_type" name="kyc_type" required>
+                                <option value="none">None</option>
+                                <option value="optional">Optional</option>
+                                <option value="mandatory" selected>Mandatory</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="maker_fee_min">Min Maker Fee</label>
+                            <input type="number" id="maker_fee_min" name="maker_fee_min" step="any" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="taker_fee_min">Min Taker Fee</label>
+                            <input type="number" id="taker_fee_min" name="taker_fee_min" step="any" min="0">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="has_p2p" name="has_p2p">
+                            <label for="has_p2p">Has P2P Platform</label>
+                        </div>
+
+                        <div class="form-group" style="grid-column: span 2;">
+                            <button type="submit" class="btn btn-primary">Save Exchange</button>
+                            <button type="button" id="cancelAddBtn" class="btn btn-secondary">Cancel</button>
+                            <div id="formErrorMessage" class="error-message"></div>
+                            <div id="formSuccessMessage" class="success-message"></div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Edit Exchange Form Section -->
+                <div id="editExchangeFormContainer" class="panel-section" style="display: none;">
+                    <h2>Edit Exchange <span id="editingExchangeName"></span></h2>
+                    <form id="exchangeEditForm" class="exchange-form">
+                        <input type="hidden" id="edit_exchange_id" name="edit_exchange_id">
+                        <input type="hidden" id="edit_exchange_slug" name="edit_exchange_slug">
+
+                        <div class="form-group">
+                            <label for="edit_name">Exchange Name*</label>
+                            <input type="text" id="edit_name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_slug">Slug*</label>
+                            <input type="text" id="edit_slug" name="slug" required pattern="^[a-z0-9-]+$" title="Use lowercase letters, numbers, and hyphens only.">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_logo_url">Logo URL</label>
+                            <input type="url" id="edit_logo_url" name="logo_url">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_website_url">Website URL*</label>
+                            <input type="url" id="edit_website_url" name="website_url" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_year_founded">Year Founded</label>
+                            <input type="number" id="edit_year_founded" name="year_founded" min="1990" max="2030">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_registration_country_id">Registration Country ID</label>
+                            <input type="number" id="edit_registration_country_id" name="registration_country_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_headquarters_country_id">Headquarters Country ID</label>
+                            <input type="number" id="edit_headquarters_country_id" name="headquarters_country_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_fee_structure_summary">Fee Structure Summary</label>
+                            <textarea id="edit_fee_structure_summary" name="fee_structure_summary"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_kyc_type">KYC Type*</label>
+                            <select id="edit_kyc_type" name="kyc_type" required>
+                                <option value="none">None</option>
+                                <option value="optional">Optional</option>
+                                <option value="mandatory">Mandatory</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_maker_fee_min">Min Maker Fee</label>
+                            <input type="number" id="edit_maker_fee_min" name="maker_fee_min" step="any" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_taker_fee_min">Min Taker Fee</label>
+                            <input type="number" id="edit_taker_fee_min" name="taker_fee_min" step="any" min="0">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="edit_has_p2p" name="has_p2p">
+                            <label for="edit_has_p2p">Has P2P Platform</label>
+                        </div>
+
+                        <div class="form-group" style="grid-column: span 2;">
+                            <button type="submit" class="btn btn-primary">Update Exchange</button>
+                            <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                            <div id="editFormErrorMessage" class="error-message"></div>
+                            <div id="editFormSuccessMessage" class="success-message"></div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Other Admin Sections -->
+                <div class="panel-section">
+                    <h2>User Management</h2>
+                    <div id="userList">Loading users...</div>
+                </div>
+
+                <div class="panel-section">
+                    <h2>Review Moderation</h2>
+                    <div id="pendingReviewsList">Loading pending reviews...</div>
+                </div>
+            </div> <!-- End #admin-content -->
+        </div> <!-- End .admin-container -->
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/api.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

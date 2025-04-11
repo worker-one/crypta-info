@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Crypta.Info</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+             <a href="/" class="logo">
+                 <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <span>Crypta.Info</span>
+            </a>
+            <nav id="main-nav"> <!-- This nav block contains the auth buttons -->
+                <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+                <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- This section will now be full-width -->
+        <section class="exchange-list-section full-width-section">
+             <!-- Add container INSIDE if you want the *contents* (like the h2 and form) centered -->
+             <div class="container">
+                <h2>Exchanges</h2>
+                 <section class="search-filter-section">
+                    <!-- <h2>Find Your Exchange</h2> Re-using Exchanges H2 above -->
+                    <form id="search-filter-form">
+                        <input type="search" id="search-input" placeholder="Search by exchange name...">
+                        <!-- Add filter controls later -->
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                </section>
+             </div> <!-- End inner container for heading/form -->
+
+            <!-- Table container stays outside inner container to be full width -->
+            <div id="exchange-table-container">
+                <p id="loading-exchanges">Loading exchanges...</p>
+                <div id="exchange-list-error" class="error-message"></div>
+                <div class="card-view-toggle">
+                    <button id="toggle-view-btn" class="btn btn-sm btn-secondary">Switch to Card View</button>
+                </div>
+                <table class="data-table exchange-table" id="exchange-table">
+                    <thead>
+                        <tr>
+                            <th>Logo</th>
+                            <th>Name</th>
+                            <th>Rating</th>
+                            <th>Reviews</th>
+                            <th>24h Volume</th>
+                            <th>Info</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exchange-list-body">
+                        <!-- Table rows loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination could go inside .container or outside depending on desired width -->
+        </section>
+
+    <footer class="main-footer">
+         <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- We still use main.js as it sets up common things like header auth state -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

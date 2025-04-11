@@ -1,0 +1,305 @@
+/* General Admin Layout */
+.admin-container {
+    max-width: 1200px;
+    margin: 20px auto; /* Added top/bottom margin */
+    padding: 20px;
+    font-family: sans-serif; /* Example base font */
+}
+
+.panel-section {
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0; /* Lighter border */
+    border-radius: 8px; /* Slightly more rounded */
+    padding: 20px;
+    background-color: #f9f9f9; /* Light background for sections */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.panel-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    color: #333;
+}
+
+.panel-section h3 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+
+/* Forms */
+.exchange-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 20px; /* Increased gap */
+}
+
+/* Remove responsive override if using auto-fit */
+/* @media (max-width: 768px) {
+    .exchange-form {
+        grid-template-columns: 1fr;
+    }
+} */
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex; /* Align label and input */
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px; /* Increased space */
+    font-weight: 600; /* Slightly bolder */
+    font-size: 0.95em;
+    color: #444;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group input[type="number"],
+.form-group input[type="email"], /* Add other types as needed */
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px; /* More padding */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+    font-size: 1em;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4CAF50; /* Highlight focus */
+    outline: none; /* Remove default outline */
+}
+
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical; /* Allow vertical resize */
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 10px; /* Add some top margin */
+}
+
+.checkbox-group input[type="checkbox"] { /* More specific selector */
+    width: auto;
+    margin-right: 10px;
+    accent-color: #4CAF50; /* Style checkbox color */
+}
+
+.checkbox-group label {
+    margin-bottom: 0; /* Reset margin for checkbox labels */
+    font-weight: normal;
+    font-size: 1em;
+}
+
+/* Full width group */
+.form-group.full-width {
+     grid-column: 1 / -1; /* Make element span all columns */
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+    margin-right: 10px; /* Add spacing between buttons */
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:last-child {
+    margin-right: 0;
+}
+
+button.secondary {
+    background-color: #2196F3; /* Blue */
+}
+
+button.secondary:hover {
+    background-color: #0b7dda;
+}
+
+button.delete-btn,
+button.danger { /* Add a danger class */
+    background-color: #f44336; /* Red */
+}
+
+button.delete-btn:hover,
+button.danger:hover {
+    background-color: #d32f2f;
+}
+
+/* Messages */
+.error-message {
+    color: #d32f2f; /* Darker red */
+    background-color: #ffebee; /* Light red background */
+    border: 1px solid #f44336;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 15px 0; /* Adjusted margin */
+    font-size: 0.9em;
+}
+
+.success-message {
+    color: #388e3c; /* Darker green */
+    background-color: #e8f5e9; /* Light green background */
+    border: 1px solid #4CAF50;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 15px 0; /* Adjusted margin */
+    font-size: 0.9em;
+}
+
+/* Tables */
+.exchanges-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff; /* White background for table */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.exchanges-table th,
+.exchanges-table td {
+    padding: 12px 15px; /* Slightly more padding */
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0; /* Lighter border */
+}
+
+.exchanges-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    color: #333;
+}
+
+.exchanges-table tbody tr:hover {
+    background-color: #f5f5f5; /* Hover effect */
+}
+
+
+.action-buttons button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+.action-buttons button:last-child {
+    margin-right: 0;
+}
+
+/* Pagination */
+#exchangesPagination {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 0.95em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#exchangesPagination .page-links a,
+#exchangesPagination .page-links strong {
+    margin: 0 5px;
+    padding: 5px 8px;
+    text-decoration: none;
+    color: #2196F3;
+    border-radius: 3px;
+}
+
+#exchangesPagination .page-links strong {
+    font-weight: bold;
+    color: #333;
+    background-color: #e0e0e0;
+}
+
+#exchangesPagination .page-links a:hover {
+    background-color: #e3f2fd;
+}
+
+#exchangesPagination .page-info {
+    color: #666;
+}
+
+/* Specific element overrides if needed */
+#editExchangeFormContainer { /* Use the container ID */
+    display: none; /* Initially hidden */
+    border-left: 5px solid #2196F3; /* Visual cue for editing */
+}
+#addExchangeForm {
+     border-left: 5px solid #4CAF50; /* Visual cue for adding */
+}
+
+/* Auth Check Message */
+#admin-auth-check .error-message {
+    margin-top: 30px; /* More prominent */
+    text-align: center;
+}
+
+/* Loading states */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    font-style: italic;
+}
+
+/* Responsive Table (Optional - Basic Example) */
+@media (max-width: 768px) {
+    .exchanges-table thead {
+        display: none; /* Hide table header */
+    }
+    .exchanges-table, .exchanges-table tbody, .exchanges-table tr, .exchanges-table td {
+        display: block; /* Make table elements stack */
+        width: 100%;
+    }
+    .exchanges-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .exchanges-table td {
+        text-align: right; /* Align text to the right */
+        padding-left: 50%; /* Create space for label */
+        position: relative;
+        border-bottom: none; /* Remove internal borders */
+    }
+     .exchanges-table td:last-child {
+         border-bottom: 0;
+     }
+
+    .exchanges-table td::before {
+        content: attr(data-label); /* Use data-label for pseudo-header */
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+    }
+     .action-buttons {
+         text-align: right; /* Keep buttons aligned right */
+     }
+     .action-buttons::before {
+        content: "Actions"; /* Explicit label for actions */
+     }
+}

@@ -1,0 +1,148 @@
+/* Layout Styles */
+.main-header {
+    background-color: #ffffff;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+.main-header .container {
+    display: flex;              /* Establishes a flex container */
+    justify-content: space-between; /* Pushes logo left and nav right */
+    align-items: center;        /* Vertically aligns items in the middle */
+}
+
+.logo {
+    /* Styles for the logo area (left side) */
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333;
+    text-decoration: none;
+}
+.logo img {
+    margin-right: 0.5rem;
+}
+.logo:hover {
+    text-decoration: none;
+}
+
+
+#main-nav {
+    /* Styles for the navigation area (right side) */
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Space between nav items */
+    /* No need for margin-left: auto; here because space-between handles it */
+}
+
+main {
+    padding-bottom: 2rem; /* Space above footer */
+}
+
+.main-footer {
+    background-color: #343a40;
+    color: #f8f9fa;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+
+.main-footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-footer a {
+    color: #adb5bd;
+}
+.main-footer a:hover {
+    color: #ffffff;
+}
+
+/* Specific Page Layouts */
+.auth-page {
+    max-width: 450px; /* Limit width for auth forms */
+}
+
+.exchange-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.placeholder-section,
+.search-filter-section,
+.exchange-list-section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+    margin-bottom: 1rem;
+    color: #343a40;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Style for sections meant to span full width */
+.full-width-section {
+    width: 100%;
+    /* Add horizontal padding if you don't want content touching screen edges */
+    padding-left: 15px;
+    padding-right: 15px;
+    /* Keep vertical padding/margins as needed */
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    /* Optionally keep background/shadow if desired */
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Ensure the inner container within a full-width section resets padding */
+.full-width-section > .container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+
+/* Modify the main container padding - remove horizontal padding
+   as it's now handled by individual sections or lack thereof */
+.container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    /* padding: 0 15px; */ /* REMOVE default horizontal padding */
+}
+
+/* You might want to add default padding back to specific elements
+   that are *always* inside a container if needed */
+main .container > h1,
+main .container > .placeholder-section {
+    padding-left: 15px; /* Add padding back if needed */
+    padding-right: 15px;
+}
+
+
+/* Adjust existing section styles if they relied on main.container padding */
+.search-filter-section,
+.placeholder-section {
+    /* Remove horizontal padding if it was set here, rely on .container now */
+    /* padding-left: 1.5rem; */
+    /* padding-right: 1.5rem; */
+}
+
+/* Ensure table container within the full-width section behaves */
+#exchange-table-container {
+    /* No specific width needed, will inherit from parent */
+    overflow-x: auto; /* Add horizontal scroll ONLY if table content overflows */
+}
