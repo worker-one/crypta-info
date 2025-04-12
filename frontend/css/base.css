@@ -1,46 +1,86 @@
-/* Basic Reset & Base Styles */
+/*------------------------------------*\
+  #BASIC RESET & BASE STYLES
+\*------------------------------------*/
+
+/**
+ * Remove all browser's default styling for all elements.
+ */
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+/**
+ * Set the base styles for the body.
+ * - Update the font family to a modern sans-serif.
+ * - Increase the base font size for better readability.
+ * - Adjust the line height for improved text flow.
+ * - Set a dark text color and a very light background color.
+ */
 body {
-    font-family: sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f4f7f6;
+  font-family: 'Arial', sans-serif; /* Modern sans-serif font */
+  font-size: 16px; /* Increased base font size */
+  line-height: 1.7; /* Adjusted line height */
+  color: #222; /* Darker text color */
+  background-color: #f8f8f8; /* Very light background */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
+/**
+ * Link styles.
+ * - Update the link color to a more vivid blue.
+ * - Remove underline by default.
+ */
 a {
-    color: #007bff;
-    text-decoration: none;
+  color: #0056b3; /* New, more vivid link color */
+  text-decoration: none;
 }
 
+/**
+ * Add an underline on hover for links.
+ */
 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
+/**
+ * Ensure images scale down properly and are block elements.
+ */
 img {
-    max-width: 100%;
-    display: block;
+  max-width: 100%;
+  display: block;
 }
 
+/**
+ * Set the same font for form elements as the body.
+ */
 input,
 button,
 textarea,
 select {
-    font: inherit;
+  font: inherit;
 }
 
+/**
+ * Set a maximum width for the main content and center it.
+ * - Use flexbox for responsive centering and padding.
+ */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px; /* Increased padding */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
+/* Utility Classes */
 .hidden {
     display: none !important;
 }
@@ -53,6 +93,7 @@ select {
     margin-bottom: 1rem;
     border-radius: 0.25rem;
     display: none; /* Initially hidden */
+    
 }
 
 .error-message.visible {
@@ -77,7 +118,7 @@ select {
 .error-message {
     color: #721c24; /* Slightly darker red text */
     background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #f5c6cb; 
     padding: 0.75rem 1.25rem;
     margin-bottom: 1rem;
     border-radius: 0.25rem;

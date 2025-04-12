@@ -20,14 +20,12 @@ app = FastAPI(
 
 # --- Middleware ---
 # Set up CORS (Cross-Origin Resource Sharing)
-# Adjust origins based on your frontend setup
 origins = [
-    "http://localhost",
-    "http://localhost:3000", # Example React frontend port
-    "http://localhost:8001",
-    "http://127.0.0.1:8001",
-    # Add your production frontend URL(s) here
+    "*"
+    # Add other allowed origins if needed
 ]
+
+
 
 app.add_middleware(
     CORSMiddleware,

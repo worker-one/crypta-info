@@ -1,5 +1,5 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails } from './api.js';
+import { getExchangeDetails, submitExchangeReview } from './api.js';
 import { updateHeaderNav, displayErrorMessage } from './ui.js';
 import { isLoggedIn } from './auth.js';
 
@@ -172,27 +172,20 @@ function setupReviewForm(exchangeId) {
                 return;
             }
             
-            // Here you would add the API call to submit the review
-            // For now, just show a success message
-            successElement.textContent = 'Your review has been submitted and is pending moderation.';
-            successElement.classList.add('visible');
-            reviewForm.reset();
-            
-            // In a real implementation, you would call an API function like:
-            // try {
-            //     await submitExchangeReview(exchangeId, { rating, text: reviewText });
-            //     successElement.textContent = 'Your review has been submitted and is pending moderation.';
-            //     successElement.classList.add('visible');
-            //     reviewForm.reset();
-            // } catch (error) {
-            //     displayErrorMessage('review-submit-error', error.message);
-            // }
+            try {
+                await submitExchangeReview(exchangeId, { rating, text: reviewText });
+                successElement.textContent = 'Your review has been submitted and is pending moderation.';
+                successElement.classList.add('visible');
+                reviewForm.reset();
+            } catch (error) {
+                displayErrorMessage('review-submit-error', error.message);
+            }
         });
     }
 }
 
 // This function would be implemented when the backend supports it
-function loadExchangeReviews(exchangeId) {
+function loadExchangeReviews(exchangeId) { 
     const reviewsList = document.getElementById('reviews-list');
     const loadingElement = document.getElementById('reviews-loading');
     const errorElement = document.getElementById('reviews-error');

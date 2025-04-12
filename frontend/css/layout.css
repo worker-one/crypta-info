@@ -1,51 +1,70 @@
 /* Layout Styles */
+
+/* --- Main Header --- */
 .main-header {
     background-color: #ffffff;
     padding: 1rem 0;
     border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* Slightly reduced margin */
 }
 
 .main-header .container {
-    display: flex;              /* Establishes a flex container */
-    justify-content: space-between; /* Pushes logo left and nav right */
-    align-items: center;        /* Vertically aligns items in the middle */
+    display: flex; /* Flexbox for layout */
+    justify-content: space-between; /* Space between logo and nav */
+    align-items: center; /* Vertical alignment */
+    padding: 0 15px; /* Add padding on the sides */
 }
 
 .logo {
-    /* Styles for the logo area (left side) */
-    display: flex;
-    align-items: center;
+    display: flex; /* Flexbox for logo and image */
+    align-items: center; /* Vertically align logo components */
     font-weight: bold;
     font-size: 1.5rem;
     color: #333;
     text-decoration: none;
+    transition: color 0.3s ease; /* Smooth transition for hover effect */
 }
+
 .logo img {
-    margin-right: 0.5rem;
+    margin-right: 0.5rem; /* Spacing between logo image and text */
+    max-height: 30px; /* Ensure logo image doesn't get too large */
 }
+
 .logo:hover {
+    color: #007bff; /* Change color on hover */
+    text-decoration: none; /* Remove text-decoration on hover */
+}
+
+
+/* --- Main Navigation --- */
+#main-nav {
+    display: flex; /* Flexbox for horizontal navigation */
+    align-items: center; /* Align navigation items vertically */
+    gap: 1rem; /* Increased space between nav items */
+}
+
+#main-nav a {
+    color: #333; /* Nav link color */
+    text-decoration: none; /* No underline */
+    transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+#main-nav a:hover {
+    color: #007bff; /* Change color on hover */
     text-decoration: none;
 }
 
-
-#main-nav {
-    /* Styles for the navigation area (right side) */
-    display: flex;
-    align-items: center;
-    gap: 0.75rem; /* Space between nav items */
-    /* No need for margin-left: auto; here because space-between handles it */
-}
-
 main {
-    padding-bottom: 2rem; /* Space above footer */
+    padding-bottom: 3rem; /* Increased space above footer */
+    padding: 0 15px; /* Add horizontal padding to main content */
 }
 
+/* --- Main Footer --- */
 .main-footer {
     background-color: #343a40;
     color: #f8f9fa;
-    padding: 1.5rem 0;
-    margin-top: 2rem;
+    padding: 1.5rem; /* Equal padding on all sides */
+    margin-top: 3rem; /* Increased space above footer */
     font-size: 0.9rem;
 }
 
@@ -60,27 +79,32 @@ main {
 }
 .main-footer a:hover {
     color: #ffffff;
+    text-decoration: none; /* Remove underline on hover */
 }
 
-/* Specific Page Layouts */
+
+/* --- Specific Page Layouts --- */
 .auth-page {
-    max-width: 450px; /* Limit width for auth forms */
+    max-width: 450px; /* Limit width for auth forms to center them */
+    margin: 0 auto; /* Center the form horizontally */
 }
 
+/* --- Exchange Grid --- */
 .exchange-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    display: grid; /* Grid layout for exchange items */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid with min width of 300px */
+    gap: 1.5rem; /* Spacing between grid items */
     margin-top: 1rem;
 }
 
+/* --- Sections --- */
 .placeholder-section,
 .search-filter-section,
 .exchange-list-section {
     background-color: #ffffff;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    border-radius: 5px;
+    border-radius: 8px; /* More rounded corners */
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
@@ -88,61 +112,47 @@ h1, h2 {
     margin-bottom: 1rem;
     color: #343a40;
 }
+
 h1 {
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: center; /* Center the main heading */
+    margin-bottom: 2rem; /* Increased margin below h1 */
+    color: #212529; /* Darker color for main headings */
 }
 
-/* Style for sections meant to span full width */
+/* --- Full-Width Sections --- */
 .full-width-section {
-    width: 100%;
-    /* Add horizontal padding if you don't want content touching screen edges */
-    padding-left: 15px;
-    padding-right: 15px;
-    /* Keep vertical padding/margins as needed */
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
-    /* Optionally keep background/shadow if desired */
+    width: 100%; /* Full width */
+    padding: 1.5rem 15px; /* Horizontal padding for content within */
+    margin-bottom: 2rem; /* Margin below full-width section */
     background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slightly stronger shadow */
 }
 
-/* Ensure the inner container within a full-width section resets padding */
+/* Adjust the container inside full-width sections */
 .full-width-section > .container {
-    padding-left: 0;
-    padding-right: 0;
+    padding: 0; /* Remove padding for inner container */
 }
 
 
-/* Modify the main container padding - remove horizontal padding
-   as it's now handled by individual sections or lack thereof */
+/* --- Main Container --- */
 .container {
     max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    /* padding: 0 15px; */ /* REMOVE default horizontal padding */
+    margin: 0 auto; /* Center the container */
 }
 
-/* You might want to add default padding back to specific elements
-   that are *always* inside a container if needed */
+/* Add padding back to specific elements inside the container */
 main .container > h1,
 main .container > .placeholder-section {
-    padding-left: 15px; /* Add padding back if needed */
-    padding-right: 15px;
+    padding: 0 15px; /* Reapply horizontal padding */
 }
 
-
-/* Adjust existing section styles if they relied on main.container padding */
+/* Sections with removed horizontal padding */
 .search-filter-section,
 .placeholder-section {
-    /* Remove horizontal padding if it was set here, rely on .container now */
-    /* padding-left: 1.5rem; */
-    /* padding-right: 1.5rem; */
+    padding: 1.5rem; /* Maintain padding, but without horizontal */
 }
 
-/* Ensure table container within the full-width section behaves */
+/* --- Exchange Table Container --- */
 #exchange-table-container {
-    /* No specific width needed, will inherit from parent */
-    overflow-x: auto; /* Add horizontal scroll ONLY if table content overflows */
+    overflow-x: auto; /* Horizontal scroll for table overflow */
 }

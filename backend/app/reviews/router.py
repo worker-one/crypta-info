@@ -1,15 +1,17 @@
 # app/reviews/router.py
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
-from decimal import Decimal
+from typing import Optional, List
+from enum import Enum
 
-from app.core.database import get_async_db
+from app.core.database import get_async_db, get_db
 from app.reviews import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse, Message
-from app.dependencies import get_current_active_user, get_current_admin_user # Import dependencies
+from app.dependencies import get_current_user  # Import dependencies
+from app.dependencies import get_current_active_user, get_admin_user  # Import dependencies
 from app.models.user import User # Import User model
-from app.models.review import ModerationStatusEnum # Import Enum
+from app.models.review import ModerationStatusEnum, Review # Import Enum
+from app.reviews.schemas import ExchangeReviewCreate, ExchangeReview, ReviewAdminStatusUpdate
 
 router = APIRouter(
     prefix="/reviews",
@@ -97,19 +99,18 @@ async def list_reviews_for_exchange(
     )
 
 @router.post("/exchange/{exchange_id}", response_model=schemas.ReviewRead, status_code=status.HTTP_201_CREATED)
-async def create_review_for_exchange(
-    exchange_id: int, # Get exchange_id from path
-    review_in: schemas.ReviewCreate, # Pass ratings/comment in body
+async def create_review_for_exchange( #New route
+    exchange_id: int,  # Get exchange_id from path
+    review_in: ExchangeReviewCreate,  # Pass ratings/comment in body
     db: AsyncSession = Depends(get_async_db),
-    current_user: CurrentUser = Depends(get_current_active_user) # Require login
+    current_user: User = Depends(get_current_user),  # Require login
 ):
-    """
-    Create a new review for a specific exchange. Requires authentication.
-    """
-    # Override or ensure exchange_id from path matches payload if needed
-    if review_in.exchange_id != exchange_id:
-         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Exchange ID in path does not match payload")
-
+    """Create a new review for a specific exchange. Requires authentication."""
+    # Check if exchange exists first (optional, service might handle)
+    # exchange = await exchange_service.get_exchange_by_id(db, exchange_id) # Need exchange_service imported
+    # if not exchange:
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")                                                                                                                                                                                                                                                                                                                                                                     
+    
     # Add CAPTCHA check here if implementing
 
     try:
@@ -146,5 +147,56 @@ async def vote_on_review(
     return updated_review
 
 
+class ReviewStatusEnum(str, Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+admin_router = APIRouter(
+    prefix="/admin/reviews",
+    tags=["Admin Reviews"],
+    dependencies=[Depends(get_admin_user)]  # Ensure only admin users can access these routes
+)
+
+
+@admin_router.get("/", response_model=List[schemas.ReviewRead])
+async def get_all_reviews(
+    db: AsyncSession = Depends(get_async_db),
+):
+    """
+    Retrieve all reviews (pending, approved, rejected) for admin management.
+    """
+    reviews = await service.review_service.get_all_reviews(db)
+    return reviews
+
+
+@admin_router.put("/{review_id}/status", response_model=schemas.ReviewRead)
+async def update_review_status(
+    review_id: int = Path(..., description="ID of the review to update"),
+    status_update: ReviewAdminStatusUpdate = Depends(),
+    db: AsyncSession = Depends(get_async_db),
+):
+    """
+    Update the status of a review.
+    """
+
+    # Map string status to ModerationStatusEnum
+    status_mapping = {
+        "pending": ModerationStatusEnum.pending,
+        "approved": ModerationStatusEnum.approved,
+        "rejected": ModerationStatusEnum.rejected,
+    }
+    new_moderation_status = status_mapping.get(status_update.status)
+
+    if new_moderation_status is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid status. Must be one of: {', '.join(status_mapping.keys())}",
+        )
+
+    updated_review = await service.review_service.update_review_status(db, review_id, new_moderation_status)
+    return updated_review
+
+router.include_router(admin_router)
 # Add endpoints for getting a single review, deleting a review (user's own), etc.
 # Add moderation endpoints under the /admin router.

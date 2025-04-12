@@ -7,6 +7,7 @@ const adminContentDiv = document.getElementById('admin-content');
 const exchangesTableBody = document.getElementById('exchangesTableBody');
 const exchangesPaginationDiv = document.getElementById('exchangesPagination');
 const exchangesTableContainer = document.getElementById('exchangesTableContainer'); // For loading state
+const reviewsTableBody = document.getElementById('reviewsTableBody');
 
 const showAddFormBtn = document.getElementById('showAddFormBtn');
 const addExchangeFormDiv = document.getElementById('addExchangeForm');
@@ -46,7 +47,7 @@ async function initializeAdminPanel() {
         setupEventListeners();
         loadExchanges(); // Initial load
         loadAdminUsers(); // Example: Load other sections
-        loadPendingReviews(); // Example: Load other sections
+        loadReviews(); // Load Reviews
 
     } catch (error) {
         console.error("Initialization failed:", error);
@@ -518,19 +519,73 @@ async function loadAdminUsers() {
     }
 }
 
-async function loadPendingReviews() {
-    const container = document.getElementById('pendingReviewsList');
-    if (!container) return; // Skip if container doesn't exist
-    
-    showLoadingState(container, 'Loading pending reviews...');
+async function loadReviews() {
+    showLoadingState(reviewsTableBody.parentElement, 'Loading reviews...');
+    reviewsTableBody.innerHTML = '';
+
     try {
-        const reviewsResponse = await api.adminListPendingReviews({ limit: 5 });
-        // Render pending reviews...
-        container.innerHTML = `<p>Found ${reviewsResponse.total} pending reviews. (Display logic not implemented)</p>`;
-        // TODO: Implement review list rendering and moderation actions (Approve/Reject)
+        const reviews = await api.adminListReviews();
+        displayReviewsTable(reviews);
     } catch (error) {
-        console.error("Failed to load pending reviews:", error);
-        container.innerHTML = `<p class="error-message">Error loading reviews: ${error.message}</p>`;
+        console.error("Failed to load reviews:", error);
+        reviewsTableBody.innerHTML = `<tr><td colspan="6" class="error-message">Error loading reviews: ${error.message}</td></tr>`;
+    } finally {
+         hideLoadingState(reviewsTableBody.parentElement);
+    }
+}
+
+function displayReviewsTable(reviews) {
+    if (reviews.length === 0) {
+        reviewsTableBody.innerHTML = '<tr><td colspan="6">No reviews found.</td></tr>';
+        return;
+    }
+
+    reviews.forEach(review => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="User">${escapeHtml(review.user_name || 'N/A')}</td>
+            <td data-label="Exchange">${escapeHtml(review.exchange_name || 'N/A')}</td>
+            <td data-label="Rating">${review.rating}</td>
+            <td data-label="Text">${escapeHtml(review.text)}</td>
+            <td data-label="Status">${escapeHtml(review.status)}</td>
+            <td data-label="Actions" class="action-buttons">
+                <button class="success approve-btn" data-id="${review.id}" ${review.status !== 'pending' ? 'disabled' : ''}>Approve</button>
+                <button class="danger reject-btn" data-id="${review.id}" ${review.status !== 'pending' ? 'disabled' : ''}>Reject</button>
+            </td>
+        `;
+        reviewsTableBody.appendChild(row);
+    });
+
+    // Add event listeners to approve/reject buttons after adding them to the DOM
+    reviewsTableBody.addEventListener('click', handleReviewActions);
+}
+
+async function handleReviewActions(event) {
+    const target = event.target;
+    const reviewId = target.dataset.id;
+
+    if (!reviewId) return;
+
+    const updateStatus = async (newStatus) => {
+        try {
+            target.disabled = true;
+            const response = await api.adminUpdateReviewStatus(reviewId, { status: newStatus });
+            if (response && response.id) {
+               const row = target.closest('tr');
+               row.querySelector('[data-label="Status"]').textContent = newStatus;
+               // Disable buttons for this row.
+                row.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => btn.disabled = true);
+            }
+        } catch (error) {
+             console.error(`Failed to ${newStatus} review ${reviewId}:`, error);
+             alert(`Failed to ${newStatus} review: ${error.message || 'Unknown error'}`);
+        }
+    };
+
+    if (target.classList.contains('approve-btn')) {
+        await updateStatus('approved');
+    } else if (target.classList.contains('reject-btn')) {
+        await updateStatus('rejected');
     }
 }
 

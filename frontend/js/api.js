@@ -1,7 +1,7 @@
 // API Interaction Logic
 import { getAccessToken } from './auth.js'; // Import the auth function
 
-const BASE_URL = 'http://localhost:8000/api/v1'; // Replace with your actual API base URL
+const BASE_URL = 'https://8000-idx-crypta-info-1744406696956.cluster-6yqpn75caneccvva7hjo4uejgk.cloudworkstations.dev/api/v1'; // Replace with your actual API base URL
 
 /**
  * Performs a fetch request to the API.

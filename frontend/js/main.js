@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             console.log("Search submitted");
             const searchTerm = document.getElementById('search-input').value;
-            // Reload exchanges with search parameter
+
             loadHomepageExchanges({ name: searchTerm });
         });
     }
@@ -228,7 +228,10 @@ async function loadHomepageExchanges(params = {}) {
             direction: 'desc',
             limit: 25, // Fetch more for a table view?
             ...params // Merge search/filter params
-        };
+        }; 
+        if(params.name === "") {
+            delete queryParams.name;
+        }
         const data = await fetchExchanges(queryParams);
         console.log("Exchanges received:", data);
 

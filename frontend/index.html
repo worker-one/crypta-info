@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Crypta.Info</title>
+    <title>Home - Crypta.Info</title>
+    <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pages/home.css">
 </head>
 <body>
+    <!-- Header Section -->
     <header class="main-header">
         <div class="container">
-             <a href="/" class="logo">
-                 <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
-                <span>Crypta.Info</span>
+            <a href="/" class="logo">
+                <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                    <span class="logo-subtitle">Your guide to crypto world</span>
+                </div>
             </a>
             <nav id="main-nav"> <!-- This nav block contains the auth buttons -->
                 <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
@@ -24,21 +30,29 @@
     </header>
 
     <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Discover the Best Crypto Exchanges</h1>
+                    <p class="hero-description">Explore a curated list of cryptocurrency exchanges, compare ratings, and read reviews to find the perfect platform for your trading needs.</p>
+                    <a href="#exchange-list-section" class="btn btn-primary">Explore Exchanges</a>
+                </div>
+            </div>
+        </section>
 
-        <!-- This section will now be full-width -->
-        <section class="exchange-list-section full-width-section">
-             <!-- Add container INSIDE if you want the *contents* (like the h2 and form) centered -->
-             <div class="container">
-                <h2>Exchanges</h2>
-                 <section class="search-filter-section">
-                    <!-- <h2>Find Your Exchange</h2> Re-using Exchanges H2 above -->
+        <!-- Exchange List Section -->
+        <section id="exchange-list-section" class="exchange-list-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Top Cryptocurrency Exchanges</h2>
+                </div>
+                <div class="search-filter-section">
                     <form id="search-filter-form">
                         <input type="search" id="search-input" placeholder="Search by exchange name...">
-                        <!-- Add filter controls later -->
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
-                </section>
-             </div> <!-- End inner container for heading/form -->
+                </div>
 
             <!-- Table container stays outside inner container to be full width -->
             <div id="exchange-table-container">
@@ -65,12 +79,15 @@
                 </table>
             </div>
             <!-- Pagination could go inside .container or outside depending on desired width -->
+            </div>
         </section>
 
+
+    </main>
+
+    <!-- Footer Section -->
     <footer class="main-footer">
-         <div class="container">
-            <p>© 2025 Crypta.Info. All rights reserved.</p>
-        </div>
+        <div class="container"><p>© 2025 Crypta.Info. All rights reserved.</p></div>
     </footer>
 
     <!-- We still use main.js as it sets up common things like header auth state -->
