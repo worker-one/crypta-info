@@ -2,7 +2,7 @@
 import { getAccessToken } from './auth.js'; // Import the auth function
 
 // Base URL for API that's served on a different port
-const BASE_URL = 'http://localhost:8000/api/v1';
+const BASE_URL = 'http://176.124.219.116:8000/api/v1';
 
 /**
  * Performs a fetch request to the API.
