@@ -1,7 +1,8 @@
 // API Interaction Logic
 import { getAccessToken } from './auth.js'; // Import the auth function
 
-const BASE_URL = 'https://8000-idx-crypta-info-1744406696956.cluster-6yqpn75caneccvva7hjo4uejgk.cloudworkstations.dev/api/v1'; // Replace with your actual API base URL
+// Base URL for API that's served on a different port
+const BASE_URL = 'http://localhost:8000/api/v1';
 
 /**
  * Performs a fetch request to the API.
@@ -136,7 +137,10 @@ export async function loginUser(email, password) {
  */
 export async function adminListExchanges(params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
-    return fetchApi(`/admin/exchanges/?${query}`, { method: 'GET' }, true); // Requires admin auth
+    // Use the public endpoint as requested, but still require admin auth for access control if needed on the frontend side
+    // Note: The backend might not require auth for GET /exchanges/, but the admin panel context implies it might be desired.
+    // If the public endpoint is truly public, the 'true' flag might be removed later.
+    return fetchApi(`/exchanges/?${query}`, { method: 'GET' }, true); // Changed endpoint, kept auth requirement for admin context
 }
 
 /**
@@ -185,6 +189,70 @@ export async function getExchangeDetails(slug) {
 }
 
 /**
+ * Submits a review for a specific exchange.
+ * @param {string|number} exchangeId - The ID of the exchange being reviewed.
+ * @param {object} reviewData - The review data { comment: string, ratings: Array<{category_id: number, rating_value: number}> }.
+ * @returns {Promise<object>} - The submitted review object (or confirmation).
+ */
+export async function submitExchangeReview(exchangeId, reviewData) {
+    // Backend expects exchange_id in the path AND potentially in the body
+    // The ExchangeReviewCreate schema likely includes exchange_id, so let's ensure it's there.
+    // If your backend schema *doesn't* require exchange_id in the body, you can remove it here.
+    const payload = {
+            ...reviewData,
+            exchange_id: parseInt(exchangeId, 10) // Ensure exchange_id is in the payload
+    };
+    return fetchApi(`/reviews/exchange/${exchangeId}`, { // ID in URL path
+        method: 'POST',
+        body: JSON.stringify(payload), // ID also in body
+    }, true);
+}
+
+/**
+ * Fetches the available rating categories.
+ * @returns {Promise<Array<object>>} - Array of category objects { id: number, name: string, description: string|null }
+ */
+export async function getRatingCategories() {
+    // Assuming you have an endpoint like /rating-categories/
+    // Adjust the endpoint if necessary
+    return fetchApi('/rating-categories/', { method: 'GET' });
+}
+
+/**
+ * Lists approved reviews for a specific exchange.
+ * @param {string|number} exchangeId - The ID of the exchange.
+ * @param {object} params - Pagination and filtering parameters (e.g., { skip: 0, limit: 10, sort_by: 'created_at', direction: 'desc' })
+ * @returns {Promise<object>} - The paginated response with review items.
+ */
+export async function listExchangeReviews(exchangeId, params = { skip: 0, limit: 10 }) {
+    const query = new URLSearchParams(params).toString();
+    return fetchApi(`/reviews/exchange/${exchangeId}?${query}`, { method: 'GET' }); // Public endpoint for approved reviews
+}
+
+/**
+ * Vote on the usefulness of a review.
+ * @param {string|number} reviewId - The ID of the review to vote on.
+ * @param {boolean} isUseful - True if voting useful, false otherwise.
+ * @returns {Promise<object>} - The updated review object.
+ */
+export async function voteOnReview(reviewId, isUseful) {
+    return fetchApi(`/reviews/${reviewId}/vote`, {
+        method: 'POST',
+        body: JSON.stringify({ is_useful: isUseful }),
+    }, true); // Requires authentication
+}
+
+/**
+ * Fetches the reviews submitted by the currently authenticated user.
+ * @param {object} params - Pagination and filtering parameters (e.g., { skip: 0, limit: 10, moderation_status: 'approved' })
+ * @returns {Promise<object>} - The paginated response with the user's review items.
+ */
+export async function listMyReviews(params = { skip: 0, limit: 10 }) {
+    const query = new URLSearchParams(params).toString();
+    return fetchApi(`/reviews/me?${query}`, { method: 'GET' }, true); // Requires authentication
+}
+
+/**
  * Lists all users (admin function)
  * @param {object} params - Pagination and filtering parameters
  * @returns {Promise<object>} - The paginated response with user items
@@ -202,4 +270,43 @@ export async function adminListUsers(params = { skip: 0, limit: 50 }) {
 export async function adminListPendingReviews(params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
     return fetchApi(`/admin/reviews/pending/?${query}`, { method: 'GET' }, true); // Requires admin auth
+}
+
+/**
+ * Lists all reviews for admin management (pending, approved, rejected)
+ * @param {object} params - Pagination, filtering (e.g., moderation_status), and sorting parameters
+ * @returns {Promise<object>} - The paginated response with review items
+ */
+export async function adminListReviews(params = { skip: 0, limit: 10 }) {
+    const query = new URLSearchParams(params).toString();
+    // Correct endpoint from admin_router in router.py
+    return fetchApi(`/admin/reviews/?${query}`, { method: 'GET' }, true); // Requires admin auth
+}
+
+
+/**
+ * Updates the status and/or moderator notes of a review (admin function).
+ * Aligns with backend PATCH /admin/reviews/{review_id}/moderate
+ * @param {string|number} reviewId - The ID of the review to update.
+ * @param {object} moderationPayload - The update payload { moderation_status: string, moderator_notes?: string }.
+ * @returns {Promise<object>} - The updated review object.
+ */
+export async function adminModerateReview(reviewId, moderationPayload) {
+    // Ensure moderation_status is one of the expected values by the backend
+    if (!['approved', 'rejected'].includes(moderationPayload.moderation_status)) {
+        return Promise.reject(new Error("Invalid moderation status provided. Must be 'approved' or 'rejected'."));
+    }
+    return fetchApi(`/admin/reviews/${reviewId}/moderate`, { // Corrected endpoint
+        method: 'PATCH', // Corrected method
+        body: JSON.stringify(moderationPayload),
+    }, true); // Requires admin auth
+}
+
+// --- Keep the old function name for now if other parts rely on it, but point it to the new one ---
+// Or refactor admin.js to use adminModerateReview directly
+/** @deprecated Use adminModerateReview instead */
+export async function adminUpdateReviewStatus(reviewId, statusUpdate) {
+    console.warn("adminUpdateReviewStatus is deprecated. Use adminModerateReview.");
+    // Map the old payload structure if necessary, assuming statusUpdate contains { moderation_status, moderator_notes }
+    return adminModerateReview(reviewId, statusUpdate);
 }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - CryptaInfo</title>
+    <!-- Link base styles first, then layout, then specific components -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- Add other CSS like forms.css if needed for buttons -->
+    <link rel="stylesheet" href="/css/pages/profile.css"> <!-- General fallback -->
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                    
+                </div>
+            </a>
+            <nav id="main-nav"> <!-- This nav block contains the auth buttons -->
+                <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+                <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Your Profile</h1>
+
+        <!-- Loading Indicator -->
+        <div id="profile-loading" class="message hidden" style="text-align: center;">Loading profile...</div>
+
+        <!-- Error Message Area -->
+        <div id="profile-error" class="message error-message hidden"></div> <!-- Use hidden class -->
+
+        <!-- Profile Content Section -->
+        <div id="profile-content-wrapper" class="content-section hidden"> <!-- Wrap content and hide initially -->
+            <div id="profile-content">
+                <h2>Details</h2>
+                <p><strong>Email:</strong> <span id="profile-email"></span></p>
+                <p><strong>Nickname:</strong> <span id="profile-nickname"></span></p>
+                <p><strong>User ID:</strong> <span id="profile-id"></span></p>
+                <p><strong>Role:</strong> <span id="profile-role"></span></p>
+                <!-- Add more fields as needed -->
+            </div>
+        </div>
+
+        <!-- User Reviews Section -->
+        <section id="profile-reviews-section" class="content-section hidden">
+            <h2>Your Reviews</h2>
+            <div id="reviews-loading" class="message hidden">Loading your reviews...</div>
+            <div id="reviews-error" class="message error-message hidden"></div>
+            <div id="reviews-list">
+                <!-- Reviews will be loaded here -->
+            </div>
+            <!-- Optional: Add pagination controls here if needed -->
+        </section>
+
+    </main>
+
+    <footer class="main-footer">
+        <!-- Footer content -->
+         <div class="container">
+            <p>&copy; 2025 CryptaInfo. All rights reserved.</p>
+            <nav>
+                <a href="/privacy.html">Privacy Policy</a> |
+                <a href="/terms.html">Terms of Service</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script type="module" src="/js/profile.js"></script>
+</body>
+</html>

@@ -1,61 +1,116 @@
 /* Form Styles */
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem; /* Increased spacing */
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: bold;
+    font-weight: 600; /* Bolder labels */
+    color: #495057; /* Slightly muted label color */
+    font-size: 0.9rem;
 }
 
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="password"],
 .form-group input[type="search"],
+.form-group input[type="url"],
+.form-group input[type="number"],
 .form-group textarea,
 .form-group select {
     display: block;
     width: 100%;
-    padding: 0.5rem 0.75rem;
+    padding: 0.65rem 0.9rem; /* Adjusted padding */
     font-size: 1rem;
     line-height: 1.5;
     color: #495057;
     background-color: #fff;
     background-clip: padding-box;
-    border: 1px solid #ced4da;
+    border: 1px solid #ced4da; /* Standard border */
     border-radius: 0.25rem;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.form-group input:focus {
-    border-color: #80bdff;
+/* Focus state */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #80bdff; /* Lighter blue border on focus */
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Blue glow */
+}
+
+/* Textarea specific */
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Checkbox styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto; /* Override width: 100% */
+    margin-right: 0.5rem;
+    accent-color: #007bff; /* Use primary color for checkbox */
+    height: 1em; /* Align better with text */
+    width: 1em;
+}
+
+.checkbox-group label {
+    margin-bottom: 0;
+    font-weight: normal;
+    font-size: 1rem;
+    color: #212529; /* Standard text color */
 }
 
 .form-actions {
-    margin-top: 1.5rem;
+    margin-top: 1.75rem; /* More space before actions */
 }
 
-/* Specific form layout adjustments */
-.auth-form {
-    background-color: #ffffff;
-    padding: 2rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+.auth-page {
+    max-width: 450px; /* Adjust width as needed */
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 2rem; /* Add some space from the header */
+    padding-bottom: 2rem; /* Add some space from the footer */
+  }
+  
+  /* Optional: Add padding inside the form if needed */
+  .auth-form {
+      padding: 2rem; /* Add padding inside the form card */
+      border: 1px solid #ccc; /* Optional: Add a border */
+      border-radius: 8px; /* Optional: Round corners */
+      background-color: #fff; /* Optional: Set background */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: Add subtle shadow */
+  }
 
 .auth-switch {
     text-align: center;
     margin-top: 1.5rem;
     font-size: 0.9rem;
+    color: #6c757d; /* Secondary text color */
+}
+.auth-switch a {
+    font-weight: 600;
 }
 
 #search-filter-form {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem; /* Increased gap */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 1.5rem; /* Add space below search */
 }
 #search-filter-form input[type="search"] {
-    flex-grow: 1; /* Allow search input to take available space */
+    flex-grow: 1;
+}
+/* Add styling for search button if needed */
+#search-filter-form button {
+    padding: 0.65rem 1rem; /* Match input height */
+    flex-shrink: 0; /* Prevent button from shrinking */
 }

@@ -1,25 +1,27 @@
-/* Button Styles */
+/* Base Button Styles */
 .btn {
     display: inline-block;
     font-weight: 400;
+    color: #212529;
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
     user-select: none;
     background-color: transparent;
     border: 1px solid transparent;
-    padding: 0.375rem 0.75rem;
+    padding: 0.65rem 1rem; /* Consistent padding */
     font-size: 1rem;
     line-height: 1.5;
     border-radius: 0.25rem;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    text-decoration: none !important; /* Override link underline */
+    text-decoration: none; /* Remove underline from button-styled links */
 }
 
 .btn:hover {
-    text-decoration: none; /* Keep underline off on hover */
+    text-decoration: none; /* Ensure no underline on hover */
 }
 
+/* Primary Button */
 .btn-primary {
     color: #fff;
     background-color: #007bff;
@@ -28,23 +30,74 @@
 
 .btn-primary:hover {
     color: #fff;
-    background-color: #0056b3;
-    border-color: #004085;
+    background-color: #0069d9;
+    border-color: #0062cc;
 }
 
+.btn-primary:focus, .btn-primary.focus {
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
+}
+
+/* Secondary Button */
 .btn-secondary {
-    color: #007bff;
-    background-color: transparent;
-    border: 1px solid #007bff;
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
 }
 
 .btn-secondary:hover {
     color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
-.btn:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
+.btn-secondary:focus, .btn-secondary.focus {
+    box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
+}
+
+/* Danger Button */
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-danger:focus, .btn-danger.focus {
+    box-shadow: 0 0 0 0.2rem rgba(225, 83, 97, 0.5);
+}
+
+/* Success Button (Optional, if needed) */
+.btn-success {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    color: #fff;
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-success:focus, .btn-success.focus {
+    box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5);
+}
+
+/* Small Button Variant */
+.btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+/* Button Group Spacing */
+.btn + .btn {
+    margin-left: 0.5rem;
 }

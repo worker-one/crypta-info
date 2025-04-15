@@ -1,1 +1,1 @@
-python3 -m http.server --bind 127.0.0.1 8002
+python3 -m http.server --bind 0.0.0.0 8005

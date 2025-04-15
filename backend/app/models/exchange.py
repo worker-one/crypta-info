@@ -54,6 +54,7 @@ class Exchange(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False, unique=True, index=True)
     slug = Column(String(255), nullable=False, unique=True)
+    description = Column(Text, nullable=True) # <-- Add this line
     logo_url = Column(String(512))
     website_url = Column(String(512))
     year_founded = Column(SmallInteger)

@@ -1,36 +1,60 @@
-/* Card Styles (Basic Placeholder) */
+/* Basic Card Styles */
 .exchange-card {
     background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 1rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    transition: box-shadow 0.2s ease-in-out;
-    text-align: center; /* Center content for placeholder */
+    border: 1px solid #dee2e6; /* Standard border */
+    border-radius: 8px; /* Consistent radius */
+    padding: 1.5rem; /* More padding */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07); /* Consistent shadow */
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    text-align: center;
+    display: flex; /* Use flex for better control */
+    flex-direction: column;
+    height: 100%; /* Allow cards in a grid to have same height */
 }
 
 .exchange-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12); /* Enhanced shadow on hover */
+    transform: translateY(-3px); /* Slight lift effect */
 }
 
 .exchange-card .logo img {
     max-height: 50px;
-    margin: 0 auto 0.5rem auto; /* Center logo */
+    width: auto; /* Let height control size */
+    margin: 0 auto 1rem auto; /* Increased bottom margin */
+    border-radius: 4px; /* Match table logo */
 }
 
 .exchange-card h3 {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
+    margin-top: 0; /* Remove top margin if logo is present */
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem; /* Slightly larger heading */
+    color: #212529; /* Dark heading */
 }
 
 .exchange-card .rating,
 .exchange-card .volume,
 .exchange-card .info {
     font-size: 0.9rem;
-    color: #6c757d;
-    margin-bottom: 0.3rem;
+    color: #6c757d; /* Secondary text color */
+    margin-bottom: 0.4rem;
+    line-height: 1.4;
 }
 
+.exchange-card .rating {
+    font-weight: 600;
+    color: #ffc107; /* Accent color for rating */
+}
+.exchange-card .rating::before {
+    content: '★ '; /* Add star icon */
+}
+
+
 .exchange-card .details-link {
-    margin-top: 1rem;
+    margin-top: auto; /* Push link to bottom */
+    padding-top: 1rem; /* Add space above link */
+}
+
+/* Use .btn styles for the link */
+.exchange-card .details-link .btn {
+    /* Inherits styles */
 }

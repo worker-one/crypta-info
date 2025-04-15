@@ -1,5 +1,5 @@
-import { checkAndCacheUserProfile, getUserProfileData, isLoggedIn } from './auth.js';
 import * as api from './api.js';
+import { checkAndCacheUserProfile, getUserProfileData } from './auth.js';
 
 // DOM Elements Cache (Good practice to query elements once)
 const adminAuthCheckDiv = document.getElementById('admin-auth-check');
@@ -31,27 +31,36 @@ const EXCHANGES_PER_PAGE = 10; // Or get from config
 document.addEventListener('DOMContentLoaded', initializeAdminPanel);
 
 async function initializeAdminPanel() {
+    showLoadingState(adminAuthCheckDiv); // Show loading initially
     try {
-        await checkAndCacheUserProfile(); // From auth.js
-        const userProfile = getUserProfileData(); // From auth.js
+        await checkAndCacheUserProfile(); // Check login status and user role
+        const user = getUserProfileData();
 
-        if (!userProfile || !userProfile.is_admin) {
+        if (!user || !user.is_admin) {
             showAdminPermissionError();
-            return;
+            hideLoadingState(adminAuthCheckDiv); // Hide loading after check
+            return; // Stop execution if not admin
         }
 
-        // User is admin, show content and load data
+        // User is admin, hide auth check message and show content
         adminAuthCheckDiv.style.display = 'none';
-        // adminContentDiv.style.display = 'block';
+        adminContentDiv.style.display = 'block';
 
+        // Setup event listeners for forms and buttons
         setupEventListeners();
-        loadExchanges(); // Initial load
-        loadAdminUsers(); // Example: Load other sections
-        loadReviews(); // Load Reviews
+
+        // Initial data loading
+        await loadExchanges();
+        console.log("Admin check passed, attempting to load reviews..."); 
+        await loadReviews(); // Make sure this is called after admin check
+        // await loadAdminUsers(); // Placeholder
+
+        console.log("Admin panel initialized for admin user.");
 
     } catch (error) {
-        console.error("Initialization failed:", error);
-        showAdminPermissionError("Failed to verify permissions. Please try logging in again.");
+        console.error("Error initializing admin panel:", error);
+        showAdminPermissionError(`Error checking permissions: ${error.message}`);
+        hideLoadingState(adminAuthCheckDiv); // Hide loading on error
     }
 }
 
@@ -66,6 +75,9 @@ function showAdminPermissionError(message = "You don't have permission to access
     `;
 }
 
+const pendingReviewsContainer = document.getElementById('pendingReviewsContainer'); // Use a container div
+const pendingReviewsList = document.getElementById('pendingReviewsList'); // The list/table body inside the container
+
 function setupEventListeners() {
     showAddFormBtn.addEventListener('click', showAddForm);
     cancelAddBtn.addEventListener('click', hideAddForm);
@@ -79,6 +91,13 @@ function setupEventListeners() {
 
      // Event delegation for pagination links
     exchangesPaginationDiv.addEventListener('click', handlePaginationClick);
+
+    // Event delegation for review actions
+    if (pendingReviewsList) {
+        pendingReviewsList.addEventListener('click', handleReviewActions);
+    } else {
+        console.warn("Element #pendingReviewsList not found during event listener setup.");
+    }
 }
 
 // --- Exchange Loading & Display ---
@@ -519,73 +538,152 @@ async function loadAdminUsers() {
     }
 }
 
-async function loadReviews() {
-    showLoadingState(reviewsTableBody.parentElement, 'Loading reviews...');
-    reviewsTableBody.innerHTML = '';
+// Make sure displayPendingReviews populates pendingReviewsList correctly
+function displayPendingReviews(reviews) {
+    if (!pendingReviewsList) return; // Guard clause
 
-    try {
-        const reviews = await api.adminListReviews();
-        displayReviewsTable(reviews);
-    } catch (error) {
-        console.error("Failed to load reviews:", error);
-        reviewsTableBody.innerHTML = `<tr><td colspan="6" class="error-message">Error loading reviews: ${error.message}</td></tr>`;
-    } finally {
-         hideLoadingState(reviewsTableBody.parentElement);
-    }
-}
-
-function displayReviewsTable(reviews) {
     if (reviews.length === 0) {
-        reviewsTableBody.innerHTML = '<tr><td colspan="6">No reviews found.</td></tr>';
+        pendingReviewsList.innerHTML = '<div class="info-message">No pending reviews found.</div>';
         return;
     }
 
-    reviews.forEach(review => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td data-label="User">${escapeHtml(review.user_name || 'N/A')}</td>
-            <td data-label="Exchange">${escapeHtml(review.exchange_name || 'N/A')}</td>
-            <td data-label="Rating">${review.rating}</td>
-            <td data-label="Text">${escapeHtml(review.text)}</td>
-            <td data-label="Status">${escapeHtml(review.status)}</td>
-            <td data-label="Actions" class="action-buttons">
-                <button class="success approve-btn" data-id="${review.id}" ${review.status !== 'pending' ? 'disabled' : ''}>Approve</button>
-                <button class="danger reject-btn" data-id="${review.id}" ${review.status !== 'pending' ? 'disabled' : ''}>Reject</button>
-            </td>
-        `;
-        reviewsTableBody.appendChild(row);
-    });
+    // Clear previous content (might be redundant if cleared in loadReviews, but safe)
+    pendingReviewsList.innerHTML = '';
 
-    // Add event listeners to approve/reject buttons after adding them to the DOM
-    reviewsTableBody.addEventListener('click', handleReviewActions);
+    reviews.forEach(review => {
+        const item = document.createElement('div');
+        item.classList.add('review-item', 'pending-review'); // Add classes for styling
+        item.dataset.reviewId = review.id; // Store ID for actions
+
+        // Basic structure - Adapt based on your review data and desired layout
+        item.innerHTML = `
+            <div class="review-details">
+                <p><strong>Review ID:</strong> ${review.id}</p>
+                <p><strong>Exchange:</strong> ${escapeHtml(review.exchange?.name || 'N/A')} (ID: ${review.exchange_id})</p>
+                <p><strong>User:</strong> ${escapeHtml(review.user?.nickname || 'N/A')} (ID: ${review.user_id})</p>
+                <p><strong>Comment:</strong> ${escapeHtml(review.comment)}</p>
+                <p><strong>Submitted:</strong> ${new Date(review.created_at).toLocaleString()}</p>
+                <p><strong>Status:</strong> <span class="status-pending">${escapeHtml(review.moderation_status)}</span></p>
+            </div>
+            <div class="review-actions">
+                <div class="form-group">
+                     <label for="notes-${review.id}">Moderator Notes (Optional for Approve, Required for Reject):</label>
+                     <input type="text" id="notes-${review.id}" name="moderator_notes" placeholder="Reason for rejection...">
+                </div>
+                <button class="btn btn-success approve-review-btn" data-id="${review.id}">Approve</button>
+                <button class="btn btn-danger reject-review-btn" data-id="${review.id}">Reject</button>
+                <span class="action-status" style="display: none; margin-left: 10px;"></span>
+            </div>
+        `;
+        pendingReviewsList.appendChild(item);
+    });
 }
 
+
+async function loadReviews() {
+    // Use pendingReviewsList directly for loading state if container doesn't exist
+    const targetElementForLoading = document.getElementById('pendingReviewsContainer') || pendingReviewsList; // Use list if container missing
+
+    if (!pendingReviewsList) { // Still need the list itself
+        console.error("Element #pendingReviewsList not found. Cannot load reviews.");
+        if (targetElementForLoading) {
+            targetElementForLoading.innerHTML = '<div class="error-message">Error: Review list element not found in HTML.</div>';
+        }
+        return;
+    }
+
+    showLoadingState(targetElementForLoading, 'Loading pending reviews...'); // Use the determined element
+    pendingReviewsList.innerHTML = ''; // Clear the list specifically
+    try {
+        const params = { skip: 0, limit: 10 }; // Add pagination later if needed
+        const response = await api.adminListPendingReviews(params); // Ensure api object is available
+
+        hideLoadingState(targetElementForLoading); // Hide loading from the correct element
+
+        if (!response || !response.items) {
+            console.warn("No pending reviews found or invalid response:", response);
+            pendingReviewsList.innerHTML = '<div class="info-message">No pending reviews found.</div>';
+            return;
+        }
+
+        displayPendingReviews(response.items);
+
+    } catch (error) {
+        console.error("Failed to load pending reviews:", error);
+        hideLoadingState(targetElementForLoading);
+        // Display error within the list area or the container if it exists
+        pendingReviewsList.innerHTML = `<div class="error-message">Error loading reviews: ${error.message || 'Unknown error'}</div>`;
+    }
+}
+
+
+
+// Ensure the handleReviewActions function correctly finds elements within the new structure
 async function handleReviewActions(event) {
     const target = event.target;
-    const reviewId = target.dataset.id;
+    // Use closest to find the parent review item and the ID
+    const reviewItem = target.closest('.review-item');
+    if (!reviewItem) return; // Click wasn't inside a review item action area
 
-    if (!reviewId) return;
+    const reviewId = reviewItem.dataset.reviewId;
 
-    const updateStatus = async (newStatus) => {
-        try {
-            target.disabled = true;
-            const response = await api.adminUpdateReviewStatus(reviewId, { status: newStatus });
-            if (response && response.id) {
-               const row = target.closest('tr');
-               row.querySelector('[data-label="Status"]').textContent = newStatus;
-               // Disable buttons for this row.
-                row.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => btn.disabled = true);
-            }
-        } catch (error) {
-             console.error(`Failed to ${newStatus} review ${reviewId}:`, error);
-             alert(`Failed to ${newStatus} review: ${error.message || 'Unknown error'}`);
-        }
+    if (!reviewId || (!target.classList.contains('approve-review-btn') && !target.classList.contains('reject-review-btn'))) {
+        // Click wasn't on an approve/reject button or ID is missing
+        return;
+    }
+
+    // Find elements relative to the reviewItem
+    const notesInput = reviewItem.querySelector(`input[name="moderator_notes"]`);
+    const statusSpan = reviewItem.querySelector('.action-status');
+    const approveBtn = reviewItem.querySelector('.approve-review-btn');
+    const rejectBtn = reviewItem.querySelector('.reject-review-btn');
+
+    const moderatorNotes = notesInput ? notesInput.value.trim() : null;
+    const action = target.classList.contains('approve-review-btn') ? 'approved' : 'rejected';
+
+    // Basic validation for rejection notes
+    if (action === 'rejected' && !moderatorNotes) {
+        alert('Moderator notes are required to reject a review.');
+        if (notesInput) notesInput.focus();
+        return; // Stop processing
+    }
+
+    const payload = {
+        moderation_status: action,
+        // Only include notes if they exist
+        ...(moderatorNotes && { moderator_notes: moderatorNotes })
     };
 
-    if (target.classList.contains('approve-btn')) {
-        await updateStatus('approved');
-    } else if (target.classList.contains('reject-btn')) {
-        await updateStatus('rejected');
+    // Disable buttons and show status within this specific item
+    if (approveBtn) approveBtn.disabled = true;
+    if (rejectBtn) rejectBtn.disabled = true;
+    if (statusSpan) {
+        statusSpan.textContent = 'Processing...';
+        statusSpan.style.display = 'inline';
+        statusSpan.style.color = 'orange';
+    }
+
+    try {
+        console.log(`Attempting to ${action} review ${reviewId} with payload:`, payload);
+        // Use the correct API function: adminModerateReview
+        const updatedReview = await api.adminModerateReview(reviewId, payload);
+        console.log('Review moderation successful:', updatedReview);
+
+        // Remove the item from the list on success
+        reviewItem.style.opacity = '0.5'; // Optional: visual feedback
+        reviewItem.remove(); // Remove the whole item
+
+        // Optional: Show a success message elsewhere if needed
+
+    } catch (error) {
+        console.error(`Failed to ${action} review ${reviewId}:`, error);
+        if (statusSpan) {
+            statusSpan.textContent = `Error: ${error.message || 'Update failed'}`;
+            statusSpan.style.color = 'red';
+        }
+        // Re-enable buttons on failure
+        if (approveBtn) approveBtn.disabled = false;
+        if (rejectBtn) rejectBtn.disabled = false;
     }
 }
 

@@ -42,6 +42,7 @@ class ExchangeCategoryRatingRead(BaseModel):
 class ExchangeBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=255)
     slug: str = Field(..., min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$") # Basic slug pattern
+    description: Optional[str] = None
     logo_url: Optional[str] = None
     website_url: Optional[str] = None
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
@@ -70,6 +71,7 @@ class ExchangeCreate(ExchangeBase):
 class ExchangeUpdate(ExchangeBase):
     name: Optional[str] = Field(None, min_length=2, max_length=255)
     slug: Optional[str] = Field(None, min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$")
+    description: Optional[str] = None
     kyc_type: Optional[KYCTypeEnum] = None
     has_p2p: Optional[bool] = None
      # Allow updating related IDs - service needs to handle this
@@ -133,31 +135,3 @@ class ExchangeFilterParams(BaseModel):
 class ExchangeSortBy(BaseModel):
     field: Literal['name', 'overall_average_rating', 'trading_volume_24h'] = 'overall_average_rating'
     direction: Literal['asc', 'desc'] = 'desc'
-    
-    
-# Example implementation for ExchangeUpdate schema if not already present
-class ExchangeUpdate(BaseModel):
-    name: Optional[str] = None
-    slug: Optional[str] = None
-    description: Optional[str] = None
-    logo_url: Optional[str] = None
-    year_established: Optional[int] = None
-    website_url: Optional[str] = None
-    registration_country_id: Optional[int] = None
-    headquarters_country_id: Optional[int] = None
-    available_in_country_ids: Optional[List[int]] = None
-    language_ids: Optional[List[int]] = None
-    supported_fiat_currency_ids: Optional[List[int]] = None
-    maker_fee_min: Optional[Decimal] = None
-    maker_fee_max: Optional[Decimal] = None
-    taker_fee_min: Optional[Decimal] = None
-    taker_fee_max: Optional[Decimal] = None
-    kyc_type: Optional[KYCTypeEnum] = None
-    has_p2p: Optional[bool] = None
-    security_score: Optional[Decimal] = None
-    overall_score: Optional[Decimal] = None
-    is_active: Optional[bool] = None
-    # Add other fields as needed
-
-    class Config:
-        from_attributes = True

@@ -110,11 +110,13 @@ export async function checkAndCacheUserProfile() {
             console.log("User profile fetched and cached on load:", profile);
         } catch (error) {
             console.error("Failed to fetch user profile on load:", error);
-             if (error.message.includes('401') || error.message.includes('Unauthorized') || error.status === 401) {
+             // Check error status or message for unauthorized indication
+             if (error.status === 401 || (error.message && (error.message.includes('401') || error.message.includes('Unauthorized')))) {
                  // Token might be invalid/expired - Clean up
                  console.log("Token likely invalid, logging out.");
                  clearAuthData(); // Use clearAuthData instead of handleLogout to avoid redirect loop
              }
+             // Note: No 'else' block needed here, we proceed to updateHeaderNav regardless
         }
     }
     // Always update the header nav based on the current state AFTER attempting profile fetch/cache
@@ -131,7 +133,6 @@ export function handleLogout() {
      window.location.href = '/login.html'; // Redirect to login
     console.log("User logged out.");
 }
-
 
 /**
  * Handles the registration process.

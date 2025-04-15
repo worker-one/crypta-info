@@ -1,191 +1,213 @@
 # app/reviews/service.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func, desc, asc, and_
+from sqlalchemy import func, desc, asc, and_, distinct, delete
 from sqlalchemy.orm import selectinload, joinedload
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 from fastapi import HTTPException, status
+import datetime
+from decimal import Decimal, ROUND_HALF_UP  # Import ROUND_HALF_UP
 
 from app.models import review as review_models
 from app.models import exchange as exchange_models
 from app.models import user as user_models
 from app.models import common as common_models
 from app.reviews import schemas
+from app.reviews.schemas import ReviewFilterParams, ReviewSortBy, ExchangeReviewCreate, ReviewAdminUpdatePayload
 from app.schemas.common import PaginationParams
-from app.models.review import ModerationStatusEnum
+from app.models.review import ModerationStatusEnum, Review, ReviewRating, ReviewScreenshot, ReviewUsefulnessVote
+from app.models.exchange import Exchange, ExchangeCategoryRating
+from app.models.common import RatingCategory
 
 class ReviewService:
 
-    async def get_review_by_id(self, db: AsyncSession, review_id: int, load_relations: bool = True) -> Optional[review_models.Review]:
-        query = select(review_models.Review)
+    async def get_review_by_id(self, db: AsyncSession, review_id: int, load_relations: bool = True) -> Optional[Review]:
+        """Fetches a single review by ID, optionally loading relationships."""
+        query = select(Review)
         if load_relations:
             query = query.options(
-                selectinload(review_models.Review.user),
-                selectinload(review_models.Review.exchange).selectinload(exchange_models.Exchange.registration_country), # Example nested load
-                selectinload(review_models.Review.ratings).selectinload(review_models.ReviewRating.category),
-                selectinload(review_models.Review.screenshots),
-                # selectinload(review_models.Review.tags)
+                selectinload(Review.user),
+                selectinload(Review.exchange).options(
+                    selectinload(Exchange.registration_country)
+                ),
+                selectinload(Review.ratings).selectinload(ReviewRating.category),
+                selectinload(Review.screenshots),
             )
-        query = query.filter(review_models.Review.id == review_id)
+        query = query.filter(Review.id == review_id)
         result = await db.execute(query)
         return result.scalar_one_or_none()
 
     async def list_reviews(
         self,
         db: AsyncSession,
-        filters: schemas.ReviewFilterParams,
-        sort: schemas.ReviewSortBy,
+        filters: ReviewFilterParams,
+        sort: ReviewSortBy,
         pagination: PaginationParams,
-    ) -> Tuple[List[review_models.Review], int]:
+    ) -> Tuple[List[Review], int]:
+        """Lists reviews with filtering, sorting, and pagination."""
 
-        query = select(review_models.Review).options(
-            # Eager load necessary fields for list view
-            selectinload(review_models.Review.user),
-            selectinload(review_models.Review.exchange).selectinload(exchange_models.Exchange.registration_country),
-            selectinload(review_models.Review.ratings).selectinload(review_models.ReviewRating.category),
-             selectinload(review_models.Review.screenshots),
-            # selectinload(review_models.Review.tags),
+        query = select(Review).options(
+            selectinload(Review.user),
+            selectinload(Review.exchange).selectinload(Exchange.registration_country),
+            selectinload(Review.ratings).selectinload(ReviewRating.category),
+            selectinload(Review.screenshots),
         )
 
-        # --- Filtering ---
-        filter_conditions = [review_models.Review.moderation_status == filters.moderation_status] # Base filter
+        count_query = select(func.count(distinct(Review.id)))
+
+        filter_conditions = []
+        # Apply filter only if moderation_status is not None
+        if filters.moderation_status is not None:
+            filter_conditions.append(Review.moderation_status == filters.moderation_status)
+            count_query = count_query.filter(Review.moderation_status == filters.moderation_status)
 
         if filters.exchange_id:
-            filter_conditions.append(review_models.Review.exchange_id == filters.exchange_id)
+            filter_conditions.append(Review.exchange_id == filters.exchange_id)
+            count_query = count_query.filter(Review.exchange_id == filters.exchange_id)
         if filters.user_id:
-             filter_conditions.append(review_models.Review.user_id == filters.user_id)
+            filter_conditions.append(Review.user_id == filters.user_id)
+            count_query = count_query.filter(Review.user_id == filters.user_id)
+
         if filters.has_screenshot is not None:
             if filters.has_screenshot:
-                query = query.join(review_models.Review.screenshots) # Join needed if filtering on existence
+                # Filter for reviews that HAVE screenshots
+                query = query.join(Review.screenshots) # Use join for existence check
+                count_query = count_query.join(Review.screenshots)
             else:
-                 query = query.outerjoin(review_models.Review.screenshots)
-                 filter_conditions.append(review_models.ReviewScreenshot.id == None) # Check no screenshot exists
+                # Filter for reviews that DO NOT HAVE screenshots
+                query = query.outerjoin(Review.screenshots).filter(ReviewScreenshot.id == None)
+                count_query = count_query.outerjoin(Review.screenshots).filter(ReviewScreenshot.id == None)
 
-        # Rating filters require joining ratings and calculating average - complex, simplified here
-        # if filters.min_overall_rating or filters.max_overall_rating:
-        #     # Requires subquery or window function to calculate avg rating per review
-        #     pass
 
         if filter_conditions:
-             query = query.where(and_(*filter_conditions)).distinct()
+            query = query.filter(and_(*filter_conditions))
+            # Count query already has filters applied individually above
 
-
-        # --- Count Total ---
-        count_query = select(func.count(review_models.Review.id))
-        if filter_conditions:
-            count_query = count_query.select_from(query.subquery())
+        query = query.distinct() # Keep distinct after joins
 
         total_result = await db.execute(count_query)
         total = total_result.scalar_one()
 
-        # --- Sorting ---
         if sort.field == 'created_at':
-            sort_column = review_models.Review.created_at
+            order_by_column = Review.created_at
         elif sort.field == 'usefulness':
-            # Calculate usefulness score (useful - not_useful)
-            sort_column = (review_models.Review.useful_votes_count - review_models.Review.not_useful_votes_count)
+            # Order by the difference between useful and not useful votes
+            order_by_column = (Review.useful_votes_count - Review.not_useful_votes_count)
         else:
-            sort_column = review_models.Review.created_at # Default
+            # Default or fallback sorting
+            order_by_column = Review.created_at
 
         if sort.direction == 'desc':
-            query = query.order_by(desc(sort_column))
+            query = query.order_by(desc(order_by_column))
         else:
-            query = query.order_by(asc(sort_column))
+            query = query.order_by(asc(order_by_column))
 
-        # --- Pagination ---
         query = query.offset(pagination.skip).limit(pagination.limit)
 
-        # --- Execute Query ---
         result = await db.execute(query)
-        reviews = result.scalars().unique().all() # Use unique() because of potential duplicate rows from joins
+        reviews = result.scalars().unique().all() # Use unique() after scalars()
 
-        return reviews, total
+        return reviews, total # Return tuple directly
 
     async def create_review(
         self,
         db: AsyncSession,
-        review_in: schemas.ReviewCreate,
+        review_in: ExchangeReviewCreate,
         user_id: int
-    ) -> review_models.Review:
-        # Check if user already reviewed this exchange? (Optional rule)
-        # Check if exchange exists
-        exchange = await db.get(exchange_models.Exchange, review_in.exchange_id)
+    ) -> Review:
+        """Creates a new review for an exchange."""
+        exchange = await db.get(Exchange, review_in.exchange_id)
         if not exchange:
-             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")
 
-        # Create review object
-        db_review = review_models.Review(
+        existing_review_query = select(Review.id).filter(
+            Review.exchange_id == review_in.exchange_id,
+            Review.user_id == user_id
+        )
+        existing_review = await db.execute(existing_review_query)
+        if existing_review.scalar_one_or_none() is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="You have already submitted a review for this exchange."
+            )
+
+        db_review = Review(
             comment=review_in.comment,
             exchange_id=review_in.exchange_id,
             user_id=user_id,
-            moderation_status=ModerationStatusEnum.pending # Default to pending moderation
+            moderation_status=ModerationStatusEnum.pending
         )
         db.add(db_review)
-        # We need the review ID before adding ratings/screenshots, so commit partially or flush
-        await db.flush() # Get the ID without ending transaction
+        await db.flush()
 
-        # Create related ratings
         category_ids = {r.category_id for r in review_in.ratings}
         if len(category_ids) != len(review_in.ratings):
+            await db.rollback()
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Duplicate rating categories provided.")
 
-        # Check if category IDs are valid (optional but good)
-        valid_categories = await db.execute(select(common_models.RatingCategory.id).filter(common_models.RatingCategory.id.in_(category_ids)))
-        if len(valid_categories.scalars().all()) != len(category_ids):
-             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid rating category ID provided.")
+        valid_categories_query = select(func.count(RatingCategory.id)).filter(RatingCategory.id.in_(category_ids))
+        valid_categories_count = await db.execute(valid_categories_query)
+        if valid_categories_count.scalar_one() != len(category_ids):
+            await db.rollback()
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more invalid rating category IDs provided.")
 
         for rating_in in review_in.ratings:
-            db_rating = review_models.ReviewRating(
+            db_rating = ReviewRating(
                 review_id=db_review.id,
                 category_id=rating_in.category_id,
                 rating_value=rating_in.rating_value
             )
             db.add(db_rating)
 
-        # Handle screenshots (basic URL storage shown)
-        # if review_in.screenshot_urls:
-        #     for url in review_in.screenshot_urls:
-        #         db_screenshot = review_models.ReviewScreenshot(review_id=db_review.id, file_url=str(url))
-        #         db.add(db_screenshot)
-
         await db.commit()
-        # Refresh to load relations created within the transaction (like ratings)
-        await db.refresh(db_review, attribute_names=['ratings'])
-        # Re-fetch the full review with all necessary relations for the response
-        return await self.get_review_by_id(db, db_review.id)
+        created_review = await self.get_review_by_id(db, db_review.id)
+        if not created_review:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve created review")
+        return created_review
 
-
-    async def moderate_review(
+    async def update_review_moderation_details(
         self,
         db: AsyncSession,
         review_id: int,
-        moderation_data: schemas.ReviewUpdateAdmin,
+        update_payload: ReviewAdminUpdatePayload,
         moderator_id: int
-    ) -> Optional[review_models.Review]:
-        db_review = await self.get_review_by_id(db, review_id, load_relations=False) # Don't need full load
+    ) -> Optional[Review]:
+        """Updates the moderation status and/or notes of a review."""
+        db_review = await db.get(Review, review_id)
         if not db_review:
             return None
 
-        update_data = moderation_data.model_dump(exclude_unset=True)
         needs_update = False
-        if "moderation_status" in update_data and db_review.moderation_status != update_data["moderation_status"]:
-            db_review.moderation_status = update_data["moderation_status"]
+        status_changed = False
+        original_status = db_review.moderation_status
+
+        if update_payload.moderation_status is not None and db_review.moderation_status != update_payload.moderation_status:
+            db_review.moderation_status = update_payload.moderation_status
             needs_update = True
-        if "moderator_notes" in update_data:
-             db_review.moderator_notes = update_data["moderator_notes"]
-             needs_update = True
+            status_changed = True
+
+        if update_payload.moderator_notes is not None:
+            if db_review.moderator_notes != update_payload.moderator_notes:
+                db_review.moderator_notes = update_payload.moderator_notes
+                needs_update = True
+        elif update_payload.moderator_notes == "" and db_review.moderator_notes is not None:
+            db_review.moderator_notes = None
+            needs_update = True
 
         if needs_update:
             db_review.moderated_by_user_id = moderator_id
-            db_review.moderated_at = func.now()
+            db_review.moderated_at = datetime.datetime.utcnow()
+
+            if status_changed:
+                if (original_status == ModerationStatusEnum.approved or
+                        db_review.moderation_status == ModerationStatusEnum.approved):
+                    await self.recalculate_exchange_ratings(db, db_review.exchange_id)
+
             await db.commit()
-            await db.refresh(db_review) # Refresh to get db generated time if needed
-
-            # !!! IMPORTANT: Trigger rating recalculation for the exchange !!!
-            # This should ideally happen in a background task
-            # await self.recalculate_exchange_ratings(db, db_review.exchange_id)
-
-        return db_review
+            updated_review = await self.get_review_by_id(db, db_review.id)
+            return updated_review
+        else:
+            return await self.get_review_by_id(db, db_review.id)
 
     async def vote_review_usefulness(
         self,
@@ -193,29 +215,24 @@ class ReviewService:
         review_id: int,
         user_id: int,
         is_useful: bool
-    ) -> Optional[review_models.Review]:
-        # Check if review exists and is approved
-        db_review = await db.get(review_models.Review, review_id)
+    ) -> Optional[Review]:
+        """Records a user's usefulness vote on a review."""
+        db_review = await db.get(Review, review_id)
+
         if not db_review or db_review.moderation_status != ModerationStatusEnum.approved:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Approved review not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Approved review not found or not available for voting")
 
-        # Prevent self-voting
         if db_review.user_id == user_id:
-             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot vote on your own review")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot vote on your own review")
 
-        # Check if user already voted
-        existing_vote = await db.execute(
-            select(review_models.ReviewUsefulnessVote)
-            .filter_by(review_id=review_id, user_id=user_id)
-        )
-        vote = existing_vote.scalar_one_or_none()
+        existing_vote_query = select(ReviewUsefulnessVote).filter_by(review_id=review_id, user_id=user_id)
+        vote_result = await db.execute(existing_vote_query)
+        vote = vote_result.scalar_one_or_none()
 
         if vote:
-            # User is changing their vote
             if vote.is_useful == is_useful:
-                return db_review # No change needed
+                return await self.get_review_by_id(db, review_id)
 
-            # Update vote and counts
             if is_useful:
                 db_review.useful_votes_count += 1
                 db_review.not_useful_votes_count -= 1
@@ -223,10 +240,9 @@ class ReviewService:
                 db_review.useful_votes_count -= 1
                 db_review.not_useful_votes_count += 1
             vote.is_useful = is_useful
-            vote.voted_at = func.now()
+            vote.voted_at = datetime.datetime.utcnow()
         else:
-            # New vote
-            new_vote = review_models.ReviewUsefulnessVote(
+            new_vote = ReviewUsefulnessVote(
                 review_id=review_id,
                 user_id=user_id,
                 is_useful=is_useful
@@ -238,16 +254,147 @@ class ReviewService:
                 db_review.not_useful_votes_count += 1
 
         await db.commit()
-        await db.refresh(db_review)
-        return db_review
+        updated_review = await self.get_review_by_id(db, db_review.id)
+        if not updated_review:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve review after voting")
+        return updated_review
 
-    # Placeholder for recalculation logic (should be more robust)
     async def recalculate_exchange_ratings(self, db: AsyncSession, exchange_id: int):
-        # This is complex: needs to query approved reviews for the exchange,
-        # calculate average for overall and each category, update Exchange
-        # and ExchangeCategoryRating tables. Best done asynchronously.
-        print(f"INFO: Triggered recalculation for exchange ID {exchange_id} (implementation needed)")
-        pass
+        """
+        Recalculates average ratings (overall and per category) for an exchange
+        based on its currently *approved* reviews. Updates the Exchange and
+        ExchangeCategoryRating models.
+        """
+        print(f"INFO: Recalculating ratings for exchange ID {exchange_id}")
 
+        # Fetch the target exchange first to ensure it exists
+        # Eagerly load existing category ratings to optimize updates/deletes
+        exchange = await db.get(
+            Exchange,
+            exchange_id,
+            options=[selectinload(Exchange.category_ratings)]
+        )
+        if not exchange:
+            print(f"ERROR: Exchange {exchange_id} not found during rating recalculation.")
+            # Consider raising an exception or returning early if appropriate
+            return
+
+        # Query to get all approved reviews and their ratings/categories for the exchange
+        approved_reviews_query = select(Review).options(
+            selectinload(Review.ratings).selectinload(ReviewRating.category)
+        ).filter(
+            Review.exchange_id == exchange_id,
+            Review.moderation_status == ModerationStatusEnum.approved
+        )
+        approved_reviews_result = await db.execute(approved_reviews_query)
+        approved_reviews = approved_reviews_result.scalars().unique().all()
+
+        total_approved_reviews = len(approved_reviews)
+        all_rating_values: List[Decimal] = []
+        # Use Decimal for sums to maintain precision
+        category_ratings_data: Dict[int, Dict[str, Decimal | int | RatingCategory]] = {}
+
+        # Aggregate ratings from all approved reviews
+        for review in approved_reviews:
+            for rating in review.ratings:
+                # Ensure rating_value is Decimal
+                rating_value_decimal = Decimal(rating.rating_value)
+                all_rating_values.append(rating_value_decimal)
+
+                cat_id = rating.category_id
+                if cat_id not in category_ratings_data:
+                    # Ensure category is loaded if needed (fallback)
+                    category_obj = rating.category
+                    if not category_obj:
+                        category_obj = await db.get(RatingCategory, cat_id)
+                        if not category_obj:
+                            print(f"WARN: RatingCategory {cat_id} not found for review {review.id}. Skipping this rating.")
+                            continue # Skip if category doesn't exist
+
+                    category_ratings_data[cat_id] = {
+                        'sum': Decimal(0),
+                        'count': 0,
+                        'category': category_obj # Store the category object
+                    }
+
+                category_ratings_data[cat_id]['sum'] += rating_value_decimal
+                category_ratings_data[cat_id]['count'] += 1
+
+        # Calculate overall average rating, handling division by zero and rounding
+        overall_average_rating_decimal: Optional[Decimal] = None
+        if all_rating_values:
+            raw_overall_average = sum(all_rating_values) / Decimal(len(all_rating_values))
+            # Quantize to match model precision (e.g., Numeric(3, 2) -> two decimal places)
+            overall_average_rating_decimal = raw_overall_average.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        else:
+            overall_average_rating_decimal = Decimal("0.00") # Default to 0.00 if no ratings
+
+        # Calculate category averages, handling division by zero and rounding
+        category_averages: Dict[int, Dict] = {}
+        for cat_id, data in category_ratings_data.items():
+            count = data['count']
+            if isinstance(count, int) and count > 0:
+                category_sum = data['sum']
+                if isinstance(category_sum, Decimal):
+                    raw_category_average = category_sum / Decimal(count)
+                    # Quantize to match model precision
+                    quantized_average = raw_category_average.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                    category_averages[cat_id] = {
+                        'average': quantized_average,
+                        'count': count,
+                        'category': data['category'] # Use stored category object
+                    }
+
+        # --- Update Exchange ---
+        # Use correct model field names
+        exchange.overall_average_rating = overall_average_rating_decimal
+        exchange.total_review_count = total_approved_reviews
+
+        # --- Update/Create/Delete ExchangeCategoryRating ---
+        existing_cat_ratings_map = {cr.category_id: cr for cr in exchange.category_ratings}
+        processed_category_ids = set()
+        now = datetime.datetime.utcnow() # Use a consistent timestamp
+
+        for cat_id, data in category_averages.items():
+            processed_category_ids.add(cat_id)
+            average_rating = data['average']
+            review_count = data['count']
+
+            if cat_id in existing_cat_ratings_map:
+                # Update existing category rating
+                existing_rating = existing_cat_ratings_map[cat_id]
+                existing_rating.average_rating = average_rating
+                existing_rating.review_count = review_count
+                existing_rating.last_updated = now
+            else:
+                # Create new category rating
+                new_cat_rating = exchange_models.ExchangeCategoryRating(
+                    exchange_id=exchange_id,
+                    category_id=cat_id,
+                    average_rating=average_rating,
+                    review_count=review_count,
+                    last_updated=now
+                )
+                db.add(new_cat_rating)
+                # Add to the exchange's collection if needed, though flush/commit should handle it
+                # exchange.category_ratings.append(new_cat_rating)
+
+        # --- Delete Obsolete ExchangeCategoryRating ---
+        category_ids_to_remove = set(existing_cat_ratings_map.keys()) - processed_category_ids
+        if category_ids_to_remove:
+            # Delete directly using a query for efficiency
+            await db.execute(
+                delete(exchange_models.ExchangeCategoryRating).where(
+                    exchange_models.ExchangeCategoryRating.exchange_id == exchange_id,
+                    exchange_models.ExchangeCategoryRating.category_id.in_(category_ids_to_remove)
+                )
+            )
+            # Also remove from the loaded relationship collection if necessary
+            # exchange.category_ratings = [cr for cr in exchange.category_ratings if cr.category_id not in category_ids_to_remove]
+
+
+        # Flush changes within this unit of work. Commit should happen outside.
+        await db.flush()
+        print(f"INFO: Ratings recalculated for exchange ID {exchange_id}. Overall: {exchange.overall_average_rating}, Total Approved Reviews: {exchange.total_review_count}")
 
 review_service = ReviewService()

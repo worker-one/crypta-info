@@ -1,37 +1,32 @@
 # app/reviews/router.py
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
-from enum import Enum
 
-from app.core.database import get_async_db, get_db
+from app.core.database import get_async_db
 from app.reviews import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse, Message
-from app.dependencies import get_current_user  # Import dependencies
-from app.dependencies import get_current_active_user, get_admin_user  # Import dependencies
-from app.models.user import User # Import User model
-from app.models.review import ModerationStatusEnum, Review # Import Enum
-from app.reviews.schemas import ExchangeReviewCreate, ExchangeReview, ReviewAdminStatusUpdate
+from app.dependencies import get_current_user, get_current_active_user, get_current_admin_user
+from app.models.user import User
+from app.models.review import ModerationStatusEnum, Review
+from app.reviews.schemas import ExchangeReviewCreate, ReviewAdminUpdatePayload
 
 router = APIRouter(
     prefix="/reviews",
     tags=["Reviews"]
 )
 
-CurrentUser = User # Alias for readability
+CurrentUser = User  # Alias for readability
 
 @router.get("/", response_model=PaginatedResponse[schemas.ReviewRead])
 async def list_all_approved_reviews(
     db: AsyncSession = Depends(get_async_db),
-    # Filtering parameters
     exchange_id: Optional[int] = Query(None, description="Filter by exchange ID"),
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
     min_overall_rating: Optional[float] = Query(None, ge=1.0, le=5.0, description="Minimum overall rating (requires calculation)"),
     max_overall_rating: Optional[float] = Query(None, ge=1.0, le=5.0, description="Maximum overall rating (requires calculation)"),
     has_screenshot: Optional[bool] = Query(None, description="Filter by presence of screenshots"),
-    # Sorting
     sort_by: schemas.ReviewSortBy = Depends(),
-    # Pagination
     pagination: PaginationParams = Depends(),
 ):
     """
@@ -43,7 +38,7 @@ async def list_all_approved_reviews(
         min_overall_rating=min_overall_rating,
         max_overall_rating=max_overall_rating,
         has_screenshot=has_screenshot,
-        moderation_status=ModerationStatusEnum.approved # Hardcoded for this public endpoint
+        moderation_status=ModerationStatusEnum.approved
     )
 
     reviews, total = await service.review_service.list_reviews(
@@ -57,34 +52,54 @@ async def list_all_approved_reviews(
         limit=pagination.limit,
     )
 
+@router.get("/me", response_model=PaginatedResponse[schemas.ReviewRead])
+async def list_my_reviews(
+    db: AsyncSession = Depends(get_async_db),
+    current_user: CurrentUser = Depends(get_current_active_user),
+    moderation_status: Optional[ModerationStatusEnum] = Query(None, description="Filter by moderation status"),
+    sort_by: schemas.ReviewSortBy = Depends(),
+    pagination: PaginationParams = Depends(),
+):
+    """
+    Get a list of all reviews submitted by the current authenticated user.
+    """
+    filter_data = {
+        "user_id": current_user.id,
+        # Only include moderation_status if it's provided in the query
+        **({"moderation_status": moderation_status} if moderation_status is not None else {}),
+    }
+    filters = schemas.ReviewFilterParams(**filter_data)
+
+    reviews, total = await service.review_service.list_reviews(
+        db=db, filters=filters, sort=sort_by, pagination=pagination
+    )
+
+    return PaginatedResponse(
+        total=total,
+        items=reviews,
+        skip=pagination.skip,
+        limit=pagination.limit,
+    )
 
 @router.get("/exchange/{exchange_id}", response_model=PaginatedResponse[schemas.ReviewRead])
 async def list_reviews_for_exchange(
     exchange_id: int,
     db: AsyncSession = Depends(get_async_db),
-     # Filtering specific to this exchange's reviews (e.g., rating range)
     min_overall_rating: Optional[float] = Query(None, ge=1.0, le=5.0),
     max_overall_rating: Optional[float] = Query(None, ge=1.0, le=5.0),
     has_screenshot: Optional[bool] = Query(None),
-    # Sorting
     sort_by: schemas.ReviewSortBy = Depends(),
-    # Pagination
     pagination: PaginationParams = Depends(),
 ):
     """
     Get a list of *approved* reviews for a specific exchange.
     """
-    # Check if exchange exists first (optional, service might handle)
-    # exchange = await exchange_service.get_exchange_by_id(db, exchange_id) # Need exchange_service imported
-    # if not exchange:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")
-
     filters = schemas.ReviewFilterParams(
-        exchange_id=exchange_id, # Filter by this exchange
+        exchange_id=exchange_id,
         min_overall_rating=min_overall_rating,
         max_overall_rating=max_overall_rating,
         has_screenshot=has_screenshot,
-        moderation_status=ModerationStatusEnum.approved # Only approved reviews
+        moderation_status=ModerationStatusEnum.approved
     )
 
     reviews, total = await service.review_service.list_reviews(
@@ -98,20 +113,20 @@ async def list_reviews_for_exchange(
         limit=pagination.limit,
     )
 
+
 @router.post("/exchange/{exchange_id}", response_model=schemas.ReviewRead, status_code=status.HTTP_201_CREATED)
-async def create_review_for_exchange( #New route
-    exchange_id: int,  # Get exchange_id from path
-    review_in: ExchangeReviewCreate,  # Pass ratings/comment in body
+async def create_review_for_exchange(
+    exchange_id: int,
+    review_in: ExchangeReviewCreate = Body(...),
     db: AsyncSession = Depends(get_async_db),
-    current_user: User = Depends(get_current_user),  # Require login
+    current_user: User = Depends(get_current_user),
 ):
     """Create a new review for a specific exchange. Requires authentication."""
-    # Check if exchange exists first (optional, service might handle)
-    # exchange = await exchange_service.get_exchange_by_id(db, exchange_id) # Need exchange_service imported
-    # if not exchange:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")                                                                                                                                                                                                                                                                                                                                                                     
-    
-    # Add CAPTCHA check here if implementing
+    if review_in.exchange_id != exchange_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Exchange ID in path does not match exchange ID in request body."
+        )
 
     try:
         created_review = await service.review_service.create_review(
@@ -119,10 +134,9 @@ async def create_review_for_exchange( #New route
         )
         return created_review
     except HTTPException as e:
-        raise e # Re-raise existing HTTP exceptions
+        raise e
     except Exception as e:
-        # Log the error e
-        print(f"Error creating review: {e}") # Basic logging
+        print(f"Error creating review: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not create review")
 
 
@@ -131,7 +145,7 @@ async def vote_on_review(
     review_id: int,
     vote_in: schemas.ReviewUsefulnessVoteCreate,
     db: AsyncSession = Depends(get_async_db),
-    current_user: CurrentUser = Depends(get_current_active_user) # Require login
+    current_user: CurrentUser = Depends(get_current_active_user)
 ):
     """
     Vote on the usefulness of a review. Requires authentication.
@@ -143,60 +157,85 @@ async def vote_on_review(
         is_useful=vote_in.is_useful
     )
     if not updated_review:
-         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found or cannot be voted on")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found or cannot be voted on")
     return updated_review
 
-
-class ReviewStatusEnum(str, Enum):
-    pending = "pending"
-    approved = "approved"
-    rejected = "rejected"
 
 admin_router = APIRouter(
     prefix="/admin/reviews",
     tags=["Admin Reviews"],
-    dependencies=[Depends(get_admin_user)]  # Ensure only admin users can access these routes
+    dependencies=[Depends(get_current_admin_user)]
 )
 
 
-@admin_router.get("/", response_model=List[schemas.ReviewRead])
-async def get_all_reviews(
+@admin_router.get("/", response_model=PaginatedResponse[schemas.ReviewRead])
+async def get_all_reviews_admin(
     db: AsyncSession = Depends(get_async_db),
+    exchange_id: Optional[int] = Query(None),
+    user_id: Optional[int] = Query(None),
+    moderation_status: Optional[ModerationStatusEnum] = Query(None),
+    sort_by: schemas.ReviewSortBy = Depends(),
+    pagination: PaginationParams = Depends(),
 ):
     """
-    Retrieve all reviews (pending, approved, rejected) for admin management.
+    Retrieve all reviews (pending, approved, rejected) for admin management
+    with filtering, sorting, and pagination.
     """
-    reviews = await service.review_service.get_all_reviews(db)
-    return reviews
+    filter_data = {
+        "exchange_id": exchange_id,
+        "user_id": user_id,
+        # Only include moderation_status if it's provided in the query
+        **({"moderation_status": moderation_status} if moderation_status is not None else {}),
+    }
+    # Note: ReviewFilterParams has a default for moderation_status ('approved')
+    # If None is passed from query, this default won't be overridden here,
+    # but the service layer needs to handle the filter logic correctly.
+    # Let's adjust the schema to be Optional to truly reflect the intent.
+    # *** OR *** adjust the service layer to handle the default from schema if status is None.
+    # For now, this router change prevents the Pydantic error.
+    # We will also adjust the schema below for clarity.
+
+    filters = schemas.ReviewFilterParams(**filter_data)
+
+
+    reviews, total = await service.review_service.list_reviews(
+        db=db, filters=filters, sort=sort_by, pagination=pagination
+    )
+
+    return PaginatedResponse(
+        total=total,
+        items=reviews,
+        skip=pagination.skip,
+        limit=pagination.limit,
+    )
 
 
 @admin_router.put("/{review_id}/status", response_model=schemas.ReviewRead)
 async def update_review_status(
     review_id: int = Path(..., description="ID of the review to update"),
-    status_update: ReviewAdminStatusUpdate = Depends(),
+    status_update: ReviewAdminUpdatePayload = Body(...),
     db: AsyncSession = Depends(get_async_db),
 ):
     """
-    Update the status of a review.
+    Update the status and/or moderator notes of a review.
+    Requires admin privileges.
     """
-
-    # Map string status to ModerationStatusEnum
-    status_mapping = {
-        "pending": ModerationStatusEnum.pending,
-        "approved": ModerationStatusEnum.approved,
-        "rejected": ModerationStatusEnum.rejected,
-    }
-    new_moderation_status = status_mapping.get(status_update.status)
-
-    if new_moderation_status is None:
+    if status_update.moderation_status is None and status_update.moderator_notes is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid status. Must be one of: {', '.join(status_mapping.keys())}",
+            detail="At least one field (moderation_status or moderator_notes) must be provided for update.",
         )
 
-    updated_review = await service.review_service.update_review_status(db, review_id, new_moderation_status)
+    updated_review = await service.review_service.update_review_moderation_details(
+        db=db,
+        review_id=review_id,
+        new_status=status_update.moderation_status,
+        moderator_notes=status_update.moderator_notes
+    )
+
+    if not updated_review:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found or update failed")
+
     return updated_review
 
 router.include_router(admin_router)
-# Add endpoints for getting a single review, deleting a review (user's own), etc.
-# Add moderation endpoints under the /admin router.

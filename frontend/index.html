@@ -6,53 +6,56 @@
     <title>Home - Crypta.Info</title>
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/pages/home.css">
 </head>
 <body>
     <!-- Header Section -->
     <header class="main-header">
         <div class="container">
+            <!-- Logo Title (left) -->
             <a href="/" class="logo">
                 <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
                 <div>
                     <span class="logo-text">Crypta.Info</span>
-                    <span class="logo-subtitle">Your guide to crypto world</span>
                 </div>
             </a>
-            <nav id="main-nav"> <!-- This nav block contains the auth buttons -->
-                <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
-                <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
-                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
-                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
-                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
-            </nav>
+
+            <!-- Right-side container for search and buttons -->
+            <div class="header-right">
+                <!-- Search Bar -->
+                <div class="header-search-container">
+                    <form id="search-filter-form">
+                        <input type="search" id="search-input" placeholder="Search exchanges...">
+                        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                    </form>
+                </div>
+
+                <!-- Sign Up and Sign In -->
+                <nav id="main-nav">
+                    <a href="register.html" class="btn btn-primary" id="nav-register-btn">Sign Up</a>
+                    <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Sign In</a>
+                    <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
+                    <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
+                    <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button> <!-- Added Logout Button -->
+                </nav>
+            </div>
         </div>
     </header>
 
     <main>
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <h1>Discover the Best Crypto Exchanges</h1>
-                    <p class="hero-description">Explore a curated list of cryptocurrency exchanges, compare ratings, and read reviews to find the perfect platform for your trading needs.</p>
-                    <a href="#exchange-list-section" class="btn btn-primary">Explore Exchanges</a>
-                </div>
-            </div>
-        </section>
 
         <!-- Exchange List Section -->
         <section id="exchange-list-section" class="exchange-list-section">
             <div class="container">
-                <div class="section-header">
+                <!-- <div class="section-header">
                     <h2>Top Cryptocurrency Exchanges</h2>
-                </div>
-                <div class="search-filter-section">
+                </div> -->
+                <!-- Removed Search Bar from here -->
+                <!-- <div class="search-filter-section">
                     <form id="search-filter-form">
                         <input type="search" id="search-input" placeholder="Search by exchange name...">
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
-                </div>
+                </div> -->
 
             <!-- Table container stays outside inner container to be full width -->
             <div id="exchange-table-container">

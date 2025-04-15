@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Crypta.Info</title>
     <link rel="stylesheet" href="css/main.css"> <!-- Includes all necessary CSS -->
+    <!-- Add Font Awesome for the eye icon (optional, include if not already globally available) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Basic styling for password toggle */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-wrapper input {
+            flex-grow: 1;
+            padding-right: 30px; /* Space for the icon */
+        }
+        .password-toggle-icon {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            color: #666; /* Adjust color as needed */
+        }
+    </style>
 </head>
 <body>
     <header class="main-header">
@@ -13,41 +33,39 @@
                  <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
                 <span>Crypta.Info</span>
             </a>
-            <!-- Optional: Simplified Nav for Login page -->
-             <nav id="main-nav">
-                 <a href="register.html" class="btn btn-primary">Register</a>
-             </nav>
         </div>
     </header>
 
     <main class="container auth-page">
         <h1>Login</h1>
-        <!-- The Form -->
         <form id="login-form" class="auth-form">
-            <!-- Error Message Area -->
-            <div id="login-error-message" class="error-message"></div>
+            <div id="login-error-message" class="error-message" aria-live="assertive"></div>
 
-            <!-- Email Input -->
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <input type="email" id="email" name="email" required autofocus placeholder="Enter your email">
             </div>
 
-            <!-- Password Input -->
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
+                </div>
             </div>
 
-            <!-- Submit Button -->
+            <div class="form-group form-check">
+                 <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">
+                 <label for="remember-me" class="form-check-label">Remember me</label>
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary" id="login-submit-btn">Login</button>
             </div>
         </form>
-        <!-- Links to Register/Forgot Password -->
         <p class="auth-switch">
             Don't have an account? <a href="register.html">Register here</a>. <br>
-            <a href="#forgot-password">Forgot password?</a> <!-- Add forgot password page later -->
+            <a href="#forgot-password">Forgot password?</a>
         </p>
     </main>
 
@@ -57,7 +75,21 @@
         </div>
     </footer>
 
-    <!-- Main script handles initialization and event binding -->
     <script type="module" src="js/main.js"></script>
+    <!-- Add script for password toggle -->
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function (e) {
+                // toggle the type attribute
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                // toggle the eye / eye-slash icon
+                this.classList.toggle('fa-eye-slash');
+            });
+        }
+    </script>
 </body>
 </html>

@@ -7,6 +7,15 @@ from app.auth.schemas import UserRead # Use UserRead to show author info
 from app.exchanges.schemas import ExchangeReadBrief # Use brief exchange info
 from app.schemas.common import RatingCategoryRead
 
+# --- Rating Category Schemas ---
+class RatingCategoryCreate(BaseModel):
+    name: str = Field(..., min_length=3, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
+
+class RatingCategoryUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=3, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
+
 # --- Rating Schemas ---
 class ReviewRatingBase(BaseModel):
     category_id: int
@@ -21,6 +30,11 @@ class ReviewRatingRead(ReviewRatingBase):
 
     class Config:
         from_attributes = True
+
+class ExchangeReviewCreate(BaseModel):
+    exchange_id: int
+    ratings: List[ReviewRatingCreate] = Field(..., min_length=1) # Require at least one category rating
+    comment: str = Field(..., min_length=5, max_length=5000)
 
 # --- Screenshot Schemas ---
 class ReviewScreenshotRead(BaseModel):
@@ -38,7 +52,7 @@ class ReviewUsefulnessVoteCreate(BaseModel):
 
 # --- Review Schemas ---
 class ReviewBase(BaseModel):
-    comment: str = Field(..., min_length=20, max_length=5000)
+    comment: str = Field(..., min_length=5, max_length=5000)
 
 class ReviewCreate(ReviewBase):
     exchange_id: int # Link to exchange
@@ -62,10 +76,10 @@ class ReviewRead(ReviewBase):
     class Config:
         from_attributes = True
 
-# Schema for Admin/Moderation update
-class ReviewUpdateAdmin(BaseModel):
+# Schema for Admin/Moderation update payload
+class ReviewAdminUpdatePayload(BaseModel):
     moderation_status: Optional[ModerationStatusEnum] = None
-    moderator_notes: Optional[str] = None
+    moderator_notes: Optional[str] = Field(None, max_length=1000) # Optional notes field
 
 
 # --- Filtering and Sorting ---
@@ -75,7 +89,8 @@ class ReviewFilterParams(BaseModel):
     min_overall_rating: Optional[float] = Field(None, ge=1.0, le=5.0) # Requires calculating overall rating
     max_overall_rating: Optional[float] = Field(None, ge=1.0, le=5.0)
     has_screenshot: Optional[bool] = None
-    moderation_status: ModerationStatusEnum = ModerationStatusEnum.approved # Default to approved for public view
+    # Make status optional, default to None (meaning no filter unless specified)
+    moderation_status: Optional[ModerationStatusEnum] = None
     # tag_id: Optional[int] = None
 
 class ReviewSortBy(BaseModel):

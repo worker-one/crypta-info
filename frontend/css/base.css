@@ -15,17 +15,16 @@
 
 /**
  * Set the base styles for the body.
- * - Update the font family to a modern sans-serif.
- * - Increase the base font size for better readability.
- * - Adjust the line height for improved text flow.
- * - Set a dark text color and a very light background color.
+ * - Use a system font stack for better performance and native feel.
+ * - Adjust line height for readability.
+ * - Set modern text and background colors.
  */
 body {
-  font-family: 'Arial', sans-serif; /* Modern sans-serif font */
-  font-size: 16px; /* Increased base font size */
-  line-height: 1.7; /* Adjusted line height */
-  color: #222; /* Darker text color */
-  background-color: #f8f8f8; /* Very light background */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
+  line-height: 1.6; /* Slightly adjusted */
+  color: #212529; /* Darker text */
+  background-color: #f8f9fa; /* Lighter gray background */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -33,18 +32,19 @@ body {
 
 /**
  * Link styles.
- * - Update the link color to a more vivid blue.
- * - Remove underline by default.
+ * - Use a standard blue for links.
  */
 a {
-  color: #0056b3; /* New, more vivid link color */
+  color: #007bff; /* Standard blue */
   text-decoration: none;
+  transition: color 0.15s ease-in-out;
 }
 
 /**
  * Add an underline on hover for links.
  */
 a:hover {
+  color: #0056b3; /* Darker blue on hover */
   text-decoration: underline;
 }
 
@@ -53,6 +53,7 @@ a:hover {
  */
 img {
   max-width: 100%;
+  height: auto; /* Ensure aspect ratio is maintained */
   display: block;
 }
 
@@ -68,12 +69,12 @@ select {
 
 /**
  * Set a maximum width for the main content and center it.
- * - Use flexbox for responsive centering and padding.
  */
 .container {
   max-width: 1200px;
+  width: 95%; /* Use percentage for better responsiveness */
   margin: 0 auto;
-  padding: 0 20px; /* Increased padding */
+  padding: 0 15px; /* Slightly reduced side padding */
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -85,53 +86,38 @@ select {
     display: none !important;
 }
 
-.error-message {
-    color: #dc3545;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    padding: 0.75rem 1.25rem;
+/* Consistent Message Styles */
+.message {
+    padding: 0.8rem 1.25rem;
     margin-bottom: 1rem;
+    border: 1px solid transparent;
     border-radius: 0.25rem;
+    font-size: 0.95rem;
     display: none; /* Initially hidden */
-    
 }
 
-.error-message.visible {
+.message.visible {
     display: block;
+}
+
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
 }
 
 .success-message {
     color: #155724;
     background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border-radius: 0.25rem;
-    display: none; /* Initially hidden */
+    border-color: #c3e6cb;
 }
 
-.success-message.visible {
-    display: block;
-}
-
-/* Adjust error message style slightly for consistency */
-.error-message {
-    color: #721c24; /* Slightly darker red text */
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb; 
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border-radius: 0.25rem;
-    display: none; /* Initially hidden */
-}
-.error-message.visible {
-    display: block;
-}
-
-/* Hide password mismatch error initially */
+/* Specific error message adjustments */
 #password-match-error {
-    display: none;
-    margin-bottom: 0; /* Remove bottom margin for this specific one */
+    margin-bottom: 0; /* Remove bottom margin */
+    margin-top: -0.5rem; /* Pull closer to the input */
+    font-size: 0.85rem; /* Make it slightly smaller */
+    padding: 0.4rem 0.8rem;
 }
 #password-match-error.visible {
     display: block;
