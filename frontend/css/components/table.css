@@ -104,19 +104,35 @@
 }
 
 
-/* Table container with horizontal scrolling */
-#exchange-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 0 0 1.5rem 0; /* Rely on container for centering */
-    border-radius: 8px; /* Match table */
-    position: relative;
-    max-height: 70vh; /* Use viewport height */
-    overflow-y: auto;
-    width: 100%;
-    /* Remove max-width, let container handle it */
-    /* border: 1px solid #dee2e6; */ /* Optional: border around scroll container */
+.exchanges-table-container { /* Wrap table for scrolling */
+    overflow-x: auto; /* Enable horizontal scroll on small screens */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    margin-bottom: 1rem; /* Add some space below */
 }
+
+.exchanges-table {
+    width: 100%;
+    min-width: 600px; /* Set a minimum width to force scroll if needed */
+    border-collapse: collapse;
+}
+
+/* Optional: Alternative stacking approach using data attributes (more complex) */
+/* @media (max-width: 767px) {
+    .exchanges-table thead { display: none; }
+    .exchanges-table, .exchanges-table tbody, .exchanges-table tr, .exchanges-table td { display: block; width: 100%; }
+    .exchanges-table tr { margin-bottom: 15px; border: 1px solid #ddd; }
+    .exchanges-table td { text-align: right; padding-left: 50%; position: relative; }
+    .exchanges-table td::before {
+        content: attr(data-label); // Requires adding data-label attributes to TDs in JS/HTML
+        position: absolute;
+        left: 10px;
+        width: calc(50% - 20px);
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+    }
+} */
 
 /* Card view toggle styling */
 .card-view-toggle {

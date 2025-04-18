@@ -1,8 +1,26 @@
 /* Form Styles */
 .form-group {
-    margin-bottom: 1.25rem; /* Increased spacing */
+    margin-bottom: 15px;
+    /* Ensure labels and inputs stack nicely by default */
 }
 
+.exchange-form { /* Assuming this class uses grid */
+    display: grid;
+    grid-template-columns: 1fr; /* Default to single column */
+    gap: 15px;
+}
+
+/* Apply multi-column layout only on larger screens */
+@media (min-width: 768px) {
+    .exchange-form {
+         grid-template-columns: repeat(2, 1fr); /* Example: 2 columns */
+         gap: 20px;
+    }
+
+    .exchange-form .form-group[style*="grid-column: span 2"] {
+         grid-column: span 2; /* Ensure full-width elements span correctly */
+    }
+}
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;

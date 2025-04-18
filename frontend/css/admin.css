@@ -1,86 +1,36 @@
-/* General Admin Layout */
+
 .admin-container {
-    max-width: 1200px;
-    margin: 30px auto; /* Increased top/bottom margin */
-    padding: 0 15px; /* Consistent padding */
-    font-family: inherit; /* Use base font */
+    padding: 15px;
 }
 
 .panel-section {
-    margin-bottom: 2.5rem; /* Increased spacing */
-    border: 1px solid #dee2e6; /* Standard border color */
-    border-radius: 8px;
-    padding: 1.5rem 2rem; /* Adjusted padding */
-    background-color: #ffffff; /* White background for panels */
-    box-shadow: 0 3px 10px rgba(0,0,0,0.07); /* Subtle shadow */
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 4px;
 }
 
-.panel-section h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #e9ecef; /* Lighter border */
-    padding-bottom: 0.8rem;
-    color: #343a40; /* Slightly darker heading */
-    font-size: 1.5rem;
+/* Adjust admin forms and tables using media queries as shown above */
+@media (min-width: 768px) {
+    .admin-container {
+        padding: 20px;
+    }
+     .panel-section {
+        padding: 20px;
+    }
 }
 
-.panel-section h3 {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #495057; /* Muted sub-heading */
-    font-size: 1.2rem;
+/* Ensure admin table container scrolls */
+#exchangesTableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-
-/* Forms - Rely on components/form.css */
-.exchange-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted minmax */
-    gap: 1.5rem; /* Consistent gap */
-}
-
-/* Remove duplicated form styles - they should come from form.css */
-/* .form-group { ... } */
-/* .form-group label { ... } */
-/* .form-group input[type="text"], ... { ... } */
-/* .checkbox-group { ... } */
-
-/* Full width group */
-.form-group.full-width {
-     grid-column: 1 / -1;
-}
-
-/* Buttons - Rely on components/button.css */
-/* Remove duplicated button styles */
-/* button { ... } */
-/* button:hover { ... } */
-/* button.secondary { ... } */
-/* button.delete-btn, button.danger { ... } */
-
-/* Use .btn classes instead of generic button tag */
-.panel-section button,
-.action-buttons button {
-    /* Apply .btn classes in HTML instead */
-    /* e.g., <button class="btn btn-primary">Save</button> */
-}
-
-/* Messages - Rely on base.css */
-/* Remove duplicated message styles */
-/* .error-message { ... } */
-/* .success-message { ... } */
-
-
-/* Admin Tables */
-.exchanges-table {
+.exchanges-table { /* Apply base table styles if not inherited */
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 1.5rem;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* Consistent shadow */
-    border-radius: 8px; /* Match data-table */
-    overflow: hidden; /* Needed for border-radius */
-    border: 1px solid #dee2e6; /* Match data-table */
-    font-size: 0.95rem; /* Match data-table */
+    min-width: 700px; /* Adjust min-width as needed */
+    /* ... other table styles ... */
 }
 
 .exchanges-table th,
