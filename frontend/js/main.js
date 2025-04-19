@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("On homepage");
         
         // Initialize table view toggle if we're on the homepage
-        // if (document.getElementById('exchange-table')) {
-        //     initTableToggle();
-        // }
+        if (document.getElementById('exchange-table')) {
+            initTableToggle();
+        }
 
         // Load exchanges if we're on the homepage
         if (document.getElementById('exchange-list-body')) {

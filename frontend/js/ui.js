@@ -65,7 +65,7 @@ export function renderExchangeCard(exchange) {
     // Basic structure following Material Design and matching our CSS
     card.innerHTML = `
         <div class="logo">
-            <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}">
+            <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}"">
             <h3>${exchange.name}</h3>
         </div>
         <div class="card-content">
@@ -272,7 +272,7 @@ export function initTableViewToggle() {
         
         // Update button text
         toggleBtn.textContent = table.classList.contains('card-mode') 
-            ? 'Table View' 
+            ? 'Switch to Table View' 
             : 'Switch to Card View';
         
         // When switching to card mode, ensure cells have proper data-label attributes
@@ -303,7 +303,7 @@ export function initTableViewToggle() {
     // Set initial state based on screen size
     if (window.innerWidth <= 767) {
         table.classList.add('card-mode');
-        toggleBtn.textContent = 'Table View';
+        toggleBtn.textContent = 'Switch to Table View';
         
         // Trigger the same data-attribute setup logic
         const event = new Event('click');
@@ -314,7 +314,7 @@ export function initTableViewToggle() {
     window.addEventListener('resize', () => {
         if (window.innerWidth <= 767 && !table.classList.contains('card-mode')) {
             table.classList.add('card-mode');
-            toggleBtn.textContent = 'Table View';
+            toggleBtn.textContent = 'Switch to Table View';
             
             // Trigger the same data-attribute setup logic
             const event = new Event('click');
