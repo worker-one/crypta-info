@@ -62,18 +62,27 @@ export function renderExchangeCard(exchange) {
     const card = document.createElement('div');
     card.className = 'exchange-card';
 
-    // Basic structure based on ExchangeReadBrief
+    // Basic structure following Material Design and matching our CSS
     card.innerHTML = `
         <div class="logo">
-            <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo" height="40">
+            <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}">
+            <h3>${exchange.name}</h3>
         </div>
-        <h3>${exchange.name}</h3>
-        <div class="rating">Rating: ${parseFloat(exchange.overall_average_rating).toFixed(1)} (${exchange.total_review_count} reviews)</div>
-        <div class="volume">24h Vol: ${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}</div>
-        <div class="info">Founded: ${exchange.year_founded || 'N/A'} | Country: ${exchange.registration_country?.name || 'N/A'}</div>
-        <a href="/exchange.html?slug=${exchange.slug}" class="btn btn-secondary details-link">Details</a>
+        <div class="card-content">
+            <div class="rating" data-label="Rating">
+                <span>${parseFloat(exchange.overall_average_rating).toFixed(1)}</span>
+            </div>
+            <div class="volume" data-label="Volume">
+                ${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}
+            </div>
+            <div class="info" data-label="Info">
+                Founded: ${exchange.year_founded || 'N/A'} | Country: ${exchange.registration_country?.name || 'N/A'}
+            </div>
+        </div>
+        <div class="details-link">
+            <a href="/exchange.html?slug=${exchange.slug}" class="btn btn-primary">Details</a>
+        </div>
     `;
-    // Note: The link above assumes exchange.html exists and can handle query params.
 
     return card;
 }
@@ -110,35 +119,50 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             // 1. Logo Cell
             const logoTd = document.createElement('td');
             logoTd.className = 'logo-cell';
+            logoTd.setAttribute('data-label', 'Exchange');
             const logoImg = document.createElement('img');
             logoImg.src = exchange.logo_url || 'assets/images/logo-placeholder.png';
             logoImg.alt = `${exchange.name} Logo`;
             logoImg.loading = 'lazy'; // Lazy load logos
             logoTd.appendChild(logoImg);
+            
+            // Add name span for card view (good for responsive design)
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'exchange-name-in-logo-cell';
+            nameSpan.textContent = exchange.name;
+            logoTd.appendChild(nameSpan);
+            
             tr.appendChild(logoTd);
 
             // 2. Name Cell
             const nameTd = document.createElement('td');
             nameTd.className = 'name-cell';
+            nameTd.setAttribute('data-label', 'Name');
             nameTd.textContent = exchange.name;
             tr.appendChild(nameTd);
 
             // 3. Rating Cell
             const ratingTd = document.createElement('td');
             ratingTd.className = 'rating-cell';
+            ratingTd.setAttribute('data-label', 'Rating');
             const ratingValue = parseFloat(exchange.overall_average_rating);
-            ratingTd.textContent = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1) + ' ★';
+            const ratingSpan = document.createElement('span');
+            ratingSpan.className = 'rating-value';
+            ratingSpan.textContent = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+            ratingTd.appendChild(ratingSpan);
             tr.appendChild(ratingTd);
 
             // 4. Reviews Cell
             const reviewsTd = document.createElement('td');
             reviewsTd.className = 'reviews-cell';
+            reviewsTd.setAttribute('data-label', 'Reviews');
             reviewsTd.textContent = exchange.total_review_count?.toLocaleString() ?? 'N/A';
             tr.appendChild(reviewsTd);
 
             // 5. Volume Cell
             const volumeTd = document.createElement('td');
             volumeTd.className = 'volume-cell';
+            volumeTd.setAttribute('data-label', 'Volume');
             const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
             volumeTd.textContent = volumeValue ? '$' + volumeValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
             tr.appendChild(volumeTd);
@@ -146,6 +170,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             // 6. Info Cell
             const infoTd = document.createElement('td');
             infoTd.className = 'info-cell';
+            infoTd.setAttribute('data-label', 'Info');
             const year = exchange.year_founded || '??';
             const country = exchange.registration_country?.name || 'Unknown';
             infoTd.textContent = `Est: ${year}, ${country}`; // Simplified info
@@ -154,9 +179,10 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             // 7. Action Cell
             const actionTd = document.createElement('td');
             actionTd.className = 'action-cell';
+            actionTd.setAttribute('data-label', 'Action');
             const detailsLink = document.createElement('a');
-            detailsLink.href = `exchange.html?slug=${exchange.slug}`; // Needs exchange.html page
-            detailsLink.className = 'btn btn-secondary btn-sm'; // Use smaller button style
+            detailsLink.href = `exchange.html?slug=${exchange.slug}`;
+            detailsLink.className = 'btn btn-primary btn-sm';
             detailsLink.textContent = 'Details';
             actionTd.appendChild(detailsLink);
             tr.appendChild(actionTd);
@@ -233,27 +259,66 @@ export function displayErrorMessage(elementId, message) {
 export function initTableViewToggle() {
     const toggleBtn = document.getElementById('toggle-view-btn');
     const table = document.getElementById('exchange-table');
+    const tableBody = document.getElementById('exchange-list-body');
     
-    if (toggleBtn && table) {
-        toggleBtn.addEventListener('click', () => {
-            table.classList.toggle('card-mode');
-            toggleBtn.textContent = table.classList.contains('card-mode') 
-                ? 'Switch to Table View' 
-                : 'Switch to Card View';
-        });
-        
-        // Set initial state based on screen size
-        if (window.innerWidth <= 576) {
-            table.classList.add('card-mode');
-            toggleBtn.textContent = 'Switch to Table View';
-        }
-        
-        // Update view when window is resized
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 576 && !table.classList.contains('card-mode')) {
-                table.classList.add('card-mode');
-                toggleBtn.textContent = 'Switch to Table View';
-            }
-        });
+    if (!toggleBtn || !table || !tableBody) {
+        console.warn('Table view toggle elements not found');
+        return;
     }
+    
+    toggleBtn.addEventListener('click', () => {
+        // Toggle card-mode class
+        table.classList.toggle('card-mode');
+        
+        // Update button text
+        toggleBtn.textContent = table.classList.contains('card-mode') 
+            ? 'Table View' 
+            : 'Switch to Card View';
+        
+        // When switching to card mode, ensure cells have proper data-label attributes
+        if (table.classList.contains('card-mode')) {
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                // Set data-label attributes based on column headers
+                const headers = table.querySelectorAll('thead th');
+                const cells = row.querySelectorAll('td');
+                
+                cells.forEach((cell, index) => {
+                    if (index < headers.length && !cell.hasAttribute('data-label')) {
+                        const headerText = headers[index].textContent.trim();
+                        cell.setAttribute('data-label', headerText);
+                    }
+                });
+                
+                // For rating cell, ensure it has the correct inner structure
+                const ratingCell = row.querySelector('.rating-cell');
+                if (ratingCell && !ratingCell.querySelector('.rating-value')) {
+                    const ratingText = ratingCell.textContent.trim();
+                    ratingCell.innerHTML = `<span class="rating-value">${ratingText.replace(' ★', '')}</span>`;
+                }
+            });
+        }
+    });
+    
+    // Set initial state based on screen size
+    if (window.innerWidth <= 767) {
+        table.classList.add('card-mode');
+        toggleBtn.textContent = 'Table View';
+        
+        // Trigger the same data-attribute setup logic
+        const event = new Event('click');
+        toggleBtn.dispatchEvent(event);
+    }
+    
+    // Update view when window is resized
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 767 && !table.classList.contains('card-mode')) {
+            table.classList.add('card-mode');
+            toggleBtn.textContent = 'Table View';
+            
+            // Trigger the same data-attribute setup logic
+            const event = new Event('click');
+            toggleBtn.dispatchEvent(event);
+        }
+    });
 }

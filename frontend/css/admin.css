@@ -1,4 +1,3 @@
-
 .admin-container {
     padding: 15px;
 }
@@ -6,9 +5,9 @@
 .panel-section {
     margin-bottom: 20px;
     padding: 15px;
-    background-color: #f9f9f9;
     border: 1px solid #eee;
     border-radius: 4px;
+    background-color: #f9f9f9;
 }
 
 /* Adjust admin forms and tables using media queries as shown above */
@@ -16,7 +15,8 @@
     .admin-container {
         padding: 20px;
     }
-     .panel-section {
+
+    .panel-section {
         padding: 20px;
     }
 }
@@ -36,9 +36,9 @@
 .exchanges-table th,
 .exchanges-table td {
     padding: 0.9rem 1.1rem; /* Match data-table */
-    text-align: left;
     border: none; /* Remove individual cell borders */
     border-bottom: 1px solid #dee2e6; /* Use bottom border */
+    text-align: left;
     vertical-align: middle; /* Match data-table */
 }
 
@@ -48,8 +48,8 @@
 
 .exchanges-table th {
     background-color: #f8f9fa; /* Match data-table */
-    font-weight: 600;
     color: #495057; /* Match data-table */
+    font-weight: 600;
     white-space: nowrap; /* Match data-table */
 }
 
@@ -58,8 +58,8 @@
 }
 
 .action-buttons {
-    white-space: nowrap; /* Prevent buttons wrapping */
     text-align: right; /* Align buttons right */
+    white-space: nowrap; /* Prevent buttons wrapping */
 }
 
 .action-buttons .btn { /* Target buttons with .btn class */
@@ -73,41 +73,41 @@
     margin-left: 0;
 }
 
-
 /* Pagination */
 #exchangesPagination {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem; /* Add gap for wrapping */
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid #e9ecef; /* Lighter border */
     font-size: 0.95em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
-    gap: 1rem; /* Add gap for wrapping */
 }
 
 #exchangesPagination .page-links a,
 #exchangesPagination .page-links strong {
+    display: inline-block; /* Ensure proper spacing and border */
     margin: 0 3px; /* Reduced margin */
     padding: 5px 10px; /* Adjusted padding */
-    text-decoration: none;
-    color: #007bff; /* Primary color */
     border: 1px solid #dee2e6; /* Add border */
     border-radius: 0.25rem;
+    color: #007bff; /* Primary color */
+    text-decoration: none;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 #exchangesPagination .page-links strong {
-    font-weight: 600; /* Bolder current page */
     color: #fff;
     background-color: #007bff; /* Primary background */
     border-color: #007bff;
+    font-weight: 600; /* Bolder current page */
 }
 
 #exchangesPagination .page-links a:hover {
-    background-color: #e9ecef; /* Hover background */
     color: #0056b3;
+    background-color: #e9ecef; /* Hover background */
     border-color: #adb5bd;
 }
 
@@ -128,6 +128,7 @@
     display: none;
     border-left-color: #007bff; /* Primary color */
 }
+
 #addExchangeForm {
      border-left-color: #28a745; /* Success color */
 }
@@ -135,17 +136,17 @@
 /* Auth Check Message */
 #admin-auth-check .error-message {
     margin-top: 2rem;
-    text-align: center;
     font-size: 1rem; /* Slightly larger */
+    text-align: center;
 }
 
 /* Loading states */
 .loading {
-    text-align: center;
     padding: 30px 20px; /* More padding */
     color: #6c757d; /* Secondary text color */
-    font-style: italic;
     font-size: 1.1rem;
+    font-style: italic;
+    text-align: center;
 }
 
 /* Responsive Table (Admin) */
@@ -153,30 +154,37 @@
     .exchanges-table thead {
         display: none;
     }
-    .exchanges-table, .exchanges-table tbody, .exchanges-table tr, .exchanges-table td {
+
+    .exchanges-table,
+    .exchanges-table tbody,
+    .exchanges-table tr,
+    .exchanges-table td {
         display: block;
         width: 100%;
     }
+
     .exchanges-table tr {
         margin-bottom: 1rem;
         border: 1px solid #dee2e6; /* Use standard border */
         border-radius: 8px; /* Match card radius */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Add slight shadow */
         overflow: hidden; /* Clip content */
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Add slight shadow */
     }
+
     .exchanges-table td {
-        text-align: right;
-        padding-left: 45%; /* Adjust space for label */
-        position: relative;
-        border-bottom: 1px solid #e9ecef; /* Lighter internal border */
-        min-height: 44px; /* Ensure minimum height */
         display: flex; /* Use flex for alignment */
+        position: relative;
         align-items: center; /* Vertically center content */
         justify-content: flex-end; /* Align content right */
+        min-height: 44px; /* Ensure minimum height */
+        padding-left: 45%; /* Adjust space for label */
+        border-bottom: 1px solid #e9ecef; /* Lighter internal border */
+        text-align: right;
     }
-     .exchanges-table td:last-child {
-         border-bottom: 0;
-     }
+
+    .exchanges-table td:last-child {
+        border-bottom: 0;
+    }
 
     .exchanges-table td::before {
         content: attr(data-label);
@@ -184,24 +192,35 @@
         left: 15px; /* Adjust label position */
         width: 40%; /* Adjust label width */
         padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: 600; /* Bolder label */
         color: #495057; /* Muted label color */
         font-size: 0.9em;
+        font-weight: 600; /* Bolder label */
+        text-align: left;
+        white-space: nowrap;
     }
-     .action-buttons {
-         text-align: right;
-         padding: 10px 15px; /* Add padding to action row */
-         background-color: #f8f9fa; /* Slight background */
-     }
-     .action-buttons::before {
+
+    .action-buttons {
+        padding: 10px 15px; /* Add padding to action row */
+        background-color: #f8f9fa; /* Slight background */
+        text-align: right;
+    }
+
+    .action-buttons::before {
         /* display: none; */ /* Hide pseudo-label for actions */
         content: "Actions"; /* Or keep it if preferred */
-        font-weight: 600;
         color: #495057;
-     }
-     .action-buttons .btn {
-         margin-left: 8px;
-     }
+        font-weight: 600;
+        /* Ensure this aligns correctly if kept */
+        position: absolute;
+        left: 15px;
+        text-align: left;
+        width: 40%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-size: 0.9em;
+    }
+
+    .action-buttons .btn {
+        margin-left: 8px;
+    }
 }

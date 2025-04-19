@@ -2,40 +2,40 @@
 
 /* --- Main Header --- */
 .main-header {
-    background-color: #ffffff;
-    padding: 0.75rem 0; /* Slightly reduced padding */
-    border-bottom: 1px solid #dee2e6; /* Consistent border color */
-    margin-bottom: 2rem; /* Increased margin */
     position: sticky; /* Make header sticky */
     top: 0;
     z-index: 1020; /* Ensure it's above other content */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
+    padding: 0.75rem 0; /* Slightly reduced padding */
+    margin-bottom: 2rem; /* Increased margin */
+    border-bottom: 1px solid #dee2e6; /* Consistent border color */
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
 
 .main-header .container {
     display: flex;
-    flex-direction: row;
+    flex-direction: row; /* Default */
+    flex-wrap: nowrap; /* Prevent wrapping initially */
     align-items: center;
     justify-content: space-between;
-    flex-wrap: nowrap; /* Prevent wrapping */
     gap: 1.5rem; /* Adjust gap between logo, search, nav */
 }
 
 .logo {
     display: flex;
     align-items: center;
-    font-weight: 600; /* Slightly bolder */
-    font-size: 1.4rem; /* Adjusted size */
     color: #212529; /* Darker logo text */
+    font-size: 1.4rem; /* Adjusted size */
+    font-weight: 600; /* Slightly bolder */
     text-decoration: none;
-    transition: color 0.2s ease;
     white-space: nowrap;
+    transition: color 0.2s ease;
 }
 
 .logo img {
-    margin-right: 0.6rem; /* Adjusted spacing */
     max-height: 35px; /* Slightly larger logo */
     width: auto; /* Maintain aspect ratio */
+    margin-right: 0.6rem; /* Adjusted spacing */
 }
 
 .logo:hover {
@@ -45,8 +45,8 @@
 
 /* New styles for the search container in the header */
 .header-search-container {
-    flex-grow: 1; /* Allows the search bar to take up available space */
     display: flex;
+    flex-grow: 1; /* Allows the search bar to take up available space */
     justify-content: center; /* Center the form within its container */
     min-width: 200px; /* Prevent search from becoming too small */
     white-space: nowrap;
@@ -64,9 +64,9 @@
 /* --- Main Navigation --- */
 #main-nav {
     display: flex;
+    flex-shrink: 0; /* Prevent nav from shrinking */
     align-items: center;
     gap: 0.75rem; /* Adjust gap between nav items */
-    flex-shrink: 0; /* Prevent nav from shrinking */
     white-space: nowrap;
 }
 
@@ -76,9 +76,9 @@
 
 #main-nav a {
     color: #495057; /* Muted nav link color */
-    text-decoration: none;
-    font-weight: 500; /* Slightly bolder nav links */
     font-size: 0.95rem;
+    font-weight: 500; /* Slightly bolder nav links */
+    text-decoration: none;
     transition: color 0.2s ease;
 }
 
@@ -90,25 +90,25 @@
 
 /* --- Main Content Area --- */
 main {
-    padding-bottom: 4rem; /* More space above footer */
     flex-grow: 1; /* Ensure main pushes footer down */
+    padding-bottom: 4rem; /* More space above footer */
     /* Container handles horizontal padding */
 }
 
 /* --- Main Footer --- */
 .main-footer {
-    background-color: #343a40; /* Dark background */
-    color: #adb5bd; /* Lighter text */
     padding: 2rem 0; /* Increased padding */
     margin-top: auto; /* Push footer to bottom */
+    background-color: #343a40; /* Dark background */
+    color: #adb5bd; /* Lighter text */
     font-size: 0.9rem;
 }
 
 .main-footer .container {
     display: flex;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
     gap: 1rem; /* Add gap for wrapped items */
 }
 
@@ -121,11 +121,11 @@ main {
     text-decoration: none;
     transition: color 0.2s ease;
 }
+
 .main-footer a:hover {
     color: #ffffff;
     text-decoration: underline; /* Add underline on hover */
 }
-
 
 /* --- Specific Page Layouts --- */
 .auth-page .container { /* Target container within auth page */
@@ -142,46 +142,47 @@ main {
     margin-top: 1.5rem; /* Add space above grid */
 }
 
-/* --- Search/Filter Bar --- */
+/* --- Search/Filter Bar (in header) --- */
 /* Remove styles specific to its old location if needed */
 .search-filter-section {
     /* margin-bottom: 1.5rem; */ /* No longer needed here if moved */
     /* padding: 0; */
 }
 
+/* Styles for the form itself, now potentially inside .header-search-container */
 #search-filter-form {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    max-width: 450px; /* Adjust max-width as needed */
     width: 100%; /* Allow it to fill the container up to max-width */
+    max-width: 450px; /* Adjust max-width as needed */
     margin-right: 0; /* Reset alignment */
     margin-left: 0; /* Reset alignment */
 }
 
 #search-filter-form input[type="search"] {
     flex-grow: 1;
+    min-width: 150px; /* Prevent input becoming too small */
     padding: 0.375rem 0.75rem;
     /* Ensure base input styles apply */
     border: 1px solid #ced4da; /* Example border */
     border-radius: 0.25rem; /* Example radius */
-    min-width: 150px; /* Prevent input becoming too small */
 }
 
 #search-filter-form button {
+    flex-shrink: 0; /* Prevent button from shrinking */
     padding: 0.375rem 0.75rem;
     /* Ensure base button styles apply */
-    flex-shrink: 0; /* Prevent button from shrinking */
 }
 
 /* --- Sections & Headings --- */
 .content-section { /* General purpose section */
-    background-color: #ffffff;
     padding: 1.5rem 2rem; /* Adjusted padding */
     margin-bottom: 2rem; /* Consistent margin */
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* Consistent shadow */
     border: 1px solid #dee2e6; /* Consistent border */
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Consistent shadow */
 }
 
 /* Remove specific section styles if .content-section is used */
@@ -197,10 +198,11 @@ h1, h2, h3 { /* Consistent heading margins */
 }
 
 h1 {
+    margin-bottom: 2rem; /* More margin below h1 */
     font-size: 2rem; /* Adjusted size */
     text-align: left; /* Default to left align */
-    margin-bottom: 2rem; /* More margin below h1 */
 }
+
 h1.centered { /* Add class for centered headings if needed */
     text-align: center;
 }
@@ -217,7 +219,6 @@ h3 {
 /* Consider if these are still necessary or if .content-section suffices */
 /* .full-width-section { ... } */
 
-
 /* --- Main Container (Defined in base.css) --- */
 /* .container { ... } */
 
@@ -228,65 +229,79 @@ h3 {
 /* --- Table Container (Defined in table.css) --- */
 /* #exchange-table-container { ... } */
 
-/* --- Responsive Adjustments --- */
-@media (max-width: 992px) { /* Rules for wrapping */
-    .main-header .container {
-        flex-wrap: nowrap; /* Prevent wrapping */
-        justify-content: space-between;
-        align-items: center;
-    }
-    .header-search-container {
-        order: initial; /* Remove order so it stays inline */
-        width: auto; /* Let it size based on content */
-        margin-top: 0; /* Remove extra top margin */
-        justify-content: center;
-    }
-    #main-nav {
-        order: initial; /* Keep nav inline */
-    }
-    .logo {
-        order: initial;
-        margin-bottom: 0;
-    }
+/* No Results Message */
+.no-results-message {
+    width: 100%;
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
 }
 
-/* Adjust 768px breakpoint to rely on wrapping instead of stacking */
-@media (max-width: 768px) {
-    /* REMOVE the rule that stacks items vertically */
-    /* .main-header .container {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-    } */
+/* --- Responsive Adjustments --- */
 
-    /* Adjust nav styling for potentially smaller space */
+/* Medium screens: Ensure header items stay on one line if possible */
+@media (max-width: 992px) {
+    .main-header .container {
+        /* flex-wrap: nowrap; */ /* Already default */
+        /* justify-content: space-between; */ /* Already default */
+        /* align-items: center; */ /* Already default */
+    }
+    /* No specific changes needed here based on current rules */
+}
+
+/* Small screens: Allow header items to wrap */
+@media (max-width: 768px) {
+    .main-header .container {
+        flex-wrap: wrap; /* Allow wrapping */
+        justify-content: center; /* Center items when wrapped */
+        gap: 0.75rem 1.5rem; /* Adjust vertical and horizontal gap */
+    }
+
+    .logo {
+        order: 1; /* Ensure logo comes first */
+        margin-bottom: 0; /* Remove potential bottom margin */
+        /* Take full width potentially, or center */
+        flex-basis: 100%; /* Make logo take full width */
+        justify-content: center; /* Center logo content */
+        margin-bottom: 0.5rem; /* Add space below logo */
+    }
+
+    .header-right {
+        order: 2; /* Nav/buttons second */
+        flex-grow: 1; /* Allow it to take space */
+        justify-content: center; /* Center nav/buttons */
+        gap: 0.5rem 1rem; /* Adjust gap */
+        flex-wrap: wrap; /* Allow nav/buttons to wrap */
+    }
+
     #main-nav {
-        /* REMOVE the rule forcing nav to take full width */
-        /* width: 100%; */
+        /* Adjust nav styling for potentially smaller space */
         justify-content: center; /* Center nav items if they wrap */
         flex-wrap: wrap; /* Allow nav items themselves to wrap */
         gap: 0.5rem 0.75rem; /* Adjust gap for smaller screens */
-        order: 2; /* Ensure order is maintained */
+        /* order: 2; */ /* Handled by header-right order */
+        width: auto; /* Allow natural width */
     }
 
-    /* Keep search centered when it takes full width on its own line */
     .header-search-container {
+        order: 3; /* Search last */
+        width: 100%; /* Ensure it takes full width when wrapped */
         justify-content: center; /* Center search form */
         margin-top: 0.5rem; /* Adjust space */
-        order: 3; /* Ensure order is maintained */
-        width: 100%; /* Ensure it takes full width when wrapped */
     }
 
     #search-filter-form {
-         max-width: 400px; /* Optional: Limit width again */
+        max-width: 400px; /* Optional: Limit width again */
+        justify-content: center;
     }
 
     #search-filter-form input[type="search"] {
-        max-width: 150px;
-    }
-
-    .logo {
-        order: 1; /* Ensure order is maintained */
+        /* max-width: 150px; */ /* Removed max-width constraint */
+        flex-grow: 1; /* Allow it to grow */
     }
 
     /* Other 768px styles can remain if they don't conflict */

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Page - CryptaInfo</title> <!-- Title will be updated by JS -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- Add specific page CSS if needed -->
+</head>
+<body>
+    <!-- Header Section (Include your standard header) -->
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                </div>
+            </a>
+            <nav id="main-nav">
+                <!-- Standard nav items populated by auth.js -->
+                <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+                <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <article id="static-page-content">
+            <h1 id="page-title">Loading...</h1>
+            <div id="page-body">
+                <p>Please wait while we load the content.</p>
+            </div>
+            <div id="page-error" class="message error-message hidden"></div>
+        </article>
+    </main>
+
+    <!-- Footer Section (Include your standard footer) -->
+    <footer class="main-footer">
+         <div class="container">
+            <p>&copy; 2025 CryptaInfo. All rights reserved.</p>
+            <nav>
+                <!-- Update these links to use the static page mechanism -->
+                <a href="/static-page.html?slug=privacy">Privacy Policy</a> |
+                <a href="/static-page.html?slug=terms">Terms of Service</a> |
+                <a href="/static-page.html?slug=about">About Us</a> |
+                <a href="/static-page.html?slug=faq">FAQ</a> |
+                <a href="/static-page.html?slug=contacts">Contacts</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Load necessary JS, including the new static page script -->
+    <script type="module" src="/js/auth.js"></script> <!-- For header updates -->
+    <script type="module" src="/js/static-page.js"></script>
+</body>
+</html>

@@ -279,18 +279,24 @@ async function loadPendingReviews() {
             reviewsContainer.innerHTML = ''; // Clear loading state
             reviews.forEach(review => {
                 const reviewElement = document.createElement('div');
-                reviewElement.className = 'card mb-3 review-item'; // Use card for better styling
+                // Use the same card structure as profile.js
+                reviewElement.classList.add('card', 'mb-3', 'review-item'); // Added review-item for potential specific styling
+
+                // Format date for better readability
+                const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+
+                // Use Bootstrap card structure similar to profile.js
                 reviewElement.innerHTML = `
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Review #${review.id} for <strong>${review.exchange?.name || 'Unknown Exchange'}</strong></span>
-                        <span class="text-muted small">${new Date(review.created_at).toLocaleDateString()}</span>
-                    </div>
                     <div class="card-body">
-                        <p class="card-text review-comment">${review.comment}</p>
-                        <p class="card-text small text-muted">By: ${review.user?.nickname || 'Unknown User'}</p>
+                        <h5 class="card-title">Review for: ${review.exchange?.name || 'Unknown Exchange'} (#${review.id})</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Submitted by: ${review.user?.nickname || 'Unknown User'} on ${reviewDate}</h6>
+                        <p class="card-text comment-preview">${review.comment}</p> <!-- Show full comment for moderation -->
                         ${review.ratings && review.ratings.length > 0 ? `
-                        <p class="card-text small"><strong>Ratings:</strong> ${review.ratings.map(r => `${r.category?.name || 'Category '+r.category_id}: ${r.rating_value}/5`).join(', ')}</p>
-                        ` : ''}
+                        <p class="card-text mb-1"><strong>Ratings:</strong> ${review.ratings.map(r => `${r.category?.name || 'Category '+r.category_id}: ${r.rating_value}/5`).join(', ')}</p>
+                        ` : '<p class="card-text mb-1"><strong>Ratings:</strong> Not provided</p>'}
+                        <p class="card-text"><strong>Current Status:</strong> <span class="status-${review.moderation_status}">${review.moderation_status}</span></p>
                     </div>
                     <div class="card-footer review-actions text-end">
                         <button class="btn btn-sm btn-success approve-review me-2" data-id="${review.id}">Approve</button>
@@ -301,12 +307,14 @@ async function loadPendingReviews() {
             });
             addReviewButtonListeners(); // Add listeners to newly created buttons
         } else {
+            // Use alert structure for consistency if desired, or keep simple text
             reviewsContainer.innerHTML = '<div class="alert alert-info">No pending reviews found.</div>';
         }
     } catch (error) {
         console.error('Error loading pending reviews:', error);
+        // Use alert structure for consistency
         reviewsContainer.innerHTML =
-            '<div class="alert alert-danger">Error loading pending reviews.</div>';
+            '<div class="alert alert-danger">Error loading pending reviews. Please try again later.</div>';
     }
 }
 

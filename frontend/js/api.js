@@ -283,6 +283,16 @@ export async function adminListReviews(params = { skip: 0, limit: 10 }) {
     return fetchApi(`/admin/reviews/?${query}`, { method: 'GET' }, true); // Requires admin auth
 }
 
+/**
+ * Fetches the content of a static page by its slug.
+ * @param {string} slug - The slug of the static page (e.g., 'about', 'faq').
+ * @returns {Promise<object>} - The static page object { id, title, content, slug, ... }.
+ */
+export async function fetchStaticPage(slug) {
+    // Assuming the static page endpoint is at the root level of the API
+    // Adjust the path if your FastAPI app includes the static_pages router under a prefix like '/pages/'
+    return fetchApi(`/${slug}`, { method: 'GET' }); // No auth needed for public pages
+}
 
 /**
  * Updates the status and/or moderator notes of a review (admin function).

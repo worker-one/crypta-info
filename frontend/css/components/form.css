@@ -13,20 +13,21 @@
 /* Apply multi-column layout only on larger screens */
 @media (min-width: 768px) {
     .exchange-form {
-         grid-template-columns: repeat(2, 1fr); /* Example: 2 columns */
-         gap: 20px;
+        grid-template-columns: repeat(2, 1fr); /* Example: 2 columns */
+        gap: 20px;
     }
 
     .exchange-form .form-group[style*="grid-column: span 2"] {
-         grid-column: span 2; /* Ensure full-width elements span correctly */
+        grid-column: span 2; /* Ensure full-width elements span correctly */
     }
 }
+
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 600; /* Bolder labels */
     color: #495057; /* Slightly muted label color */
     font-size: 0.9rem;
+    font-weight: 600; /* Bolder labels */
 }
 
 .form-group input[type="text"],
@@ -40,13 +41,13 @@
     display: block;
     width: 100%;
     padding: 0.65rem 0.9rem; /* Adjusted padding */
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
     border: 1px solid #ced4da; /* Standard border */
     border-radius: 0.25rem;
+    background-color: #fff;
+    background-clip: padding-box;
+    color: #495057;
+    font-size: 1rem;
+    line-height: 1.5;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
@@ -73,62 +74,66 @@
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: auto; /* Override width: 100% */
+    width: 1em; /* Align better with text */
+    height: 1em;
     margin-right: 0.5rem;
     accent-color: #007bff; /* Use primary color for checkbox */
-    height: 1em; /* Align better with text */
-    width: 1em;
 }
 
 .checkbox-group label {
     margin-bottom: 0;
-    font-weight: normal;
-    font-size: 1rem;
     color: #212529; /* Standard text color */
+    font-size: 1rem;
+    font-weight: normal;
 }
 
 .form-actions {
     margin-top: 1.75rem; /* More space before actions */
 }
 
+/* Auth Page Specific Form Layout */
 .auth-page {
     max-width: 450px; /* Adjust width as needed */
     margin-left: auto;
     margin-right: auto;
     padding-top: 2rem; /* Add some space from the header */
     padding-bottom: 2rem; /* Add some space from the footer */
-  }
-  
-  /* Optional: Add padding inside the form if needed */
-  .auth-form {
-      padding: 2rem; /* Add padding inside the form card */
-      border: 1px solid #ccc; /* Optional: Add a border */
-      border-radius: 8px; /* Optional: Round corners */
-      background-color: #fff; /* Optional: Set background */
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: Add subtle shadow */
-  }
+}
+
+/* Optional: Add padding inside the form if needed */
+.auth-form {
+    padding: 2rem; /* Add padding inside the form card */
+    border: 1px solid #ccc; /* Optional: Add a border */
+    border-radius: 8px; /* Optional: Round corners */
+    background-color: #fff; /* Optional: Set background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add subtle shadow */
+}
 
 .auth-switch {
-    text-align: center;
     margin-top: 1.5rem;
-    font-size: 0.9rem;
     color: #6c757d; /* Secondary text color */
+    font-size: 0.9rem;
+    text-align: center;
 }
+
 .auth-switch a {
     font-weight: 600;
 }
 
+/* Search/Filter Form Specific Styles */
 #search-filter-form {
     display: flex;
-    gap: 0.75rem; /* Increased gap */
     align-items: center; /* Align items vertically */
+    gap: 0.75rem; /* Increased gap */
     margin-bottom: 1.5rem; /* Add space below search */
 }
+
 #search-filter-form input[type="search"] {
     flex-grow: 1;
 }
+
 /* Add styling for search button if needed */
 #search-filter-form button {
-    padding: 0.65rem 1rem; /* Match input height */
     flex-shrink: 0; /* Prevent button from shrinking */
+    padding: 0.65rem 1rem; /* Match input height */
 }

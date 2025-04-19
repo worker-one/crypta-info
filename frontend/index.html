@@ -46,51 +46,58 @@
         <!-- Exchange List Section -->
         <section id="exchange-list-section" class="exchange-list-section">
             <div class="container">
-                <!-- <div class="section-header">
-                    <h2>Top Cryptocurrency Exchanges</h2>
-                </div> -->
-                <!-- Removed Search Bar from here -->
-                <!-- <div class="search-filter-section">
-                    <form id="search-filter-form">
-                        <input type="search" id="search-input" placeholder="Search by exchange name...">
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </form>
-                </div> -->
-
-            <!-- Table container stays outside inner container to be full width -->
-            <div id="exchange-table-container">
-                <p id="loading-exchanges">Loading exchanges...</p>
-                <div id="exchange-list-error" class="error-message"></div>
-                <div class="card-view-toggle">
-                    <button id="toggle-view-btn" class="btn btn-sm btn-secondary">Switch to Card View</button>
+                <!-- Table container stays outside inner container to be full width -->
+                <div id="exchange-table-container">
+                    <p id="loading-exchanges">Loading exchanges...</p>
+                    <div id="exchange-list-error" class="error-message"></div>
+                    <!-- <div class="card-view-toggle">
+                        <button id="toggle-view-btn" class="btn btn-sm btn-secondary">
+                            <span class="table-view-text hidden">Table View</span>
+                            <span class="card-view-text">Switch to Card View</span>
+                        </button>
+                    </div> -->
+                    
+                    <!-- Table View -->
+                    <table class="data-table exchange-table" id="exchange-table">
+                        <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Name</th>
+                                <th>Rating</th>
+                                <th>Reviews</th>
+                                <th>24h Volume</th>
+                                <th>Info</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exchange-list-body">
+                            <!-- Table rows loaded here -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Card View -->
+                    <div id="exchange-card-container" class="exchange-card-list hidden">
+                        <!-- Card items will be loaded here -->
+                    </div>
                 </div>
-                <table class="data-table exchange-table" id="exchange-table">
-                    <thead>
-                        <tr>
-                            <th>Logo</th>
-                            <th>Name</th>
-                            <th>Rating</th>
-                            <th>Reviews</th>
-                            <th>24h Volume</th>
-                            <th>Info</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="exchange-list-body">
-                        <!-- Table rows loaded here -->
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination could go inside .container or outside depending on desired width -->
+                <!-- Pagination could go inside .container or outside depending on desired width -->
             </div>
         </section>
-
 
     </main>
 
     <!-- Footer Section -->
     <footer class="main-footer">
-        <div class="container"><p>© 2025 Crypta.Info. All rights reserved.</p></div>
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <nav>
+                <a href="/static-page.html?slug=privacy">Privacy Policy</a> |
+                <a href="/static-page.html?slug=terms">Terms of Service</a> |
+                <a href="/static-page.html?slug=about">About Us</a> |
+                <a href="/static-page.html?slug=faq">FAQ</a> |
+                <a href="/static-page.html?slug=contacts">Contacts</a>
+            </nav>
+        </div>
     </footer>
 
     <!-- We still use main.js as it sets up common things like header auth state -->

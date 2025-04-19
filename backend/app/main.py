@@ -46,6 +46,7 @@ api_router_v1.include_router(reviews_router)
 api_router_v1.include_router(news_router)
 api_router_v1.include_router(admin_router) # Include admin routes under v1 prefix
 api_router_v1.include_router(rating_categories_router)
+api_router_v1.include_router(static_pages_router) # Static pages router
 
 app.include_router(api_router_v1, prefix=settings.API_V1_STR)
 

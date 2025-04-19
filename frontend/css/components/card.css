@@ -1,60 +1,171 @@
-/* Basic Card Styles */
+/* Basic Card Styles - Material Design */
 .exchange-card {
-    background-color: #fff;
-    border: 1px solid #dee2e6; /* Standard border */
-    border-radius: 8px; /* Consistent radius */
-    padding: 1.5rem; /* More padding */
-    box-shadow: 0 3px 10px rgba(0,0,0,0.07); /* Consistent shadow */
-    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-    text-align: center;
-    display: flex; /* Use flex for better control */
+    display: flex;
     flex-direction: column;
-    height: 100%; /* Allow cards in a grid to have same height */
+    height: 100%;
+    padding: 16px; /* Standard Material padding */
+    border: none; /* Remove border in favor of shadow */
+    border-radius: 4px;
+    background-color: #ffffff;
+    /* Material Design Elevation 1 (resting state) */
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),
+                0px 1px 1px 0px rgba(0,0,0,0.14),
+                0px 1px 3px 0px rgba(0,0,0,0.12);
+    text-align: left;
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .exchange-card:hover {
-    box-shadow: 0 6px 15px rgba(0,0,0,0.12); /* Enhanced shadow on hover */
-    transform: translateY(-3px); /* Slight lift effect */
+    /* Material Design Elevation 4 (hover state) */
+    box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),
+                0px 4px 5px 0px rgba(0,0,0,0.14),
+                0px 1px 10px 0px rgba(0,0,0,0.12);
+}
+
+/* Card Header/Logo Area */
+.exchange-card .logo {
+    display: flex;
+    align-items: center;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0; /* Lighter separator */
 }
 
 .exchange-card .logo img {
-    max-height: 50px;
-    width: auto; /* Let height control size */
-    margin: 0 auto 1rem auto; /* Increased bottom margin */
-    border-radius: 4px; /* Match table logo */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Circular logos - Material standard */
+    object-fit: contain;
+    margin-right: 16px; /* Material standard spacing */
+    background-color: #f5f5f5; /* Light background for logos */
+    padding: 4px; /* Small padding inside circle */
 }
 
 .exchange-card h3 {
-    margin-top: 0; /* Remove top margin if logo is present */
-    margin-bottom: 0.75rem;
-    font-size: 1.25rem; /* Slightly larger heading */
-    color: #212529; /* Dark heading */
+    margin: 0;
+    color: rgba(0, 0, 0, 0.87); /* Material primary text (87% opacity) */
+    font-size: 1.1rem;
+    font-weight: 500; /* Medium weight - Material standard */
+    line-height: 1.5;
+    letter-spacing: 0.0075em; /* Subtle letter spacing */
+}
+
+/* Card Content Area */
+.exchange-card .card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Consistent spacing between elements */
 }
 
 .exchange-card .rating,
 .exchange-card .volume,
 .exchange-card .info {
-    font-size: 0.9rem;
-    color: #6c757d; /* Secondary text color */
-    margin-bottom: 0.4rem;
-    line-height: 1.4;
+    display: flex;
+    align-items: baseline;
+    color: rgba(0, 0, 0, 0.6); /* Material secondary text (60% opacity) */
+    font-size: 0.875rem; /* Material body 2 */
+    line-height: 1.43;
+    letter-spacing: 0.01071em;
+}
+
+.exchange-card .rating::before,
+.exchange-card .volume::before,
+.exchange-card .info::before {
+    content: attr(data-label);
+    flex: 0 0 90px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6); /* Material secondary text */
 }
 
 .exchange-card .rating {
-    font-weight: 600;
-    color: #ffc107; /* Accent color for rating */
-}
-.exchange-card .rating::before {
-    content: '★ '; /* Add star icon */
+    color: #ffc107; /* Amber for ratings */
+    font-weight: 500;
 }
 
+.exchange-card .rating span::before {
+    content: "★ ";
+    margin-right: 4px;
+}
 
+.exchange-card .info {
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Card Actions Area */
 .exchange-card .details-link {
-    margin-top: auto; /* Push link to bottom */
-    padding-top: 1rem; /* Add space above link */
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 1px solid #f0f0f0;
 }
 
-/* Use .btn styles for the link */
 .exchange-card .details-link .btn {
-    /* Inherits styles */
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.02857em;
+    text-transform: uppercase;
+    min-width: 64px;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Optional accent button style */
+.exchange-card .details-link .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),
+                0px 2px 2px 0px rgba(0,0,0,0.14),
+                0px 1px 5px 0px rgba(0,0,0,0.12);
+}
+
+.exchange-card .details-link .btn-primary:hover {
+    background-color: #0069d9;
+    box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),
+                0px 4px 5px 0px rgba(0,0,0,0.14),
+                0px 1px 10px 0px rgba(0,0,0,0.12);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .exchange-card {
+        padding: 12px;
+    }
+    
+    .exchange-card .rating,
+    .exchange-card .volume,
+    .exchange-card .info {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 8px;
+    }
+    
+    .exchange-card .rating::before,
+    .exchange-card .volume::before,
+    .exchange-card .info::before {
+        flex-basis: auto;
+        margin-bottom: 4px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    
+    .exchange-card .details-link {
+        padding-top: 12px;
+        margin-top: 12px;
+    }
+    
+    .exchange-card .details-link .btn {
+        padding: 6px 12px;
+        font-size: 0.813rem;
+    }
 }

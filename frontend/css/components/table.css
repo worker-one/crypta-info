@@ -1,21 +1,21 @@
 /* Basic Table Styling */
 .data-table {
     width: 100%;
-    border-collapse: collapse;
     margin: 1.5rem 0; /* Remove auto margin, rely on container */
-    background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* Softer shadow */
-    font-size: 0.95rem;
+    border-collapse: collapse;
     border-radius: 8px; /* More rounded corners */
-    overflow: hidden;
     border: 1px solid #dee2e6; /* Add subtle border */
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Softer shadow */
+    font-size: 0.95rem;
+    overflow: hidden;
 }
 
 .data-table th,
 .data-table td {
+    padding: 0.9rem 1.1rem; /* Increased padding */
     border: none; /* Remove individual cell borders */
     border-bottom: 1px solid #dee2e6; /* Use bottom border for separation */
-    padding: 0.9rem 1.1rem; /* Increased padding */
     text-align: left;
     vertical-align: middle;
 }
@@ -25,13 +25,13 @@
 }
 
 .data-table th {
-    background-color: #f8f9fa; /* Light gray header */
-    font-weight: 600;
-    color: #495057; /* Muted header text */
-    white-space: nowrap;
     position: sticky;
     top: 0;
     z-index: 10;
+    background-color: #f8f9fa; /* Light gray header */
+    color: #495057; /* Muted header text */
+    font-weight: 600;
+    white-space: nowrap;
     /* Optional: Add a subtle bottom border to sticky header */
     box-shadow: inset 0 -1px 0 #dee2e6;
 }
@@ -49,33 +49,35 @@
 /* Specific Column Styling */
 .exchange-table .logo-cell {
     width: 60px;
-    text-align: center;
     padding: 0.5rem; /* Adjust padding for logo */
+    text-align: center;
 }
+
 .exchange-table .logo-cell img {
+    display: block;
     max-height: 35px; /* Slightly larger logo */
     width: auto;
-    display: block;
     margin: 0 auto;
-    transition: transform 0.2s ease;
     border-radius: 4px; /* Slightly round logo corners */
+    transition: transform 0.2s ease;
 }
+
 .exchange-table .logo-cell img:hover {
     transform: scale(1.1);
 }
 
 .exchange-table .name-cell {
-    font-weight: 500;
-    color: #212529; /* Ensure name is dark */
     min-width: 150px;
+    color: #212529; /* Ensure name is dark */
+    font-weight: 500;
 }
 
 .exchange-table .rating-cell,
 .exchange-table .reviews-cell,
 .exchange-table .volume-cell {
+    color: #495057; /* Muted text for data */
     text-align: right;
     white-space: nowrap;
-    color: #495057; /* Muted text for data */
 }
 
 .exchange-table .rating-cell {
@@ -84,30 +86,30 @@
 }
 
 .exchange-table .info-cell {
-    font-size: 0.9rem; /* Slightly larger */
-    color: #6c757d; /* Secondary text color */
     max-width: 250px;
+    color: #6c757d; /* Secondary text color */
+    font-size: 0.9rem; /* Slightly larger */
 }
 
 .exchange-table .action-cell {
+    width: 100px; /* Adjust if needed based on button size */
     text-align: center;
     white-space: nowrap;
-    width: 100px; /* Adjust if needed based on button size */
 }
 
 /* Use common button styles */
 .exchange-table .action-cell .btn {
     /* Inherits from components/button.css */
 }
+
 .exchange-table .action-cell .btn-sm {
     /* Inherits from components/button.css */
 }
 
-
 .exchanges-table-container { /* Wrap table for scrolling */
+    margin-bottom: 1rem; /* Add some space below */
     overflow-x: auto; /* Enable horizontal scroll on small screens */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    margin-bottom: 1rem; /* Add some space below */
 }
 
 .exchanges-table {
@@ -136,14 +138,103 @@
 
 /* Card view toggle styling */
 .card-view-toggle {
-    display: none;
+    display: block;
+    width: 100%;
     margin: 1rem 0;
     text-align: right;
-    width: 100%; /* Full width within container */
-    /* Remove max-width */
 }
+
 .card-view-toggle button {
-    /* Use .btn styles */
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+/* Exchange Card List */
+.exchange-card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.exchange-card-list .exchange-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.exchange-card-list .exchange-card:hover {
+    box-shadow: 0 14px 28px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.1);
+}
+
+.exchange-card-list .card-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.exchange-card-list .card-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.exchange-card-list .card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.exchange-card-list .card-body {
+    flex-grow: 1;
+    padding: 16px;
+}
+
+.exchange-card-list .card-info-row {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.exchange-card-list .card-info-label {
+    flex: 0 0 90px;
+    font-weight: 500;
+}
+
+.exchange-card-list .card-info-value {
+    flex: 1;
+}
+
+.exchange-card-list .card-rating {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.exchange-card-list .card-rating::before {
+    content: "★ ";
+    margin-right: 2px;
+}
+
+.exchange-card-list .card-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f0;
+    text-align: right;
+}
+
+.exchange-card-list .card-action .btn {
+    padding: 8px 16px;
+    font-weight: 500;
 }
 
 /* Responsive table styles */
@@ -183,10 +274,14 @@
     .exchange-table .info-cell {
         max-width: 180px;
     }
+
+    .exchange-card-list {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
 }
 
 /* Hide less important columns on very small screens when in table mode */
-@media (max-width: 576px) {
+@media (max-width: 600px) { /* Adjusted breakpoint */
     .data-table:not(.card-mode) .info-cell,
     .data-table:not(.card-mode) .reviews-cell { /* Hide reviews too */
         display: none;
@@ -194,13 +289,13 @@
 }
 
 /* Card view for extra small screens */
-@media (max-width: 576px) {
+@media (max-width: 600px) { /* Adjusted breakpoint */
     /* Card view styles */
     .data-table.card-mode {
         border: none;
+        border-radius: 0;
         background: none;
         box-shadow: none;
-        border-radius: 0;
         overflow: visible; /* Allow shadows on cards */
     }
 
@@ -212,102 +307,140 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         grid-gap: 1.25rem; /* Increased gap */
-        padding: 0; /* Remove padding */
         width: 100%;
         margin: 0;
+        padding: 0; /* Remove padding */
     }
 
     .data-table.card-mode tr {
         display: flex;
         flex-direction: column;
         margin-bottom: 0; /* Gap handles spacing */
-        border-radius: 8px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.08); /* Consistent shadow */
+        border: 1px solid #e0e0e0; /* Material-like border */
+        border-radius: 4px; /* Material radius */
         background-color: #fff;
+        /* Material Design Elevation (Resting - dp2 equivalent) */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         overflow: hidden;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 1px solid #dee2e6; /* Add border to cards */
+        transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1); /* Material transition */
     }
 
     .data-table.card-mode tr:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+        /* Material Design Elevation (Hover - dp8 equivalent) */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.18), 0 4px 8px rgba(0,0,0,0.22);
+        transform: none; /* Remove transform */
     }
 
     .data-table.card-mode td {
         display: flex;
-        border: none;
-        border-bottom: 1px solid #e9ecef; /* Lighter internal border */
-        padding: 0.8rem 1rem;
-        text-align: left;
         align-items: center;
+        padding: 0.8rem 1rem; /* Adjust padding */
+        border: none;
+        border-bottom: 1px solid #eeeeee; /* Subtle internal separator */
         background-color: #fff; /* Ensure white background */
+        text-align: left; /* Align text left */
+        min-height: 48px; /* Ensure minimum touch target size */
     }
 
     .data-table.card-mode td:last-child {
+        /* Remove border from last item unless it's the action cell */
         border-bottom: none;
-        margin-top: auto;
     }
 
     .data-table.card-mode td::before {
         content: attr(data-label);
+        flex-shrink: 0; /* Prevent label from shrinking */
         width: 40%;
         min-width: 90px; /* Adjust as needed */
-        font-weight: 600;
-        color: #6c757d; /* Secondary text color */
         padding-right: 0.75rem;
+        color: #616161; /* Material secondary text */
         font-size: 0.85rem;
-        flex-shrink: 0; /* Prevent label from shrinking */
+        font-weight: 500; /* Material medium weight */
     }
 
     /* Special styling for the first cell (logo) in card mode */
     .data-table.card-mode .logo-cell {
-        /* Remove special styling, treat like other cells or hide label */
-         padding: 0.8rem 1rem;
-         justify-content: flex-start; /* Align with others */
-         background-color: #fff;
+        padding: 0.8rem 1rem;
+        justify-content: flex-start; /* Align with others */
+        background-color: #fff;
+        border-bottom: 1px solid #eeeeee; /* Add separator like header */
     }
+
     .data-table.card-mode .logo-cell::before {
-        /* content: "Logo"; */ /* Or display: none; if label not needed */
+        display: none; /* Hide label for logo row */
     }
-     .data-table.card-mode .logo-cell img {
-        max-height: 30px; /* Adjust size */
+
+    .data-table.card-mode .logo-cell img {
+        max-height: 35px; /* Adjust size */
+        width: 35px;
         margin: 0;
-        margin-left: auto; /* Push logo to the right */
+        border-radius: 50%; /* Circular logo */
+        object-fit: contain;
+        margin-right: 0.75rem; /* Space between logo and name */
     }
 
-
-    /* Make the name stand out more in card mode */
-    .data-table.card-mode .name-cell {
-        font-size: 1.1rem;
-        font-weight: 600;
+    /* Combine logo and name visually */
+    .data-table.card-mode .logo-cell .exchange-name-in-logo-cell { /* Requires JS to move name here */
         color: #212529;
-        /* border-bottom: 1px solid #dee2e6; */ /* Use standard border */
+        font-size: 1.1rem;
+        font-weight: 500;
+        line-height: 1.4;
     }
-     .data-table.card-mode .name-cell::before {
-         /* Ensure label is styled correctly */
-         font-weight: 600;
-         color: #6c757d;
-     }
+
+    /* Hide the original name cell if name is moved to logo cell */
+    .data-table.card-mode .name-cell {
+        display: none; /* Hide if name moved to logo cell */
+        /* Or style if kept separate */
+        /* color: #212529;
+        font-size: 1.1rem;
+        font-weight: 500; */
+    }
+    /* .data-table.card-mode .name-cell::before {
+        color: #616161;
+        font-weight: 500;
+    } */
+
+    /* Style rating cell */
+    .data-table.card-mode .rating-cell {
+        color: #ffc107;
+        font-weight: 500;
+    }
+    .data-table.card-mode .rating-cell::before {
+        /* Style label */
+        color: #616161;
+        font-weight: 500;
+    }
+    .data-table.card-mode .rating-cell .rating-value::before { /* Add star */
+        content: "★";
+        margin-right: 0.3rem;
+        font-size: 1.1em;
+    }
+
 
     /* Display all cells in card mode */
     .data-table.card-mode .info-cell,
-    .data-table.card-mode .reviews-cell {
+    .data-table.card-mode .reviews-cell,
+    .data-table.card-mode .volume-cell { /* Ensure volume is styled */
         display: flex;
         font-size: 0.9rem;
+        color: #616161; /* Material secondary text */
     }
-     .data-table.card-mode .info-cell::before,
-     .data-table.card-mode .reviews-cell::before {
-         font-weight: 600;
-         color: #6c757d;
-     }
+
+    .data-table.card-mode .info-cell::before,
+    .data-table.card-mode .reviews-cell::before,
+    .data-table.card-mode .volume-cell::before { /* Style labels */
+        color: #616161;
+        font-weight: 500;
+    }
 
     /* Style the action cell in card mode */
     .data-table.card-mode .action-cell {
+        margin-top: auto; /* Push to bottom */
+        padding: 0.8rem 1rem; /* Consistent padding */
         justify-content: flex-end; /* Align button to the right */
-        padding: 0.8rem 1rem;
-        background-color: #f8f9fa; /* Slightly different background */
-        border-top: 1px solid #e9ecef;
+        background-color: #fff; /* Keep white */
+        border-top: 1px solid #eeeeee; /* Separator above actions */
+        border-bottom: none; /* No bottom border */
     }
 
     .data-table.card-mode .action-cell::before {
@@ -315,7 +448,124 @@
     }
 
     .data-table.card-mode .action-cell .btn {
-        /* width: 100%; */ /* Optional: make button full width */
+        /* Inherit button styles */
+        /* Optionally use text/outlined buttons */
+        margin-left: 0.5rem;
+    }
+    .data-table.card-mode .action-cell .btn:first-child {
+        margin-left: 0;
+    }
+
+    .exchange-card-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card mode for table view on mobile */
+@media (max-width: 767px) {
+    .data-table.card-mode {
+        display: block;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+    
+    .data-table.card-mode thead {
+        display: none; /* Hide the header row */
+    }
+    
+    .data-table.card-mode tbody {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    
+    .data-table.card-mode tr {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        border-radius: 4px;
+        background-color: #ffffff;
+        box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),
+                    0px 1px 1px 0px rgba(0,0,0,0.14),
+                    0px 1px 3px 0px rgba(0,0,0,0.12);
+        margin-bottom: 0;
+        height: 100%;
+    }
+    
+    .data-table.card-mode td {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left;
+    }
+    
+    .data-table.card-mode td:last-child {
+        border-bottom: none;
+    }
+    
+    /* Show data labels in card mode */
+    .data-table.card-mode td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        font-size: 0.75rem;
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    
+    /* Specific styling for different cell types */
+    .data-table.card-mode .logo-cell {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 16px;
+    }
+    
+    .data-table.card-mode .logo-cell::before {
+        display: none; /* Hide the label for logo cell */
+    }
+    
+    .data-table.card-mode .logo-cell img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+    
+    .data-table.card-mode .exchange-name-in-logo-cell {
+        display: block;
+        font-weight: 500;
+        font-size: 1.1rem;
+        color: rgba(0, 0, 0, 0.87);
+    }
+    
+    .data-table.card-mode .name-cell {
+        display: none; /* Hide the name cell as we show it in the logo cell */
+    }
+    
+    .data-table.card-mode .rating-cell,
+    .data-table.card-mode .reviews-cell,
+    .data-table.card-mode .volume-cell {
+        text-align: left;
+    }
+    
+    .data-table.card-mode .action-cell {
+        margin-top: auto; /* Push the action cell to the bottom */
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .data-table.card-mode .action-cell .btn {
+        width: 100%;
+        text-align: center;
+        padding: 8px 16px;
     }
 }
 

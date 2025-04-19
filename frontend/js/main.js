@@ -1,6 +1,6 @@
 // Main Application Logic and Initialization
-import { handleLogin, handleLogout, checkAndCacheUserProfile, handleRegister } from './auth.js'; // Add handleRegister import
-import { updateHeaderNav, renderExchangeList, displayErrorMessage, clearErrorMessage, initTableViewToggle } from './ui.js'; // clearErrorMessage and initTableViewToggle potentially needed
+import { handleLogin, handleLogout, checkAndCacheUserProfile, handleRegister } from './auth.js';
+import { updateHeaderNav, renderExchangeList, displayErrorMessage, clearErrorMessage, initTableViewToggle } from './ui.js';
 import { fetchExchanges } from './api.js';
 
 // --- Initialization ---
@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("On homepage");
         
         // Initialize table view toggle if we're on the homepage
-        if (document.getElementById('exchange-table')) {
-            initTableViewToggle();
-        }
+        // if (document.getElementById('exchange-table')) {
+        //     initTableToggle();
+        // }
 
         // Load exchanges if we're on the homepage
         if (document.getElementById('exchange-list-body')) {
@@ -200,6 +200,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+/**
+ * Initialize table/card toggle functionality
+ */
+function initTableToggle() {
+    const toggleBtn = document.getElementById('toggle-view-btn');
+    const tableView = document.getElementById('exchange-table');
+    const cardView = document.getElementById('exchange-card-container');
+    const tableViewText = toggleBtn.querySelector('.table-view-text');
+    const cardViewText = toggleBtn.querySelector('.card-view-text');
+    
+    // Check initial state based on screen size
+    const isSmallScreen = window.innerWidth <= 767;
+    if (isSmallScreen) {
+        toggleToCardView();
+    }
+    
+    toggleBtn.addEventListener('click', () => {
+        if (tableView.classList.contains('hidden')) {
+            toggleToTableView();
+        } else {
+            toggleToCardView();
+        }
+    });
+    
+    // Helper functions
+    function toggleToCardView() {
+        tableView.classList.add('hidden');
+        cardView.classList.remove('hidden');
+        tableViewText.classList.remove('hidden');
+        cardViewText.classList.add('hidden');
+    }
+    
+    function toggleToTableView() {
+        tableView.classList.remove('hidden');
+        cardView.classList.add('hidden');
+        tableViewText.classList.add('hidden');
+        cardViewText.classList.remove('hidden');
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        const isSmallScreen = window.innerWidth <= 767;
+        if (isSmallScreen && !cardView.classList.contains('hidden')) {
+            // Already in card view, no change needed
+        } else if (isSmallScreen) {
+            toggleToCardView();
+        }
+    });
+}
+
 // --- Helper Functions ---
 /**
  * Fetches and displays exchanges on the homepage table.
@@ -207,27 +257,29 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 async function loadHomepageExchanges(params = {}) {
     // *** Use the correct IDs from the HTML ***
-    const tbodyId = 'exchange-list-body';         // <--- ID of the tbody
+    const tbodyId = 'exchange-list-body';
+    const cardContainerId = 'exchange-card-container';
     const loadingIndicatorId = 'loading-exchanges';
-    const errorContainerId = 'exchange-list-error'; // <--- ID of the error div
+    const errorContainerId = 'exchange-list-error';
 
     const loadingIndicator = document.getElementById(loadingIndicatorId);
-    const tbody = document.getElementById(tbodyId); // Get the tbody element
+    const tbody = document.getElementById(tbodyId);
+    const cardContainer = document.getElementById(cardContainerId);
     const errorContainer = document.getElementById(errorContainerId);
 
     // Show loading, clear previous state
     if (loadingIndicator) loadingIndicator.style.display = 'block';
-    if (tbody) tbody.innerHTML = ''; // Clear previous table rows
-    if (errorContainer) errorContainer.classList.remove('visible'); // Hide previous errors
+    if (tbody) tbody.innerHTML = '';
+    if (cardContainer) cardContainer.innerHTML = '';
+    if (errorContainer) errorContainer.classList.remove('visible');
 
     try {
         console.log("Fetching exchanges with params:", params);
-        // Add default sorting if desired, e.g., by rating desc
         const queryParams = {
             field: 'overall_average_rating',
             direction: 'desc',
-            limit: 25, // Fetch more for a table view?
-            ...params // Merge search/filter params
+            limit: 25,
+            ...params
         }; 
         if(params.name === "") {
             delete queryParams.name;
@@ -236,21 +288,90 @@ async function loadHomepageExchanges(params = {}) {
         console.log("Exchanges received:", data);
 
         if (data && data.items) {
-            // Call the updated rendering function with correct IDs
+            // Render table view
             renderExchangeList(data.items, tbodyId, loadingIndicatorId, errorContainerId);
+            
+            // Render card view
+            renderCardView(data.items, cardContainerId);
+            
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
         } else {
-            // Handle cases like empty 'items' array correctly via renderExchangeList
             renderExchangeList([], tbodyId, loadingIndicatorId, errorContainerId);
-            // Or throw an error if the structure is unexpected
-            // throw new Error("Invalid data structure received from server.");
+            renderCardView([], cardContainerId);
         }
 
     } catch (error) {
         console.error("Failed to load exchanges:", error);
-        if (loadingIndicator) loadingIndicator.style.display = 'none'; // Hide loading on error
-        // Display error message in the designated container
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
         displayErrorMessage(errorContainerId, `Error loading exchanges: ${error.message}`);
-        // Optionally clear the tbody again or show error row in table
-        if (tbody) tbody.innerHTML = ''; // Clear potential partial data
+        if (tbody) tbody.innerHTML = '';
+        if (cardContainer) cardContainer.innerHTML = '';
+    }
+}
+
+/**
+ * Renders exchanges as cards in the card container
+ * @param {Array} exchanges - Array of exchange objects
+ * @param {string} containerId - ID of the card container element
+ */
+function renderCardView(exchanges, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (exchanges && exchanges.length > 0) {
+        exchanges.forEach(exchange => {
+            const card = document.createElement('div');
+            card.className = 'exchange-card';
+            
+            // Format data for display
+            const ratingValue = parseFloat(exchange.overall_average_rating);
+            const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+            const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
+            const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
+            const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined, 
+                { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
+            const year = exchange.year_founded || '??';
+            const country = exchange.registration_country?.name || 'Unknown';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo" class="card-logo">
+                    <h3 class="card-title">${exchange.name}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="card-info-row">
+                        <div class="card-info-label">Rating:</div>
+                        <div class="card-info-value card-rating">${formattedRating}</div>
+                    </div>
+                    <div class="card-info-row">
+                        <div class="card-info-label">Reviews:</div>
+                        <div class="card-info-value">${reviewCount}</div>
+                    </div>
+                    <div class="card-info-row">
+                        <div class="card-info-label">24h Volume:</div>
+                        <div class="card-info-value">${formattedVolume}</div>
+                    </div>
+                    <div class="card-info-row">
+                        <div class="card-info-label">Info:</div>
+                        <div class="card-info-value">Est: ${year}, ${country}</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-action">
+                        <a href="exchange.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Details</a>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(card);
+        });
+    } else {
+        // Display no results message
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results-message';
+        noResults.textContent = 'No exchanges found matching your criteria.';
+        container.appendChild(noResults);
     }
 }
