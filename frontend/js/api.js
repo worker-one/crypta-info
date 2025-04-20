@@ -320,3 +320,45 @@ export async function adminUpdateReviewStatus(reviewId, statusUpdate) {
     // Map the old payload structure if necessary, assuming statusUpdate contains { moderation_status, moderator_notes }
     return adminModerateReview(reviewId, statusUpdate);
 }
+
+// --- News API Functions ---
+
+/**
+ * Fetches a list of news items.
+ * @param {object} params - Pagination parameters (e.g., { skip: 0, limit: 10 })
+ * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
+ */
+export async function listNews(params = { skip: 0, limit: 10 }) {
+    const query = new URLSearchParams(params).toString();
+    // Assuming news is public, no auth needed
+    return fetchApi(`/news/?${query}`, { method: 'GET' });
+}
+
+/**
+ * Fetches details for a specific news item.
+ * @param {string|number} newsId - The ID of the news item.
+ * @returns {Promise<object>} - The news item object.
+ */
+export async function getNewsItem(newsId) {
+    // Assuming news is public, no auth needed
+    return fetchApi(`/news/${newsId}`, { method: 'GET' });
+}
+
+/** addLogoutHandler
+ * 
+ */
+export function addLogoutHandler(logoutButton, redirectUrl) {
+    if (!logoutButton) return;
+
+    logoutButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            await fetchApi('/auth/logout', { method: 'POST' }, true); // Requires auth
+            // Optionally clear local storage or cookies here
+            window.location.href = redirectUrl || '/'; // Redirect to home or specified URL
+        } catch (error) {
+            console.error('Logout failed:', error);
+            alert('Logout failed. Please try again.');
+        }
+    });
+}

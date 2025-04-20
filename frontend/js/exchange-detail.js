@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const breadcrumbExchangeName = document.getElementById('exchange-name-breadcrumb');
     const reviewSection = document.getElementById('review-section');
     const addReviewSection = document.getElementById('add-review-section');
+    const overviewContent = document.getElementById('overview-content'); // Container for overview tab
+    const newsTabLink = document.getElementById('tab-news');
+    const guideTabLink = document.getElementById('tab-guide');
     console.log('DOM elements retrieved');
 
     if (!slug) { // If 'slug' is not found in the URL
@@ -29,6 +32,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         errorElement.classList.add('visible');
         loadingElement.classList.add('hidden');
         return; // Stops further execution
+    }
+
+    // Set tab links dynamically
+    if (newsTabLink) {
+        newsTabLink.href = `news.html?slug=${slug}`;
+        console.log(`Set News tab link to: ${newsTabLink.href}`);
+    }
+    if (guideTabLink) {
+        guideTabLink.href = `guide.html?slug=${slug}`;
+        console.log(`Set Guide tab link to: ${guideTabLink.href}`);
     }
 
     try {
@@ -40,7 +53,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Hide loading, show content
         console.log('Updating UI visibility...');
         loadingElement.classList.add('hidden');
-        detailContainer.classList.remove('hidden');
+        overviewContent.classList.remove('hidden'); // Show the overview container
+        detailContainer.classList.remove('hidden'); // Show the detail section within overview
         
         // Update page title and breadcrumb
         console.log(`Updating page title to: ${exchange.name} - Crypta.Info`);
@@ -51,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Building exchange detail HTML...');
         detailContainer.innerHTML = `
             <div class="logo">
-                <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo">
+                <img src="${exchange.logo_url || '../assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo">
             </div>
             <h1>${exchange.name}</h1>
             

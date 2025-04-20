@@ -360,7 +360,7 @@ function renderCardView(exchanges, containerId) {
                 </div>
                 <div class="card-footer">
                     <div class="card-action">
-                        <a href="exchange.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Details</a>
+                        <a href="exchange/overview.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Details</a>
                     </div>
                 </div>
             `;

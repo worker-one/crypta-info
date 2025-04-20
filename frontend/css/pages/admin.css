@@ -1,0 +1,33 @@
+/* Styles specific to the admin dashboard, user management, etc. */
+
+.admin-dashboard {
+    /* Styles for the main admin area */
+}
+
+.admin-sidebar {
+    /* Styles for an admin navigation sidebar if present */
+    background-color: var(--light-color);
+    padding: 1rem;
+    border-right: 1px solid #ddd;
+}
+
+.admin-content {
+    /* Styles for the main content area within the admin section */
+    padding: 1rem;
+}
+
+.admin-table {
+    /* Specific overrides or additions for tables in admin */
+    margin-top: 1rem;
+}
+
+.admin-actions {
+    /* Styles for action buttons (edit, delete) often found in admin tables */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.admin-actions .btn {
+    margin-right: 0.5rem;
+    padding: 0.25rem 0.5rem; /* Smaller buttons for table actions */
+    font-size: 0.875rem;
+}

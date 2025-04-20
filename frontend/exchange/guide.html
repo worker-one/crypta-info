@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Guide - Crypta.Info</title>
+    <link rel="stylesheet" href="../css/main.css"> <!-- Adjust path -->
+    <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles if applicable -->
+    <!-- Add specific guide page CSS if needed -->
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40"> <!-- Adjust path -->
+                <span>Crypta.Info</span>
+            </a>
+            <nav id="main-nav">
+                <!-- Standard Nav Items - Consider using includes/templating later -->
+                <a href="../login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+                <a href="../register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="exchange-detail-section"> <!-- Reuse section class -->
+            <div class="container">
+                 <div id="breadcrumb">
+                    <a href="/">Home</a> /
+                    <a href="#" id="exchange-link-breadcrumb">Exchange</a> / <!-- JS will populate this -->
+                    <span>Guide</span>
+                </div>
+
+                <!-- Tab Navigation -->
+                <nav class="exchange-tabs" id="exchange-tabs">
+                    <a href="overview.html" class="tab-link" id="tab-overview">Overview</a>
+                    <a href="news.html" class="tab-link" id="tab-news">News</a>
+                    <a href="#" class="tab-link active" id="tab-guide">Guide</a>
+                </nav>
+
+                <h1 id="exchange-name-heading">Exchange Guide</h1> <!-- JS will populate this -->
+
+                <div id="guide-content">
+                    <p>Guide content for this exchange will be displayed here.</p>
+                    <!-- Placeholder for guide sections -->
+                     <div id="guide-loading" class="loading-message hidden">Loading guide...</div>
+                    <div id="guide-error" class="error-message"></div>
+                    <div id="guide-sections">
+                        <!-- Guide sections will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Add JS specific to the guide page -->
+    <script>
+        // Basic JS to set links based on slug
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            const exchangeNameHeading = document.getElementById('exchange-name-heading');
+            const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
+            const overviewTabLink = document.getElementById('tab-overview');
+            const newsTabLink = document.getElementById('tab-news');
+            const guideTabLink = document.getElementById('tab-guide'); // Current page
+
+            let exchangeName = 'Exchange'; // Default/placeholder
+
+            if (slug) {
+                // TODO: Fetch exchange name to populate breadcrumb and heading properly
+                // try {
+                //     const details = await fetchExchangeDetails(slug); // Example fetch
+                //     exchangeName = details.name;
+                // } catch (error) {
+                //     console.error("Failed to fetch exchange details for header/breadcrumb:", error);
+                // }
+
+                const overviewPageUrl = `overview.html?slug=${slug}`; // Corrected link
+                const newsPageUrl = `news.html?slug=${slug}`; // Corrected link
+
+                 if (exchangeLinkBreadcrumb) {
+                    exchangeLinkBreadcrumb.href = overviewPageUrl; // Link breadcrumb to overview
+                    exchangeLinkBreadcrumb.textContent = exchangeName;
+                }
+                 if (exchangeNameHeading) {
+                    exchangeNameHeading.textContent = `${exchangeName} Guide`; // Update heading
+                 }
+                if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
+                if (newsTabLink) newsTabLink.href = newsPageUrl;
+                if (guideTabLink) guideTabLink.href = `#`; // Current page
+            } else {
+                 // Handle missing slug
+                if (exchangeNameHeading) exchangeNameHeading.textContent = 'Exchange Guide - Error: Slug missing';
+                console.error("Exchange slug is missing from URL.");
+                // Optionally disable or hide tabs if slug is missing
+                if (overviewTabLink) overviewTabLink.href = '#';
+                if (newsTabLink) newsTabLink.href = '#';
+            }
+             // Placeholder: Update header nav based on login status (requires auth.js, ui.js)
+            // import { updateHeaderNav } from '../js/ui.js'; updateHeaderNav();
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,28 @@
+/* Import Base Styles */
 @import url('base.css');
 @import url('layout.css');
-@import url('components/button.css'); /* Import button styles */
+@import url('components/buttons.css');
 @import url('components/form.css');
 @import url('components/card.css');
 @import url('components/table.css');
-@import url('pages/profile.css')
+@import url('components/news-card.css'); /* New */
+@import url('components/messages.css'); /* If messages are separate */
+@import url('components/modals.css'); /* If modals exist */
+@import url('components/pagination.css'); /* If pagination exists */
+
+/* Import Page-Specific Styles */
+@import url('pages/auth.css');
+@import url('pages/admin.css');
+@import url('pages/exchange-detail.css');
+@import url('pages/profile.css');
+
+/* Utility Classes (can also be in base.css) */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Add other global styles or overrides if needed */

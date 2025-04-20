@@ -23,9 +23,9 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    color: #212529; /* Darker text */
-    background-color: #f8f9fa; /* Lighter gray background */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    color: #333; /* Updated text color */
+    background-color: #f4f4f4; /* Updated background color */
+    font-family: sans-serif; /* Updated font family */
     font-size: 16px;
     line-height: 1.6; /* Slightly adjusted */
 }
@@ -122,4 +122,16 @@ select {
 
 #password-match-error.visible {
     display: block;
+}
+
+/* Add more base styles like typography, variables, etc. */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
 }

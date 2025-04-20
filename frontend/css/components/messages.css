@@ -1,0 +1,45 @@
+.message {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.message-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.message-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.message-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.message-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+/* Add styles for close buttons if applicable */
+.message .close-btn {
+    float: right;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.7;
+}
+.message .close-btn:hover {
+    opacity: 1;
+}

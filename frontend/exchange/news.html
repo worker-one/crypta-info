@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange News - Crypta.Info</title>
+    <link rel="stylesheet" href="../css/main.css"> <!-- Adjust path -->
+    <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles if applicable -->
+    <style>
+        /* Basic styling for news detail view */
+        .news-detail-content {
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .news-detail-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+        }
+        .news-detail-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.75rem;
+        }
+        .news-detail-meta a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .news-detail-meta a:hover {
+            text-decoration: underline;
+        }
+        .news-detail-body {
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+        .news-detail-body img { /* Ensure images within content are responsive */
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem 0;
+        }
+        .news-detail-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        .news-list { /* Ensure news list uses grid */
+             display: grid;
+             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+             gap: 1.5rem;
+        }
+        .loading-message { /* Center loading message */
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40"> <!-- Adjust path -->
+                <span>Crypta.Info</span>
+            </a>
+            <div class="header-search-container">
+                 <form id="search-filter-form" action="/search" method="get">
+                     <input type="search" id="header-search-input" name="q" placeholder="Search exchanges..." aria-label="Search exchanges">
+                     <button type="submit" class="btn btn-outline-secondary btn-sm">Search</button>
+                 </form>
+            </div>
+            <div class="header-right">
+                <nav id="main-nav">
+                    <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Login</a>
+                    <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Register</a>
+                    <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                    <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                    <button class="btn btn-secondary btn-sm hidden" id="nav-logout-btn">Logout</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-section">
+            <div class="container">
+                <div id="breadcrumb">
+                    <a href="/">Home</a> /
+                    <a href="#" id="exchange-link-breadcrumb">Exchange</a> <!-- JS will populate this -->
+                    <span id="news-breadcrumb-span">/ News</span> <!-- Static part -->
+                    <span id="news-detail-breadcrumb" class="hidden"></span> <!-- Dynamic part for news item title -->
+                </div>
+
+                <nav class="exchange-tabs" id="exchange-tabs">
+                    <a href="overview.html" class="tab-link" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link active" id="tab-news">News</a>
+                    <a href="guide.html" class="tab-link" id="tab-guide">Guide</a>
+                </nav>
+
+                <h1 id="exchange-name-heading">Exchange News</h1> <!-- JS will populate this -->
+
+                <!-- Container for the list view -->
+                <div id="news-list" class="news-list">
+                    <!-- News cards will be loaded here by JS -->
+                </div>
+
+                <!-- Container for the single item detail view (hidden initially) -->
+                <div id="news-detail-content" class="hidden">
+                    <!-- Single news item details will be loaded here by JS -->
+                </div>
+
+                <!-- Loading indicator (can be shared or separate) -->
+                <div id="news-loading" class="loading-message hidden">Loading...</div>
+
+                <!-- Error message container -->
+                <div id="news-error" class="error-message message hidden"></div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Inline script for initial setup -->
+    <script type="module">
+        // import { updateHeaderNav } from '../js/ui.js';
+        // import { addLogoutHandler } from '../js/auth.js';
+        // We don't fetch details here anymore, exchange-news.js handles it
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("News page DOMContentLoaded.");
+
+            // // Setup header and logout
+            // try {
+            //     updateHeaderNav();
+            //     addLogoutHandler('nav-logout-btn');
+            // } catch (error) {
+            //     console.error("Error setting up header/logout:", error);
+            // }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            const newsId = urlParams.get('news_id'); // Check if viewing single item
+            console.log("Slug:", slug, "News ID:", newsId);
+
+            const exchangeNameHeading = document.getElementById('exchange-name-heading');
+            const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
+            const overviewTabLink = document.getElementById('tab-overview');
+            const newsTabLink = document.getElementById('tab-news');
+            const guideTabLink = document.getElementById('tab-guide');
+            const newsBreadcrumbSpan = document.getElementById('news-breadcrumb-span');
+            const newsDetailBreadcrumb = document.getElementById('news-detail-breadcrumb');
+
+            let exchangeName = 'Exchange'; // Default placeholder
+
+            if (slug) {
+                // Basic setup - exchange-news.js will fetch details if needed and update UI further
+                console.log("Setting initial tab links with slug:", slug);
+
+                // TODO: Optionally fetch exchange name *once* here for faster initial display
+                // This could be a separate lightweight API call if available
+                // For now, we rely on exchange-news.js to update names after fetching data
+
+                const overviewPageUrl = `overview.html?slug=${slug}`;
+                const newsListPageUrl = `news.html?slug=${slug}`; // Link to the list view
+                const guidePageUrl = `guide.html?slug=${slug}`;
+
+                if (exchangeLinkBreadcrumb) {
+                    exchangeLinkBreadcrumb.href = overviewPageUrl;
+                    exchangeLinkBreadcrumb.textContent = exchangeName; // Will be updated later
+                }
+                if (exchangeNameHeading) {
+                    // Initial heading depends on whether we view list or detail
+                    exchangeNameHeading.textContent = newsId ? 'Loading News...' : `${exchangeName} News`;
+                }
+
+                // Set tab links
+                if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
+                if (newsTabLink) newsTabLink.href = newsListPageUrl; // Link tab to list view
+                if (guideTabLink) guideTabLink.href = guidePageUrl;
+
+                // Initial breadcrumb state
+                if (newsBreadcrumbSpan) newsBreadcrumbSpan.classList.remove('hidden');
+                if (newsDetailBreadcrumb) newsDetailBreadcrumb.classList.add('hidden');
+
+
+                console.log("Initial tab links set.");
+
+            } else {
+                console.error("Exchange slug is missing from URL.");
+                if (exchangeNameHeading) exchangeNameHeading.textContent = 'Error: Slug missing';
+                // Disable tabs or show error state
+                if (overviewTabLink) overviewTabLink.href = '#';
+                if (newsTabLink) newsTabLink.href = '#';
+                if (guideTabLink) guideTabLink.href = '#';
+            }
+        });
+    </script>
+    <!-- Load the main script for this page -->
+    <script type="module" src="../js/exchange-news.js"></script>
+</body>
+</html>

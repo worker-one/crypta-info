@@ -80,11 +80,85 @@ export function renderExchangeCard(exchange) {
             </div>
         </div>
         <div class="details-link">
-            <a href="/exchange.html?slug=${exchange.slug}" class="btn btn-primary">Details</a>
+            <a href="/exchange/overview.html?slug=${exchange.slug}" class="btn btn-primary">Details</a>
         </div>
     `;
 
     return card;
+}
+
+/**
+ * Renders a single news item card.
+ * Assumes NewsItemRead schema: { id, title, url, source_name, published_at, image_url, excerpt }
+ * @param {object} newsItem - The news item data object.
+ * @param {string} slug - The exchange slug for context (used in the link).
+ * @returns {HTMLElement} - The created card element.
+ */
+export function renderNewsCard(newsItem, slug) { // Added slug parameter
+    const card = document.createElement('article'); // Use article for semantic meaning
+    card.className = 'news-card';
+
+    const imageUrl = newsItem.image_url || '../assets/images/news-placeholder.png'; // Adjust placeholder path
+    /// excerpt is the first 200 characters of the content
+    const excerpt = newsItem.content ? newsItem.content.substring(0, 200) + '...' : 'No excerpt available';
+    const publishedDate = newsItem.published_at ? new Date(newsItem.published_at).toLocaleDateString() : 'N/A';
+    const sourceName = newsItem.source_name || 'Unknown Source';
+
+    // Construct the link URL using the slug and news item ID
+    // Ensure newsItem.id exists and is valid
+    const readMoreUrl = `news.html?slug=${slug}&news_id=${newsItem.id}`;
+
+    // Removed the outer content div as innerHTML replaces everything anyway
+    card.innerHTML = `
+        <img src="${imageUrl}" alt="${newsItem.title}" class="news-card-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/news-placeholder.png';">
+        <div class="news-card-content">
+            <h3 class="news-card-title">${newsItem.title}</h3>
+            <div class="news-card-meta">
+                <span>${sourceName}</span>
+                <span>${publishedDate}</span>
+            </div>
+            <p class="news-card-excerpt">${excerpt}</p>
+            <a href="${readMoreUrl}" class="news-card-link">Read More &rarr;</a>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * Renders the full detail of a single news item.
+ * Assumes NewsItemRead schema: { id, title, url, source_name, published_at, image_url, content }
+ * @param {object} newsItem - The news item data object.
+ * @returns {HTMLElement} - The created detail element.
+ */
+export function renderNewsDetail(newsItem) {
+    const detailElement = document.createElement('article');
+    detailElement.className = 'news-detail-content'; // Add a class for styling if needed
+
+    const imageUrl = newsItem.image_url || '../assets/images/news-placeholder.png'; // Adjust placeholder path
+    const publishedDate = newsItem.published_at ? new Date(newsItem.published_at).toLocaleString() : 'N/A';
+    const sourceName = newsItem.source_name || 'Unknown Source';
+    // Use the full content, assuming it's safe HTML or plain text.
+    // If content can be unsafe, sanitize it here using DOMPurify or similar.
+    const contentHtml = newsItem.content || '<p>Full content not available.</p>';
+
+    detailElement.innerHTML = `
+        ${newsItem.image_url ? `<img src="${imageUrl}" alt="${newsItem.title}" class="news-detail-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/news-placeholder.png';">` : ''}
+        <div class="news-detail-meta">
+            <span>Source: <a href="${newsItem.url}" target="_blank" rel="noopener noreferrer">${sourceName}</a></span>
+            <span>Published: ${publishedDate}</span>
+        </div>
+        <div class="news-detail-body">
+            ${contentHtml}
+        </div>
+        <div class="news-detail-footer">
+             <a href="${newsItem.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">View Original Source</a>
+             <!-- Optional: Add a link back to the news list for the exchange -->
+             <!-- <a href="news.html?slug=..." class="btn btn-outline-secondary btn-sm">Back to News List</a> -->
+        </div>
+    `;
+
+    return detailElement;
 }
 
 /**
@@ -125,13 +199,13 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             logoImg.alt = `${exchange.name} Logo`;
             logoImg.loading = 'lazy'; // Lazy load logos
             logoTd.appendChild(logoImg);
-            
+
             // Add name span for card view (good for responsive design)
             const nameSpan = document.createElement('span');
             nameSpan.className = 'exchange-name-in-logo-cell';
             nameSpan.textContent = exchange.name;
             logoTd.appendChild(nameSpan);
-            
+
             tr.appendChild(logoTd);
 
             // 2. Name Cell
@@ -181,7 +255,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             actionTd.className = 'action-cell';
             actionTd.setAttribute('data-label', 'Action');
             const detailsLink = document.createElement('a');
-            detailsLink.href = `exchange.html?slug=${exchange.slug}`;
+            detailsLink.href = `exchange/overview.html?slug=${exchange.slug}`;
             detailsLink.className = 'btn btn-primary btn-sm';
             detailsLink.textContent = 'Details';
             actionTd.appendChild(detailsLink);
@@ -260,21 +334,21 @@ export function initTableViewToggle() {
     const toggleBtn = document.getElementById('toggle-view-btn');
     const table = document.getElementById('exchange-table');
     const tableBody = document.getElementById('exchange-list-body');
-    
+
     if (!toggleBtn || !table || !tableBody) {
         console.warn('Table view toggle elements not found');
         return;
     }
-    
+
     toggleBtn.addEventListener('click', () => {
         // Toggle card-mode class
         table.classList.toggle('card-mode');
-        
+
         // Update button text
-        toggleBtn.textContent = table.classList.contains('card-mode') 
-            ? 'Switch to Table View' 
+        toggleBtn.textContent = table.classList.contains('card-mode')
+            ? 'Switch to Table View'
             : 'Switch to Card View';
-        
+
         // When switching to card mode, ensure cells have proper data-label attributes
         if (table.classList.contains('card-mode')) {
             const rows = tableBody.querySelectorAll('tr');
@@ -282,14 +356,14 @@ export function initTableViewToggle() {
                 // Set data-label attributes based on column headers
                 const headers = table.querySelectorAll('thead th');
                 const cells = row.querySelectorAll('td');
-                
+
                 cells.forEach((cell, index) => {
                     if (index < headers.length && !cell.hasAttribute('data-label')) {
                         const headerText = headers[index].textContent.trim();
                         cell.setAttribute('data-label', headerText);
                     }
                 });
-                
+
                 // For rating cell, ensure it has the correct inner structure
                 const ratingCell = row.querySelector('.rating-cell');
                 if (ratingCell && !ratingCell.querySelector('.rating-value')) {
@@ -299,23 +373,23 @@ export function initTableViewToggle() {
             });
         }
     });
-    
+
     // Set initial state based on screen size
     if (window.innerWidth <= 767) {
         table.classList.add('card-mode');
         toggleBtn.textContent = 'Switch to Table View';
-        
+
         // Trigger the same data-attribute setup logic
         const event = new Event('click');
         toggleBtn.dispatchEvent(event);
     }
-    
+
     // Update view when window is resized
     window.addEventListener('resize', () => {
         if (window.innerWidth <= 767 && !table.classList.contains('card-mode')) {
             table.classList.add('card-mode');
             toggleBtn.textContent = 'Switch to Table View';
-            
+
             // Trigger the same data-attribute setup logic
             const event = new Event('click');
             toggleBtn.dispatchEvent(event);

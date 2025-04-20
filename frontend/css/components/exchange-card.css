@@ -1,0 +1,30 @@
+.exchange-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.exchange-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.exchange-card p {
+    margin-bottom: 0.5rem;
+}
+
+.exchange-card .details {
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Add more specific styles for elements within the card */
+.exchange-card .logo {
+    float: left;
+    margin-right: 1rem;
+    max-width: 50px; /* Example size */
+}
