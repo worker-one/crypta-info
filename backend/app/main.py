@@ -11,6 +11,7 @@ from app.reviews.router import router as reviews_router
 from app.news.router import router as news_router
 from app.static_pages.router import router as static_pages_router
 from app.admin.router import router as admin_router
+from app.common.router import router as common_router # Import the new router
 
 # Create FastAPI app instance
 app = FastAPI(
@@ -25,8 +26,6 @@ origins = [
     "*"
     # Add other allowed origins if needed
 ]
-
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,6 +46,7 @@ api_router_v1.include_router(news_router)
 api_router_v1.include_router(admin_router) # Include admin routes under v1 prefix
 api_router_v1.include_router(rating_categories_router)
 api_router_v1.include_router(static_pages_router) # Static pages router
+api_router_v1.include_router(common_router) # Include the common data router
 
 app.include_router(api_router_v1, prefix=settings.API_V1_STR)
 

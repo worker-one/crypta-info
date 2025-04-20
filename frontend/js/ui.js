@@ -331,68 +331,77 @@ export function displayErrorMessage(elementId, message) {
  * Also sets initial state based on screen size
  */
 export function initTableViewToggle() {
-    const toggleBtn = document.getElementById('toggle-view-btn');
-    const table = document.getElementById('exchange-table');
-    const tableBody = document.getElementById('exchange-list-body');
+    const toggleBtn = document.getElementById('toggle-view-btn'); // Button still exists but is hidden
+    const tableView = document.getElementById('exchange-table');
+    const cardView = document.getElementById('exchange-card-container');
 
-    if (!toggleBtn || !table || !tableBody) {
-        console.warn('Table view toggle elements not found');
+    // Check if essential elements exist
+    if (!tableView || !cardView) { // Removed toggleBtn check as it's not essential for logic anymore
+        console.warn('Table/Card view elements not found. Aborting toggle initialization.');
         return;
     }
 
-    toggleBtn.addEventListener('click', () => {
-        // Toggle card-mode class
-        table.classList.toggle('card-mode');
+    // Get references to the text spans inside the button (keep for potential future use, but not strictly needed now)
+    // const tableViewText = toggleBtn?.querySelector('.table-view-text');
+    // const cardViewText = toggleBtn?.querySelector('.card-view-text');
 
-        // Update button text
-        toggleBtn.textContent = table.classList.contains('card-mode')
-            ? 'Switch to Table View'
-            : 'Switch to Card View';
-
-        // When switching to card mode, ensure cells have proper data-label attributes
-        if (table.classList.contains('card-mode')) {
-            const rows = tableBody.querySelectorAll('tr');
-            rows.forEach(row => {
-                // Set data-label attributes based on column headers
-                const headers = table.querySelectorAll('thead th');
-                const cells = row.querySelectorAll('td');
-
-                cells.forEach((cell, index) => {
-                    if (index < headers.length && !cell.hasAttribute('data-label')) {
-                        const headerText = headers[index].textContent.trim();
-                        cell.setAttribute('data-label', headerText);
-                    }
-                });
-
-                // For rating cell, ensure it has the correct inner structure
-                const ratingCell = row.querySelector('.rating-cell');
-                if (ratingCell && !ratingCell.querySelector('.rating-value')) {
-                    const ratingText = ratingCell.textContent.trim();
-                    ratingCell.innerHTML = `<span class="rating-value">${ratingText.replace(' ★', '')}</span>`;
-                }
-            });
-        }
-    });
-
-    // Set initial state based on screen size
-    if (window.innerWidth <= 767) {
-        table.classList.add('card-mode');
-        toggleBtn.textContent = 'Switch to Table View';
-
-        // Trigger the same data-attribute setup logic
-        const event = new Event('click');
-        toggleBtn.dispatchEvent(event);
+    // Helper functions to manage view state
+    function toggleToCardView() {
+        tableView.classList.add('hidden');
+        cardView.classList.remove('hidden');
+        // Remove button text updates
+        // if (tableViewText) tableViewText.classList.remove('hidden');
+        // if (cardViewText) cardViewText.classList.add('hidden');
+        console.log("Switched to Card View (responsive)");
     }
 
-    // Update view when window is resized
-    window.addEventListener('resize', () => {
-        if (window.innerWidth <= 767 && !table.classList.contains('card-mode')) {
-            table.classList.add('card-mode');
-            toggleBtn.textContent = 'Switch to Table View';
+    function toggleToTableView() {
+        tableView.classList.remove('hidden');
+        cardView.classList.add('hidden');
+        // Remove button text updates
+        // if (tableViewText) tableViewText.classList.add('hidden');
+        // if (cardViewText) cardViewText.classList.remove('hidden');
+        console.log("Switched to Table View (responsive)");
+    }
 
-            // Trigger the same data-attribute setup logic
-            const event = new Event('click');
-            toggleBtn.dispatchEvent(event);
+    // Set initial state based on screen size
+    const checkInitialView = () => {
+        const isSmallScreen = window.innerWidth <= 767;
+        if (isSmallScreen) {
+            toggleToCardView();
+        } else {
+            // Default to table view on larger screens
+            toggleToTableView();
         }
+    };
+
+    // Remove the click listener for the button
+    // toggleBtn?.addEventListener('click', () => {
+    //     if (tableView.classList.contains('hidden')) {
+    //         toggleToTableView();
+    //     } else {
+    //         toggleToCardView();
+    //     }
+    // });
+
+    // Add resize listener to handle responsive switching
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        // Debounce resize event
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const isSmallScreen = window.innerWidth <= 767;
+            if (isSmallScreen && !tableView.classList.contains('hidden')) {
+                // Small screen but currently in table view - switch to card
+                toggleToCardView();
+            } else if (!isSmallScreen && tableView.classList.contains('hidden')) {
+                // Large screen but currently in card view - switch to table
+                toggleToTableView();
+            }
+            // No action needed if the view already matches the screen size
+        }, 250); // Adjust debounce delay as needed
     });
+
+    // Set the initial view when the function runs
+    checkInitialView();
 }

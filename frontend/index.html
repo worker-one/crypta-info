@@ -46,12 +46,48 @@
         <!-- Exchange List Section -->
         <section id="exchange-list-section" class="exchange-list-section">
             <div class="container">
+                <!-- Filters Section -->
+                <div id="exchange-filters" class="exchange-filters-container">
+                    <h3>Filter Exchanges</h3>
+                    <form id="filter-form" class="filter-form">
+                        <div class="form-group">
+                            <label for="filter-country-registration">Registration Country</label>
+                            <select id="filter-country-registration" name="country_id">
+                                <option value="">Any Country</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-kyc-type">KYC Type</label>
+                            <select id="filter-kyc-type" name="kyc_type">
+                                <option value="">Any KYC</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="filter-fiat-currency">Supports Fiat</label>
+                            <select id="filter-fiat-currency" name="supports_fiat_id">
+                                <option value="">Any Fiat</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="filter-has-p2p" name="has_p2p">
+                            <label for="filter-has-p2p">P2P Available</label>
+                        </div>
+                        <div class="form-group filter-buttons">
+                            <button type="button" id="apply-filters-btn" class="btn btn-secondary btn-sm">Apply</button>
+                            <button type="button" id="reset-filters-btn" class="btn btn-outline-secondary btn-sm">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Table container stays outside inner container to be full width -->
                 <div id="exchange-table-container">
                     <p id="loading-exchanges">Loading exchanges...</p>
                     <div id="exchange-list-error" class="error-message"></div>
                     <div class="card-view-toggle">
-                        <button id="toggle-view-btn" class="btn btn-sm btn-secondary">
+                        <button id="toggle-view-btn" class="btn btn-sm btn-secondary hidden">
                             <span class="table-view-text hidden">Table View</span>
                             <span class="card-view-text">Switch to Card View</span>
                         </button>

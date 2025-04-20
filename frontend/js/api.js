@@ -71,11 +71,20 @@ async function fetchApi(endpoint, options = {}, requiresAuth = false) {
 
 /**
  * Fetches a list of exchanges (basic version).
+ * Supports filtering and sorting.
+ * @param {object} params - Parameters like { skip, limit, name, country_id, kyc_type, has_p2p, supports_fiat_id, field, direction }
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
 export async function fetchExchanges(params = { skip: 0, limit: 10 }) {
-    // Basic query string builder
-    const query = new URLSearchParams(params).toString();
+    // Clean up empty parameters before creating query string
+    const cleanedParams = Object.entries(params).reduce((acc, [key, value]) => {
+        if (value !== null && value !== undefined && value !== '') {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
+    const query = new URLSearchParams(cleanedParams).toString();
+    console.log("Fetching exchanges with query:", query); // Log the actual query
     return fetchApi(`/exchanges/?${query}`);
 }
 
@@ -342,6 +351,24 @@ export async function listNews(params = { skip: 0, limit: 10 }) {
 export async function getNewsItem(newsId) {
     // Assuming news is public, no auth needed
     return fetchApi(`/news/${newsId}`, { method: 'GET' });
+}
+
+/**
+ * Fetches a list of all countries.
+ * @returns {Promise<Array<object>>} - Array of country objects { id: number, name: string, code: string }
+ */
+export async function fetchCountries() {
+    // Assuming a public endpoint /countries/ exists
+    return fetchApi('/common/countries/', { method: 'GET' });
+}
+
+/**
+ * Fetches a list of all fiat currencies.
+ * @returns {Promise<Array<object>>} - Array of fiat currency objects { id: number, name: string, code: string, symbol: string }
+ */
+export async function fetchFiatCurrencies() {
+    // Assuming a public endpoint /fiat-currencies/ exists
+    return fetchApi('/common/fiat_currencies/', { method: 'GET' });
 }
 
 /** addLogoutHandler

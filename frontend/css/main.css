@@ -25,4 +25,102 @@
     text-align: center;
 }
 
-/* Add other global styles or overrides if needed */
+/* --- Exchange Filters --- */
+.exchange-filters-container {
+    background-color: #f8f9fa; /* Light background */
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #dee2e6;
+}
+
+.exchange-filters-container h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    color: #495057;
+}
+
+.filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive columns */
+    gap: 1rem 1.5rem; /* Row and column gap */
+    align-items: end; /* Align items to the bottom */
+}
+
+/* Inherit form-group, label, select styles from components/forms.css */
+/* Ensure components/forms.css is loaded */
+
+.filter-form .form-group {
+    margin-bottom: 0; /* Remove bottom margin as gap handles spacing */
+}
+
+.filter-form label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.filter-form select,
+.filter-form input[type="checkbox"] {
+    /* Use styles from forms.css or add specific overrides */
+    padding: 0.5rem 0.75rem; /* Adjust padding if needed */
+    font-size: 0.95rem;
+}
+
+.filter-form .checkbox-group {
+    display: flex;
+    align-items: center;
+    padding-top: 1.5rem; /* Align checkbox with bottom of selects */
+    gap: 0.5rem;
+}
+
+.filter-form .checkbox-group input[type="checkbox"] {
+    width: auto; /* Override width: 100% */
+    margin-top: 0; /* Adjust vertical alignment */
+}
+
+.filter-form .checkbox-group label {
+    margin-bottom: 0;
+    font-weight: normal;
+}
+
+.filter-form .filter-buttons {
+    display: flex;
+    gap: 0.75rem;
+    /* grid-column: span 2; */ /* Optional: make buttons span columns */
+    justify-content: flex-start; /* Align buttons left */
+}
+
+/* --- Responsive Adjustments for Filters --- */
+@media (max-width: 768px) {
+    .filter-form {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem 1rem;
+    }
+
+    .filter-form .checkbox-group {
+        padding-top: 0; /* Reset alignment */
+    }
+
+    .filter-form .filter-buttons {
+        grid-column: 1 / -1; /* Make buttons span full width */
+        justify-content: center;
+    }
+}
+
+#toggle-filters-btn {
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+#toggle-filters-btn .hide-text {
+    display: none;
+}
+#toggle-filters-btn .show-text {
+    display: inline;
+}
+#toggle-filters-btn.open .hide-text {
+    display: inline;
+}
+#toggle-filters-btn.open .show-text {
+    display: none;
+}

@@ -1,7 +1,7 @@
 // Main Application Logic and Initialization
 import { handleLogin, handleLogout, checkAndCacheUserProfile, handleRegister } from './auth.js';
 import { updateHeaderNav, renderExchangeList, displayErrorMessage, clearErrorMessage, initTableViewToggle } from './ui.js';
-import { fetchExchanges } from './api.js';
+import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from './api.js';
 
 // --- Initialization ---
 
@@ -60,11 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // == Homepage Logic ==
     if (pathname === '/' || pathname === '/index.html') {
         console.log("On homepage");
-        
+
         // Initialize table view toggle if we're on the homepage
-        if (document.getElementById('exchange-table')) {
-            initTableToggle();
-        }
+        initTableViewToggle();
+
+        // Populate filter dropdowns
+        populateFilterOptions();
 
         // Load exchanges if we're on the homepage
         if (document.getElementById('exchange-list-body')) {
@@ -75,9 +76,19 @@ document.addEventListener('DOMContentLoaded', () => {
         searchForm?.addEventListener('submit', (event) => {
             event.preventDefault();
             console.log("Search submitted");
-            const searchTerm = document.getElementById('search-input').value;
+            applyFilters();
+        });
 
-            loadHomepageExchanges({ name: searchTerm });
+        // Add listener for Apply Filters button
+        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+        applyFiltersBtn?.addEventListener('click', applyFilters);
+
+        // Add listener for Reset Filters button
+        const resetFiltersBtn = document.getElementById('reset-filters-btn');
+        resetFiltersBtn?.addEventListener('click', () => {
+            document.getElementById('filter-form')?.reset();
+            document.getElementById('search-input').value = '';
+            loadHomepageExchanges();
         });
     }
 
@@ -201,62 +212,90 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Initialize table/card toggle functionality
+ * Fetches data and populates filter select options.
  */
-function initTableToggle() {
-    const toggleBtn = document.getElementById('toggle-view-btn');
-    const tableView = document.getElementById('exchange-table');
-    const cardView = document.getElementById('exchange-card-container');
-    const tableViewText = toggleBtn.querySelector('.table-view-text');
-    const cardViewText = toggleBtn.querySelector('.card-view-text');
-    
-    // Check initial state based on screen size
-    const isSmallScreen = window.innerWidth <= 767;
-    if (isSmallScreen) {
-        toggleToCardView();
+async function populateFilterOptions() {
+    const countrySelect = document.getElementById('filter-country-registration');
+    const kycSelect = document.getElementById('filter-kyc-type');
+    const fiatSelect = document.getElementById('filter-fiat-currency');
+
+    // Populate KYC Type (manual based on enum)
+    if (kycSelect) {
+        const kycTypes = ['none', 'optional', 'mandatory'];
+        kycTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize
+            kycSelect.appendChild(option);
+        });
     }
-    
-    toggleBtn.addEventListener('click', () => {
-        if (tableView.classList.contains('hidden')) {
-            toggleToTableView();
-        } else {
-            toggleToCardView();
+
+    // Populate Countries
+    if (countrySelect) {
+        try {
+            const countries = await fetchCountries();
+            countries.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.id;
+                option.textContent = country.name;
+                countrySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Failed to load countries for filter:", error);
+            // Optionally display an error message near the select
         }
-    });
-    
-    // Helper functions
-    function toggleToCardView() {
-        tableView.classList.add('hidden');
-        cardView.classList.remove('hidden');
-        tableViewText.classList.remove('hidden');
-        cardViewText.classList.add('hidden');
     }
-    
-    function toggleToTableView() {
-        tableView.classList.remove('hidden');
-        cardView.classList.add('hidden');
-        tableViewText.classList.add('hidden');
-        cardViewText.classList.remove('hidden');
-    }
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        const isSmallScreen = window.innerWidth <= 767;
-        if (isSmallScreen && !cardView.classList.contains('hidden')) {
-            // Already in card view, no change needed
-        } else if (isSmallScreen) {
-            toggleToCardView();
+
+    // Populate Fiat Currencies
+    if (fiatSelect) {
+        try {
+            const fiats = await fetchFiatCurrencies();
+            fiats.sort((a, b) => {
+                if (typeof a.code_iso_4217 !== 'string' || typeof b.code_iso_4217 !== 'string') {
+                    return 0; // Or handle the missing code as needed
+                }
+                return a.code_iso_4217.localeCompare(b.code_iso_4217);
+            }); // Sort by code
+            fiats.forEach(fiat => {
+                const option = document.createElement('option');
+                option.value = fiat.id;
+                option.textContent = `${fiat.code_iso_4217} (${fiat.name})`;
+                fiatSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Failed to load fiat currencies for filter:", error);
+            // Optionally display an error message near the select
         }
-    });
+    }
 }
 
-// --- Helper Functions ---
+/**
+ * Gathers filter values and triggers loading exchanges.
+ */
+function applyFilters() {
+    const params = {};
+    const searchTerm = document.getElementById('search-input')?.value;
+    const countryId = document.getElementById('filter-country-registration')?.value;
+    const kycType = document.getElementById('filter-kyc-type')?.value;
+    const hasP2p = document.getElementById('filter-has-p2p')?.checked;
+    const fiatId = document.getElementById('filter-fiat-currency')?.value;
+
+    if (searchTerm) params.name = searchTerm;
+    if (countryId) params.country_id = countryId;
+    if (kycType) params.kyc_type = kycType;
+    if (hasP2p !== undefined && hasP2p !== null) params.has_p2p = hasP2p; // Send true/false
+    if (fiatId) params.supports_fiat_id = fiatId;
+
+    console.log("Applying filters:", params);
+    loadHomepageExchanges(params);
+}
+
 /**
  * Fetches and displays exchanges on the homepage table.
  * @param {object} params - Optional parameters for filtering/searching exchanges.
  */
 async function loadHomepageExchanges(params = {}) {
-    // *** Use the correct IDs from the HTML ***
     const tbodyId = 'exchange-list-body';
     const cardContainerId = 'exchange-card-container';
     const loadingIndicatorId = 'loading-exchanges';
@@ -274,30 +313,38 @@ async function loadHomepageExchanges(params = {}) {
     if (errorContainer) errorContainer.classList.remove('visible');
 
     try {
-        console.log("Fetching exchanges with params:", params);
+        console.log("Loading exchanges with params:", params);
         const queryParams = {
             field: 'overall_average_rating',
             direction: 'desc',
             limit: 25,
             ...params
-        }; 
-        if(params.name === "") {
-            delete queryParams.name;
-        }
+        };
+
+        Object.keys(queryParams).forEach(key => {
+            if (queryParams[key] === '' || queryParams[key] === null || queryParams[key] === undefined) {
+                delete queryParams[key];
+            }
+        });
+
         const data = await fetchExchanges(queryParams);
         console.log("Exchanges received:", data);
 
         if (data && data.items) {
             // Render table view
             renderExchangeList(data.items, tbodyId, loadingIndicatorId, errorContainerId);
-            
+
             // Render card view
             renderCardView(data.items, cardContainerId);
-            
+
             if (loadingIndicator) loadingIndicator.style.display = 'none';
         } else {
             renderExchangeList([], tbodyId, loadingIndicatorId, errorContainerId);
             renderCardView([], cardContainerId);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            if (!errorContainer?.classList.contains('visible')) {
+                displayErrorMessage(errorContainerId, 'Could not load exchange data.');
+            }
         }
 
     } catch (error) {
