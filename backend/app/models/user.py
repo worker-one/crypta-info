@@ -34,6 +34,13 @@ class User(Base):
         cascade="all, delete-orphan", # Delete user's reviews if user is deleted
         lazy="selectin" # Consider loading strategy based on usage
     )
+    guides = relationship(
+        "GuideItem",
+        back_populates="creator",
+        foreign_keys="GuideItem.created_by_user_id", # Explicitly define FK
+        cascade="all, delete-orphan", # Delete user's guides if user is deleted
+        lazy="selectin" # Consider loading strategy based on usage
+    )
     usefulness_votes = relationship(
         "ReviewUsefulnessVote",
         back_populates="user",

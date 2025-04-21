@@ -46,19 +46,9 @@
 /* New styles for the search container in the header */
 .header-search-container {
     display: flex;
-    flex-grow: 1; /* Allows the search bar to take up available space */
-    justify-content: center; /* Center the form within its container */
+    flex-grow: 2; /* Allows the search bar to take up double available space */
     min-width: 200px; /* Prevent search from becoming too small */
-    white-space: nowrap;
-}
-
-/* Create a right-side wrapper for search and nav */
-.header-right {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem; /* Adjust gap between search and buttons */
-    white-space: nowrap;
+    margin: 0 1rem; /* Add some horizontal margin */
 }
 
 /* --- Main Navigation --- */
@@ -157,8 +147,7 @@ main {
     gap: 0.5rem;
     width: 100%; /* Allow it to fill the container up to max-width */
     max-width: 450px; /* Adjust max-width as needed */
-    margin-right: 0; /* Reset alignment */
-    margin-left: 0; /* Reset alignment */
+    margin: 0 auto; /* Center form within its container */
 }
 
 #search-filter-form input[type="search"] {

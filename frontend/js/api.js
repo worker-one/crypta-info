@@ -353,6 +353,36 @@ export async function getNewsItem(newsId) {
     return fetchApi(`/news/${newsId}`, { method: 'GET' });
 }
 
+// --- Guide API Functions ---
+
+/**
+ * Fetches a list of guide items, optionally filtered by exchange ID.
+ * @param {object} params - Parameters including pagination (skip, limit) and filtering (exchange_id).
+ * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
+ */
+export async function listGuides(params = { skip: 0, limit: 10 }) {
+    // Clean up empty parameters
+    const cleanedParams = Object.entries(params).reduce((acc, [key, value]) => {
+        if (value !== null && value !== undefined && value !== '') {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
+    const query = new URLSearchParams(cleanedParams).toString();
+    // Assuming guides are public, no auth needed.
+    return fetchApi(`/guides/?${query}`, { method: 'GET' });
+}
+
+/**
+ * Fetches details for a specific guide item.
+ * @param {string|number} guideId - The ID of the guide item.
+ * @returns {Promise<object>} - The guide item object.
+ */
+export async function getGuideItem(guideId) {
+    // Assuming guides are public, no auth needed
+    return fetchApi(`/guides/${guideId}`, { method: 'GET' });
+}
+
 /**
  * Fetches a list of all countries.
  * @returns {Promise<Array<object>>} - Array of country objects { id: number, name: string, code: string }

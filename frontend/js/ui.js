@@ -162,6 +162,72 @@ export function renderNewsDetail(newsItem) {
 }
 
 /**
+ * Renders the full detail of a single guide item.
+ * Assumes GuideItem schema: { id, title, image_url, content }
+ * @param {object} guideItem - The guide item data object.
+ * @returns {HTMLElement} - The created detail element.
+ */
+export function renderGuideDetail(guideItem) {
+    const detailElement = document.createElement('article');
+    detailElement.className = 'guide-detail-content'; // Add a class for styling
+
+    const imageUrl = guideItem.image_url || '../assets/images/guide-placeholder.png';
+    // Use the full content, assuming it's safe HTML or plain text.
+    // If content can be unsafe, sanitize it here using DOMPurify or similar.
+    const contentHtml = guideItem.content || '<p>Full content not available.</p>';
+
+    detailElement.innerHTML = `
+        ${guideItem.image_url ? `<img src="${imageUrl}" alt="${guideItem.title}" class="guide-detail-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/guide-placeholder.png';">` : ''}
+        <div class="guide-detail-body">
+            ${contentHtml}
+        </div>
+        <div class="guide-detail-footer">
+             <!-- Optional: Add a link back to the guide list for the exchange -->
+             <!-- <a href="guide.html?slug=..." class="btn btn-outline-secondary btn-sm">Back to Guide List</a> -->
+        </div>
+    `;
+
+    return detailElement;
+}
+
+/**
+ * Renders a single guide item card.
+ * Assumes GuideItem schema: { id, title, image_url, excerpt }
+ * @param {object} guideItem - The guide item data object.
+ * @param {string} slug - The exchange slug for context (used in the link if needed).
+ * @returns {HTMLElement} - The created card element.
+ */
+export function renderGuideCard(guideItem, slug) {
+    const card = document.createElement('article');
+    card.className = 'guide-card'; // Use a specific class for styling
+
+    const imageUrl = guideItem.image_url || '../assets/images/guide-placeholder.png'; // Adjust placeholder path
+    // const excerpt = guideItem.excerpt || 'No description available.'; // Use excerpt or fallback
+    // except is the first 200 characters of the content
+    const excerpt = guideItem.content ? guideItem.content.substring(0, 200) + '...' : 'No description available.';
+    const title = guideItem.title || 'Untitled Guide';
+
+    // Decide on the link - does clicking a guide card go somewhere?
+    // Option 1: Link to a detail page (like news) - NOW points back to guide.html with guide_id
+    const readMoreUrl = `guide.html?slug=${slug}&guide_id=${guideItem.id}`;
+    // Option 2: Link directly to the guide content if it's simple, or no link if it expands in place.
+    // For now, let's assume no detail page link, just display info.
+    // If a detail view is needed later, add an <a> tag like in renderNewsCard.
+
+    card.innerHTML = `
+        <img src="${imageUrl}" alt="${title}" class="guide-card-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/guide-placeholder.png';">
+        <div class="guide-card-content">
+            <h3 class="guide-card-title">${title}</h3>
+            <p class="guide-card-excerpt">${excerpt}</p>
+            <!-- Optional: Add a link/button if needed -->
+            <a href="${readMoreUrl}" class="guide-card-link">Read Guide &rarr;</a>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
  * Renders the list of exchanges as rows in a table body.
  * @param {Array<object>} exchanges - Array of exchange data objects (expecting ExchangeReadBrief structure).
  * @param {string} tbodyId - ID of the table body element (tbody).
@@ -199,12 +265,6 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             logoImg.alt = `${exchange.name} Logo`;
             logoImg.loading = 'lazy'; // Lazy load logos
             logoTd.appendChild(logoImg);
-
-            // Add name span for card view (good for responsive design)
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'exchange-name-in-logo-cell';
-            nameSpan.textContent = exchange.name;
-            logoTd.appendChild(nameSpan);
 
             tr.appendChild(logoTd);
 

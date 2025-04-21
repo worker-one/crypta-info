@@ -3,6 +3,10 @@ import { handleLogin, handleLogout, checkAndCacheUserProfile, handleRegister } f
 import { updateHeaderNav, renderExchangeList, displayErrorMessage, clearErrorMessage, initTableViewToggle } from './ui.js';
 import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from './api.js';
 
+// --- Global State for Sorting ---
+let currentSortKey = 'overall_average_rating'; // Default sort
+let currentSortDirection = 'desc'; // Default direction
+
 // --- Initialization ---
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,9 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Populate filter dropdowns
         populateFilterOptions();
 
-        // Load exchanges if we're on the homepage
+        // Load exchanges if we're on the homepage (uses default sort initially)
         if (document.getElementById('exchange-list-body')) {
-            loadHomepageExchanges();
+            loadHomepageExchanges(); // Initial load with default sort
         }
 
         const searchForm = document.getElementById('search-filter-form');
@@ -88,8 +92,30 @@ document.addEventListener('DOMContentLoaded', () => {
         resetFiltersBtn?.addEventListener('click', () => {
             document.getElementById('filter-form')?.reset();
             document.getElementById('search-input').value = '';
-            loadHomepageExchanges();
+            // Explicitly reset the P2P select to the default "Any" value
+            const p2pSelect = document.getElementById('filter-has-p2p');
+            if (p2pSelect) p2pSelect.value = '';
+            // Reset sort to default when resetting filters
+            currentSortKey = 'overall_average_rating';
+            currentSortDirection = 'desc';
+            updateSortIndicators(); // Update visual indicators
+            loadHomepageExchanges(); // Reload with default filters and sort
         });
+
+        // Add listener for table header clicks (sorting)
+        const tableHeader = document.querySelector('#exchange-table thead tr');
+        tableHeader?.addEventListener('click', (event) => {
+            const headerCell = event.target.closest('th'); // Find the clicked header cell
+            if (headerCell && headerCell.classList.contains('sortable')) {
+                const sortKey = headerCell.dataset.sortKey;
+                if (sortKey) {
+                    handleSortClick(sortKey);
+                }
+            }
+        });
+
+        // Set initial sort indicators
+        updateSortIndicators();
     }
 
     // == Login Page Logic ==
@@ -271,6 +297,37 @@ async function populateFilterOptions() {
 }
 
 /**
+ * Handles clicking on a sortable table header.
+ * @param {string} newSortKey - The key to sort by (from data-sort-key).
+ */
+function handleSortClick(newSortKey) {
+    if (currentSortKey === newSortKey) {
+        // Toggle direction if clicking the same column
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Switch to new column, default to descending
+        currentSortKey = newSortKey;
+        currentSortDirection = 'desc';
+    }
+    console.log(`Sorting by: ${currentSortKey}, Direction: ${currentSortDirection}`);
+    updateSortIndicators();
+    applyFilters(); // Re-apply filters which will include the new sort order
+}
+
+/**
+ * Updates the visual indicators (classes) on table headers based on current sort state.
+ */
+function updateSortIndicators() {
+    const headers = document.querySelectorAll('#exchange-table th.sortable');
+    headers.forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+        if (th.dataset.sortKey === currentSortKey) {
+            th.classList.add(currentSortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
+    });
+}
+
+/**
  * Gathers filter values and triggers loading exchanges.
  */
 function applyFilters() {
@@ -278,22 +335,30 @@ function applyFilters() {
     const searchTerm = document.getElementById('search-input')?.value;
     const countryId = document.getElementById('filter-country-registration')?.value;
     const kycType = document.getElementById('filter-kyc-type')?.value;
-    const hasP2p = document.getElementById('filter-has-p2p')?.checked;
+    // Get value from the select dropdown instead of checkbox checked state
+    const hasP2pValue = document.getElementById('filter-has-p2p')?.value;
     const fiatId = document.getElementById('filter-fiat-currency')?.value;
 
     if (searchTerm) params.name = searchTerm;
     if (countryId) params.country_id = countryId;
     if (kycType) params.kyc_type = kycType;
-    if (hasP2p !== undefined && hasP2p !== null) params.has_p2p = hasP2p; // Send true/false
+    // Add has_p2p only if a specific value ("true" or "false") is selected
+    if (hasP2pValue === 'true' || hasP2pValue === 'false') {
+        params.has_p2p = hasP2pValue === 'true'; // Convert string "true" to boolean true
+    }
     if (fiatId) params.supports_fiat_id = fiatId;
 
-    console.log("Applying filters:", params);
+    // Add sort parameters
+    params.field = currentSortKey;
+    params.direction = currentSortDirection;
+
+    console.log("Applying filters and sort:", params);
     loadHomepageExchanges(params);
 }
 
 /**
  * Fetches and displays exchanges on the homepage table.
- * @param {object} params - Optional parameters for filtering/searching exchanges.
+ * @param {object} params - Optional parameters for filtering/searching/sorting exchanges.
  */
 async function loadHomepageExchanges(params = {}) {
     const tbodyId = 'exchange-list-body';
@@ -314,11 +379,12 @@ async function loadHomepageExchanges(params = {}) {
 
     try {
         console.log("Loading exchanges with params:", params);
+        // Ensure default sort is applied if not provided in params
         const queryParams = {
-            field: 'overall_average_rating',
-            direction: 'desc',
+            field: currentSortKey, // Use global state as default
+            direction: currentSortDirection, // Use global state as default
             limit: 25,
-            ...params
+            ...params // Params passed in will override defaults
         };
 
         Object.keys(queryParams).forEach(key => {
@@ -336,6 +402,9 @@ async function loadHomepageExchanges(params = {}) {
 
             // Render card view
             renderCardView(data.items, cardContainerId);
+
+            // Ensure sort indicators are correct after load (might be redundant but safe)
+            updateSortIndicators();
 
             if (loadingIndicator) loadingIndicator.style.display = 'none';
         } else {

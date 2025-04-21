@@ -7,6 +7,43 @@
     <link rel="stylesheet" href="../css/main.css"> <!-- Adjust path -->
     <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles if applicable -->
     <!-- Add specific guide page CSS if needed -->
+    <style>
+        /* Basic grid layout for guide cards */
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem; /* Adjust gap as needed */
+            padding-top: 1rem;
+        }
+        /* Add styles for .guide-card, .guide-card-image, etc. similar to news-card if needed */
+        .guide-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .guide-card-image {
+            width: 100%;
+            height: 150px; /* Adjust height */
+            object-fit: cover;
+        }
+        .guide-card-content {
+            padding: 1rem;
+            flex-grow: 1; /* Allow content to fill space */
+        }
+        .guide-card-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        .guide-card-excerpt {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+    </style>
 </head>
 <body>
     <header class="main-header">
@@ -32,7 +69,8 @@
                  <div id="breadcrumb">
                     <a href="/">Home</a> /
                     <a href="#" id="exchange-link-breadcrumb">Exchange</a> / <!-- JS will populate this -->
-                    <span>Guide</span>
+                    <span id="guide-breadcrumb-span">Guide</span> <!-- Static "Guide" part -->
+                    <span id="guide-detail-breadcrumb" class="hidden"></span> <!-- Placeholder for guide item title -->
                 </div>
 
                 <!-- Tab Navigation -->
@@ -45,27 +83,47 @@
                 <h1 id="exchange-name-heading">Exchange Guide</h1> <!-- JS will populate this -->
 
                 <div id="guide-content">
-                    <p>Guide content for this exchange will be displayed here.</p>
-                    <!-- Placeholder for guide sections -->
-                     <div id="guide-loading" class="loading-message hidden">Loading guide...</div>
-                    <div id="guide-error" class="error-message"></div>
-                    <div id="guide-sections">
-                        <!-- Guide sections will be loaded here -->
+                    <!-- Container for guide items (list view) -->
+                    <div id="guide-list" class="guide-grid">
+                        <!-- Guide cards will be loaded here -->
                     </div>
+                    <!-- Container for single guide item (detail view) -->
+                    <div id="guide-detail-content" class="hidden">
+                        <!-- Single guide item detail will be loaded here -->
+                    </div>
+                    <!-- Loading and Error Messages -->
+                    <div id="guide-loading" class="loading-message hidden" style="text-align: center; padding: 2rem;">Loading guide items...</div>
+                    
+                    <div id="guide-error" class="error-message hidden" style="text-align: center; padding: 2rem;"></div>
                 </div>
             </div>
         </section>
     </main>
 
+    
+    <!-- Footer Section -->
     <footer class="main-footer">
         <div class="container">
             <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <nav>
+                <a href="/static-page.html?slug=privacy">Privacy Policy</a> |
+                <a href="/static-page.html?slug=terms">Terms of Service</a> |
+                <a href="/static-page.html?slug=about">About Us</a> |
+                <a href="/static-page.html?slug=faq">FAQ</a> |
+                <a href="/static-page.html?slug=contacts">Contacts</a>
+            </nav>
         </div>
     </footer>
 
-    <!-- Add JS specific to the guide page -->
+    <!-- Core JS (Auth, UI helpers) -->
+    <script type="module" src="../js/auth.js"></script>
+    <script type="module" src="../js/ui.js"></script>
+    <!-- Page-specific JS -->
+    <script type="module" src="../js/exchange-guide.js"></script> <!-- Link the new JS file -->
+
+    <!-- Inline script for basic setup (can be moved to exchange-guide.js) -->
     <script>
-        // Basic JS to set links based on slug
+        // Basic JS to set links based on slug (keep for now, or integrate into exchange-guide.js)
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug');
@@ -79,22 +137,19 @@
 
             if (slug) {
                 // TODO: Fetch exchange name to populate breadcrumb and heading properly
-                // try {
-                //     const details = await fetchExchangeDetails(slug); // Example fetch
-                //     exchangeName = details.name;
-                // } catch (error) {
-                //     console.error("Failed to fetch exchange details for header/breadcrumb:", error);
-                // }
+                // This could be done within exchange-guide.js after fetching guides or details
 
-                const overviewPageUrl = `overview.html?slug=${slug}`; // Corrected link
-                const newsPageUrl = `news.html?slug=${slug}`; // Corrected link
+                const overviewPageUrl = `overview.html?slug=${slug}`;
+                const newsPageUrl = `news.html?slug=${slug}`;
 
                  if (exchangeLinkBreadcrumb) {
                     exchangeLinkBreadcrumb.href = overviewPageUrl; // Link breadcrumb to overview
-                    exchangeLinkBreadcrumb.textContent = exchangeName;
+                    // Name will be updated by exchange-guide.js later
+                    // exchangeLinkBreadcrumb.textContent = exchangeName;
                 }
                  if (exchangeNameHeading) {
-                    exchangeNameHeading.textContent = `${exchangeName} Guide`; // Update heading
+                    // Heading will be updated by exchange-guide.js later
+                    // exchangeNameHeading.textContent = `${exchangeName} Guide`;
                  }
                 if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
                 if (newsTabLink) newsTabLink.href = newsPageUrl;
@@ -103,12 +158,16 @@
                  // Handle missing slug
                 if (exchangeNameHeading) exchangeNameHeading.textContent = 'Exchange Guide - Error: Slug missing';
                 console.error("Exchange slug is missing from URL.");
+                document.getElementById('guide-error').textContent = 'Cannot load page: Exchange identifier (slug) is missing.';
+                document.getElementById('guide-loading').classList.add('hidden');
                 // Optionally disable or hide tabs if slug is missing
                 if (overviewTabLink) overviewTabLink.href = '#';
                 if (newsTabLink) newsTabLink.href = '#';
             }
-             // Placeholder: Update header nav based on login status (requires auth.js, ui.js)
-            // import { updateHeaderNav } from '../js/ui.js'; updateHeaderNav();
+             // Update header nav based on login status
+             // Ensure ui.js is loaded as a module if using imports directly here
+             // Or call it from exchange-guide.js
+             // import { updateHeaderNav } from '../js/ui.js'; updateHeaderNav();
         });
     </script>
 </body>

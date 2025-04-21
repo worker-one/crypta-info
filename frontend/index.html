@@ -19,25 +19,15 @@
                 </div>
             </a>
 
-            <!-- Right-side container for search and buttons -->
-            <div class="header-right">
-                <!-- Search Bar -->
-                <div class="header-search-container">
-                    <form id="search-filter-form">
-                        <input type="search" id="search-input" placeholder="Search exchanges...">
-                        <button type="submit" class="btn btn-primary btn-sm">Search</button>
-                    </form>
-                </div>
+            <!-- Sign Up and Sign In (Now directly in container) -->
+            <nav id="main-nav">
+                <a href="register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
+                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button> <!-- Added Logout Button -->
+            </nav>
 
-                <!-- Sign Up and Sign In -->
-                <nav id="main-nav">
-                    <a href="register.html" class="btn btn-primary" id="nav-register-btn">Sign Up</a>
-                    <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Sign In</a>
-                    <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
-                    <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
-                    <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button> <!-- Added Logout Button -->
-                </nav>
-            </div>
         </div>
     </header>
 
@@ -48,7 +38,14 @@
             <div class="container">
                 <!-- Filters Section -->
                 <div id="exchange-filters" class="exchange-filters-container">
-                    <h3>Filter Exchanges</h3>
+                    <!-- Search Bar -->
+                    <div class="header-search-container" style="width:100%;">
+                        <form id="search-filter-form" style="display:flex; width:100%;">
+                            <input type="search" id="search-input" placeholder="Search exchanges..." style="flex:1; min-width:0;">
+                            <button type="submit" class="btn btn-primary btn-sm" style="margin-left:8px;">Search</button>
+                        </form>
+                    </div>
+                    
                     <form id="filter-form" class="filter-form">
                         <div class="form-group">
                             <label for="filter-country-registration">Registration Country</label>
@@ -71,9 +68,13 @@
                                 <!-- Options populated by JS -->
                             </select>
                         </div>
-                        <div class="form-group checkbox-group">
-                            <input type="checkbox" id="filter-has-p2p" name="has_p2p">
+                        <div class="form-group">
                             <label for="filter-has-p2p">P2P Available</label>
+                            <select id="filter-has-p2p" name="has_p2p">
+                                <option value="">Any</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
                         </div>
                         <div class="form-group filter-buttons">
                             <button type="button" id="apply-filters-btn" class="btn btn-secondary btn-sm">Apply</button>
@@ -98,10 +99,10 @@
                         <thead>
                             <tr>
                                 <th>Logo</th>
-                                <th>Name</th>
-                                <th>Rating</th>
-                                <th>Reviews</th>
-                                <th>24h Volume</th>
+                                <th class="sortable" data-sort-key="name">Name</th>
+                                <th class="sortable" data-sort-key="overall_average_rating">Rating</th>
+                                <th class="sortable" data-sort-key="total_review_count">Reviews</th>
+                                <th class="sortable" data-sort-key="trading_volume_24h">24h Volume</th>
                                 <th>Info</th>
                                 <th>Action</th>
                             </tr>

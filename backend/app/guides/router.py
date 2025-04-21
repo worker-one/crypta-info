@@ -1,7 +1,7 @@
 # app/guides/router.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from typing import List, Optional
 
 from app.core.database import get_async_db
 from app.guides import schemas as guide_schemas, service as guide_service
@@ -16,11 +16,16 @@ router = APIRouter(
 async def list_guides(
     db: AsyncSession = Depends(get_async_db),
     pagination: PaginationParams = Depends(),
+    exchange_id: Optional[int] = Query(None, description="Filter guides by exchange ID")
 ):
     """
-    Get a list of guide items, newest first.
+    Get a list of guide items, newest first. Optionally filter by exchange_id.
     """
-    guide_items, total = await guide_service.guide_service.list_guide_items(db=db, pagination=pagination)
+    guide_items, total = await guide_service.guide_service.list_guide_items(
+        db=db,
+        pagination=pagination,
+        exchange_id=exchange_id
+    )
     return PaginatedResponse(
         total=total,
         items=guide_items,

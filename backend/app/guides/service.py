@@ -15,7 +15,7 @@ class GuideService: # Renamed class
 
     async def get_guide_item_by_id(self, db: AsyncSession, guide_id: int) -> Optional[guide_models.GuideItem]: # Renamed method and parameter
         query = select(guide_models.GuideItem).options( # Use GuideItem
-            selectinload(guide_models.GuideItem.exchanges) # Eager load related exchanges
+            selectinload(guide_models.GuideItem.exchange) # Eager load related exchange
         ).filter(guide_models.GuideItem.id == guide_id) # Use GuideItem
         result = await db.execute(query)
         return result.scalar_one_or_none()
@@ -24,23 +24,33 @@ class GuideService: # Renamed class
         self,
         db: AsyncSession,
         pagination: PaginationParams,
+        exchange_id: Optional[int] = None # Add exchange_id parameter
     ) -> Tuple[List[guide_models.GuideItem], int]: # Use GuideItem
-        # Basic listing, newest first. Add filters (e.g., by exchange) if needed.
-        query = select(guide_models.GuideItem).options( # Use GuideItem
-            selectinload(guide_models.GuideItem.exchanges).selectinload(exchange_models.Exchange.registration_country) # Use GuideItem
-        ).order_by(desc(guide_models.GuideItem.published_at)) # Use GuideItem
+        """
+        Retrieves a paginated list of guide items, optionally filtered by exchange_id.
+        """
+        # Base query
+        stmt = select(guide_models.GuideItem).order_by(desc(guide_models.GuideItem.published_at))
+        count_stmt = select(func.count()).select_from(guide_models.GuideItem)
 
-        # Count total
-        count_query = select(func.count(guide_models.GuideItem.id)) # Use GuideItem
-        total_result = await db.execute(count_query)
-        total = total_result.scalar_one()
+        # Apply exchange filter if provided
+        if exchange_id is not None:
+            stmt = stmt.where(guide_models.GuideItem.exchange_id == exchange_id)
+            count_stmt = count_stmt.where(guide_models.GuideItem.exchange_id == exchange_id)
 
         # Apply pagination
-        query = query.offset(pagination.skip).limit(pagination.limit)
+        stmt = stmt.offset(pagination.skip).limit(pagination.limit)
 
-        # Execute main query
-        result = await db.execute(query)
+        # Eager load relationships if needed
+        stmt = stmt.options(
+            selectinload(guide_models.GuideItem.exchange).selectinload(exchange_models.Exchange.registration_country)
+        )
+
+        # Execute queries
+        result = await db.execute(stmt)
         guide_items = result.scalars().unique().all() # Renamed variable, Use unique() because of M2M join
+        total_count_result = await db.execute(count_stmt)
+        total = total_count_result.scalar_one()
 
         return guide_items, total # Return renamed variable
 
@@ -56,14 +66,14 @@ class GuideService: # Renamed class
         )
 
         if guide_in.exchange_ids:
-            exchanges = await db.execute(
+            exchange = await db.execute(
                 select(exchange_models.Exchange).filter(exchange_models.Exchange.id.in_(guide_in.exchange_ids))
             )
-            db_guide.exchanges.extend(exchanges.scalars().all()) # Use renamed variable
+            db_guide.exchange.extend(exchange.scalars().all()) # Use renamed variable
 
         db.add(db_guide) # Use renamed variable
         await db.commit()
-        await db.refresh(db_guide, attribute_names=['exchanges']) # Use renamed variable
+        await db.refresh(db_guide, attribute_names=['exchange']) # Use renamed variable
         return db_guide # Return renamed variable
 
     # Add update and delete methods similarly (likely admin only)

@@ -130,8 +130,10 @@ class ExchangeFilterParams(BaseModel):
     max_taker_fee: Optional[Decimal] = None
     supports_fiat_id: Optional[int] = None
     supports_language_id: Optional[int] = None
+    min_total_review_count: Optional[int] = None
+    max_total_review_count: Optional[int] = None
     has_p2p: Optional[bool] = None
 
 class ExchangeSortBy(BaseModel):
-    field: Literal['name', 'overall_average_rating', 'trading_volume_24h'] = 'overall_average_rating'
+    field: Literal['name', 'overall_average_rating', 'trading_volume_24h', 'total_review_count'] = 'overall_average_rating'
     direction: Literal['asc', 'desc'] = 'desc'

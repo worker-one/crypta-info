@@ -36,6 +36,62 @@
     box-shadow: inset 0 -1px 0 #dee2e6;
 }
 
+/* Add styles for sortable headers */
+.data-table th.sortable {
+    cursor: pointer;
+    position: relative; /* Needed for absolute positioning of pseudo-elements */
+}
+
+.data-table th.sortable:hover {
+    background-color: #e9ecef; /* Add hover effect */
+}
+
+/* Sort direction indicators */
+.data-table th.sortable::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    opacity: 0.3; /* Default dim state */
+    margin-left: 8px;
+    vertical-align: middle;
+    position: absolute; /* Position relative to the th */
+    right: 10px; /* Adjust position as needed */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Default unsorted indicator (optional, subtle double arrow) */
+.data-table th.sortable:not(.sorted-asc):not(.sorted-desc)::after {
+     /* You could add a default icon here, e.g., using background-image or content like '↕' */
+     /* For simplicity, we'll just show arrows when sorted */
+     content: ' \2195'; /* Up-down arrow */
+     opacity: 0.3;
+     border: none; /* Remove triangle borders */
+     font-size: 0.8em;
+}
+
+.data-table th.sorted-asc::after,
+.data-table th.sorted-desc::after {
+    opacity: 1; /* Make active indicator fully visible */
+}
+
+.data-table th.sorted-asc::after {
+    content: ''; /* Reset content if using text before */
+    border-bottom: 5px solid #495057; /* Arrow pointing up */
+    border-top: none;
+    transform: translateY(-70%); /* Adjust vertical position for single arrow */
+}
+
+.data-table th.sorted-desc::after {
+    content: ''; /* Reset content if using text before */
+    border-top: 5px solid #495057; /* Arrow pointing down */
+    border-bottom: none;
+    transform: translateY(-30%); /* Adjust vertical position for single arrow */
+}
+
 /* Zebra-striping for readability */
 .data-table tbody tr:nth-child(even) {
     background-color: #f8f9fa; /* Use the same light gray */
@@ -379,26 +435,16 @@
         margin-right: 0.75rem; /* Space between logo and name */
     }
 
-    /* Combine logo and name visually */
-    .data-table.card-mode .logo-cell .exchange-name-in-logo-cell { /* Requires JS to move name here */
+    /* Hide the original name cell if name is moved to logo cell */
+    .data-table.card-mode .name-cell {
         color: #212529;
         font-size: 1.1rem;
         font-weight: 500;
-        line-height: 1.4;
     }
-
-    /* Hide the original name cell if name is moved to logo cell */
-    .data-table.card-mode .name-cell {
-        display: none; /* Hide if name moved to logo cell */
-        /* Or style if kept separate */
-        /* color: #212529;
-        font-size: 1.1rem;
-        font-weight: 500; */
-    }
-    /* .data-table.card-mode .name-cell::before {
+    .data-table.card-mode .name-cell::before {
         color: #616161;
         font-weight: 500;
-    } */
+    }
 
     /* Style rating cell */
     .data-table.card-mode .rating-cell {
@@ -536,15 +582,10 @@
         margin-right: 12px;
     }
     
-    .data-table.card-mode .exchange-name-in-logo-cell {
-        display: block;
-        font-weight: 500;
-        font-size: 1.1rem;
-        color: rgba(0, 0, 0, 0.87);
-    }
-    
     .data-table.card-mode .name-cell {
-        display: none; /* Hide the name cell as we show it in the logo cell */
+        color: #212529;
+        font-size: 1.1rem;
+        font-weight: 500;
     }
     
     .data-table.card-mode .rating-cell,

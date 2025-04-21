@@ -1,6 +1,5 @@
 # app/models/exchange.py
 import enum
-
 from sqlalchemy import (
     Column, Integer, String, Text, DateTime, Boolean, Numeric,
     ForeignKey, Enum as SQLAlchemyEnum, SmallInteger, Date, Table,
@@ -93,6 +92,7 @@ class Exchange(Base):
     reviews = relationship("Review", back_populates="exchange") # Don't cascade delete reviews usually
     news_items = relationship("NewsItem", secondary=news_item_exchanges_table, back_populates="exchanges")
     category_ratings = relationship("ExchangeCategoryRating", back_populates="exchange", cascade="all, delete-orphan")
+    guide_items = relationship("GuideItem", back_populates="exchange", cascade="all, delete-orphan")
 
 class License(Base):
     __tablename__ = 'licenses'
@@ -141,6 +141,8 @@ class ExchangeCategoryRating(Base):
     # Use string reference for related model class if defined in another file
     category = relationship("RatingCategory", back_populates="exchange_category_ratings")
 
+    # Composite Primary Key
+    
     __table_args__ = (
         PrimaryKeyConstraint('exchange_id', 'category_id', name='pk_exchange_category_ratings'),
     )
