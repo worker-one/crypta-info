@@ -8,7 +8,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update navigation based on login status
     console.log('Updating header navigation...');
     updateHeaderNav();
-    
+
+    // Add logout listener
+    const logoutBtn = document.getElementById('nav-logout-btn');
+    logoutBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        console.log("Logout button clicked on detail page");
+        handleLogout();
+    });
+
     // Get the exchange slug from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug'); // Tries to get 'slug' from URL query string

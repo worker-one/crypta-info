@@ -151,11 +151,6 @@ export function renderNewsDetail(newsItem) {
         <div class="news-detail-body">
             ${contentHtml}
         </div>
-        <div class="news-detail-footer">
-             <a href="${newsItem.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">View Original Source</a>
-             <!-- Optional: Add a link back to the news list for the exchange -->
-             <!-- <a href="news.html?slug=..." class="btn btn-outline-secondary btn-sm">Back to News List</a> -->
-        </div>
     `;
 
     return detailElement;

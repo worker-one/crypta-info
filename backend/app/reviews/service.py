@@ -222,8 +222,8 @@ class ReviewService:
         if not db_review or db_review.moderation_status != ModerationStatusEnum.approved:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Approved review not found or not available for voting")
 
-        if db_review.user_id == user_id:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot vote on your own review")
+        # if db_review.user_id == user_id:
+        #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot vote on your own review")
 
         existing_vote_query = select(ReviewUsefulnessVote).filter_by(review_id=review_id, user_id=user_id)
         vote_result = await db.execute(existing_vote_query)

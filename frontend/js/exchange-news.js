@@ -1,5 +1,6 @@
 import { listNews, getNewsItem } from './api.js'; // Import getNewsItem
 import { renderNewsCard, renderNewsDetail, displayErrorMessage, clearErrorMessage } from './ui.js'; // Import renderNewsDetail
+import { handleLogout, checkAndCacheUserProfile } from './auth.js'; // Import handleLogout and checkAndCacheUserProfile
 
 // --- DOM Elements ---
 const newsListContainer = document.getElementById('news-list');
@@ -145,9 +146,20 @@ const loadSingleNewsItem = async (newsId, slug) => {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Check login status and update header nav
+    checkAndCacheUserProfile();
+
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
     const newsId = urlParams.get('news_id'); // Check for news_id
+
+    // Add logout listener
+    const logoutBtn = document.getElementById('nav-logout-btn');
+    logoutBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        console.log("Logout button clicked on news page");
+        handleLogout();
+    });
 
     if (!slug) {
         hideElement(loadingIndicator);

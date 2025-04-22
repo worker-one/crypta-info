@@ -15,20 +15,23 @@
     <!-- Header Section -->
     <header class="main-header">
         <div class="container">
+            <!-- Logo Title (left) -->
             <a href="/" class="logo">
                 <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
                 <div>
                     <span class="logo-text">Crypta.Info</span>
-                    
                 </div>
             </a>
-            <nav id="main-nav"> <!-- This nav block contains the auth buttons -->
-                <a href="login.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
-                <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+
+            <!-- Sign Up and Sign In (Now directly in container) -->
+            <nav id="main-nav">
+                <a href="register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
                 <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
                 <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
                 <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
             </nav>
+
         </div>
     </header>
 
@@ -66,13 +69,16 @@
 
     </main>
 
+    <!-- Footer Section -->
     <footer class="main-footer">
-        <!-- Footer content -->
          <div class="container">
-            <p>&copy; 2025 CryptaInfo. All rights reserved.</p>
+            <p>© 2025 Crypta.Info. All rights reserved.</p> <!-- Updated copyright text -->
             <nav>
-                <a href="/privacy.html">Privacy Policy</a> |
-                <a href="/terms.html">Terms of Service</a>
+                <a href="/static-page.html?slug=privacy">Privacy Policy</a> |
+                <a href="/static-page.html?slug=terms">Terms of Service</a> |
+                <a href="/static-page.html?slug=about">About Us</a> |
+                <a href="/static-page.html?slug=faq">FAQ</a> |
+                <a href="/static-page.html?slug=contacts">Contacts</a>
             </nav>
         </div>
     </footer>

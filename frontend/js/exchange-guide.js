@@ -1,5 +1,6 @@
 import { getExchangeDetails, listGuides, getGuideItem } from './api.js'; // Import getGuideItem
 import { renderGuideCard, renderGuideDetail, displayErrorMessage, clearErrorMessage, updateHeaderNav } from './ui.js'; // Import renderGuideDetail
+import { handleLogout } from './auth.js'; // Import handleLogout
 
 // --- DOM Elements ---
 const guideListContainer = document.getElementById('guide-list');
@@ -180,6 +181,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
     const guideId = urlParams.get('guide_id'); // Check for guide_id
+
+    // Add logout listener
+    const logoutBtn = document.getElementById('nav-logout-btn');
+    logoutBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        console.log("Logout button clicked on guide page");
+        handleLogout();
+    });
 
     if (!slug) {
         hideElement(loadingIndicator);
