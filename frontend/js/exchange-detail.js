@@ -1,7 +1,7 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, submitExchangeReview, getRatingCategories, listExchangeReviews, voteOnReview } from './api.js';
+import { getExchangeDetails, getRatingCategories, listExchangeReviews, voteOnReview } from './api.js';
 import { updateHeaderNav, displayErrorMessage } from './ui.js';
-import { getAccessToken, isLoggedIn, handleLogout } from './auth.js';
+import { isLoggedIn, handleLogout } from './auth.js';
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -12,7 +12,6 @@ const reviewsLoadingElement = document.getElementById('reviews-loading');
 const reviewsErrorElement = document.getElementById('reviews-error');
 const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
-// const sortDateBtn = document.getElementById('sort-reviews-date');
 
 /**
  * Updates the text content of sorting buttons to include review counts.
@@ -62,12 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const detailContainer = document.getElementById('exchange-detail');
     const breadcrumbExchangeName = document.getElementById('exchange-name-breadcrumb');
     const reviewSection = document.getElementById('review-section');
-    const addReviewSection = document.getElementById('add-review-section');
     const overviewContent = document.getElementById('overview-content'); // Container for overview tab
     const newsTabLink = document.getElementById('tab-news');
     const guideTabLink = document.getElementById('tab-guide');
     const reviewsTabLink = document.getElementById('tab-reviews');
     const overviewTabLink = document.getElementById('tab-overview'); // Added overview tab link
+    const addReviewLink = document.getElementById('add-review-link'); // Get the add review link
     console.log('DOM elements retrieved');
 
     if (!slug) { // If 'slug' is not found in the URL
@@ -91,6 +90,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (reviewsTabLink) {
         reviewsTabLink.href = `reviews.html?slug=${slug}`;
         console.log(`Set Reviews tab link to: ${reviewsTabLink.href}`);
+    }
+    // Set the "Add Review" link dynamically
+    if (addReviewLink) {
+        addReviewLink.href = `/exchange/reviews.html?slug=${slug}#add-review-section`; // Point to reviews page, potentially anchor to form
+        console.log(`Set Add Review link to: ${addReviewLink.href}`);
     }
     if (overviewTabLink) {
         overviewTabLink.classList.add('active'); // Mark current tab as active
@@ -204,18 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Show review section
         console.log('Showing review section...');
         reviewSection.classList.remove('hidden');
-        
-        // Show "Add Review" section only for logged-in users
-        const userLoggedIn = isLoggedIn();
-        console.log(`User login status: ${userLoggedIn ? 'Logged in' : 'Not logged in'}`);
-        if (userLoggedIn) {
-            console.log('Showing add review section for logged-in user');
-            addReviewSection.classList.remove('hidden');
-            // Set up review form submission - RENDER the form dynamically now
-            console.log(`Rendering review form for exchange ID: ${exchange.id}`);
-            await renderReviewForm(exchange.id);
-        }
-        
+
         // Load exchange reviews and set up sorting
         console.log(`Loading reviews for exchange ID: ${exchange.id}`);
         await loadExchangeReviews(exchange.id);
@@ -228,126 +221,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         errorElement.classList.add('visible');
     }
 });
-
-async function renderReviewForm(exchangeId) {
-    console.log(`Starting to render review form for exchange ID: ${exchangeId}`);
-    const reviewForm = document.getElementById('review-form');
-    const ratingsContainer = document.getElementById('review-ratings-container');
-    const errorElement = document.getElementById('review-submit-error');
-    const successElement = document.getElementById('review-submit-success');
-
-    if (!reviewForm || !ratingsContainer) {
-        console.error('Required DOM elements for review form not found');
-        return;
-    }
-
-    try {
-        console.log('Fetching rating categories...');
-        const categories = await getRatingCategories();
-        console.log('Rating categories received:', categories);
-        
-        // Create a grid container for the rating categories
-        const gridContainer = document.createElement('div');
-        gridContainer.classList.add('rating-categories-grid');
-        
-        // Add CSS for the grid directly to the container
-        gridContainer.style.display = 'grid';
-        gridContainer.style.gridTemplateColumns = 'repeat(3, 1fr)';
-        gridContainer.style.gap = '15px';
-        
-        console.log(`Building rating inputs for ${categories.length} categories`);
-        categories.forEach(category => {
-            const categoryDiv = document.createElement('div');
-            categoryDiv.classList.add('form-group', 'rating-category-group');
-            categoryDiv.innerHTML = `
-                <label>${category.name}:</label>
-                <div class="star-rating" data-category-id="${category.id}">
-                    ${[5, 4, 3, 2, 1].map(value => `
-                        <input type="radio" id="star-${category.id}-${value}" name="rating-${category.id}" value="${value}" required>
-                        <label for="star-${category.id}-${value}"></label>
-                    `).join('')}
-                </div>
-            `;
-            gridContainer.appendChild(categoryDiv);
-            console.log(`Added category ${category.name} (ID: ${category.id}) to form`);
-        });
-        
-        // Clear and add the grid to the ratings container
-        ratingsContainer.innerHTML = '';
-        ratingsContainer.appendChild(gridContainer);
-    } catch (error) {
-        console.error("Failed to load rating categories for form:", error);
-        ratingsContainer.innerHTML = '<p class="error-message">Could not load rating categories.</p>';
-    }
-
-    console.log('Setting up review form submission handler');
-    reviewForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        console.log("Review form submitted");
-
-        errorElement.textContent = '';
-        errorElement.classList.remove('visible');
-        successElement.textContent = '';
-        successElement.classList.remove('visible');
-
-        const commentText = document.getElementById('review-text').value;
-        console.log(`Review comment length: ${commentText.length} characters`);
-        
-        const ratings = [];
-        const ratingGroups = ratingsContainer.querySelectorAll('.rating-category-group .star-rating');
-        console.log(`Found ${ratingGroups.length} rating categories to process`);
-
-        let allRatingsSelected = true;
-        ratingGroups.forEach(group => {
-            const categoryId = group.dataset.categoryId;
-            console.log(`Processing category ID: ${categoryId}`);
-            const selectedRatingInput = group.querySelector('input[type="radio"]:checked');
-            if (selectedRatingInput) {
-                const ratingValue = parseInt(selectedRatingInput.value, 10);
-                console.log(`Category ${categoryId}: Selected rating ${ratingValue}`);
-                ratings.push({
-                    category_id: parseInt(categoryId, 10),
-                    rating_value: ratingValue
-                });
-            } else {
-                console.warn(`Category ${categoryId}: No rating selected`);
-                allRatingsSelected = false;
-            }
-        });
-
-        if (!allRatingsSelected) {
-            console.error("Validation failed: Not all ratings selected");
-            displayErrorMessage('review-submit-error', 'Please select a rating for all categories.');
-            return;
-        }
-
-        if (!commentText.trim()) {
-            console.error("Validation failed: Empty comment");
-            displayErrorMessage('review-submit-error', 'Please enter your review comment.');
-            return;
-        }
-
-        const reviewData = {
-            comment: commentText,
-            ratings: ratings
-        };
-        console.log("Submitting review data:", reviewData);
-
-        try {
-            console.log(`Submitting review for exchange ID: ${exchangeId}`);
-            await submitExchangeReview(exchangeId, reviewData);
-            console.log("Review submitted successfully");
-            successElement.textContent = 'Your review has been submitted and is pending moderation.';
-            successElement.classList.add('visible');
-            reviewForm.reset();
-            console.log('Form reset after successful submission');
-        } catch (error) {
-            console.error("Review submission failed:", error);
-            displayErrorMessage('review-submit-error', error.message || 'Failed to submit review.');
-        }
-    });
-    console.log('Review form setup complete');
-}
 
 /**
  * Calculates the average rating for a review.
@@ -530,16 +403,4 @@ function setupSortingButtons() {
     } else {
         console.warn('Sort Negative button not found');
     }
-
-    // if (sortDateBtn) {
-    //     sortDateBtn.addEventListener('click', () => {
-    //         console.log('Sort Date clicked');
-    //         const sortedReviews = [...currentReviews].sort((a, b) => {
-    //             return new Date(b.created_at) - new Date(a.created_at);
-    //         });
-    //         renderReviewsList(sortedReviews);
-    //     });
-    // } else {
-    //     console.warn('Sort Date button not found');
-    // }
 }
