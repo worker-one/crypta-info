@@ -115,76 +115,89 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Build the HTML for the exchange details with improved layout
         console.log('Building exchange detail HTML...');
+        // Helper to show first 5 and "+N more" for arrays
+        function renderListWithMore(items, renderItem, label = 'items') {
+            if (!items || items.length === 0) return '<p>No ' + label + ' information available.</p>';
+            const firstFive = items.slice(0, 5);
+            let html = '<ul>';
+            html += firstFive.map(renderItem).join('');
+            html += '</ul>';
+            if (items.length > 5) {
+            html += `<span class="more-items">+${items.length - 5} more</span>`;
+            }
+            return html;
+        }
+
         detailContainer.innerHTML = `
             <div class="logo">
-                <img src="${exchange.logo_url || '../assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo">
+            <img src="${exchange.logo_url || '../assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo">
             </div>
             <h1>${exchange.name}</h1>
             
             <p class="description">${exchange.description || 'No description available for this exchange.'}</p>
             
             <div class="stats-overview">
-                <div class="stat-item">
-                    <div class="value">${exchange.overall_average_rating ? parseFloat(exchange.overall_average_rating).toFixed(1) + ' ★' : 'N/A'}</div>
-                    <div class="label">Overall Rating</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${exchange.total_review_count || '0'}</div>
-                    <div class="label">Total Reviews</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}</div>
-                    <div class="label">24h Volume</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${exchange.year_founded || 'N/A'}</div>
-                    <div class="label">Year Founded</div>
-                </div>
+            <div class="stat-item">
+                <div class="value">${exchange.overall_average_rating ? parseFloat(exchange.overall_average_rating).toFixed(1) + ' ★' : 'N/A'}</div>
+                <div class="label">Overall Rating</div>
+            </div>
+            <div class="stat-item">
+                <div class="value">${exchange.total_review_count || '0'}</div>
+                <div class="label">Total Reviews</div>
+            </div>
+            <div class="stat-item">
+                <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}</div>
+                <div class="label">24h Volume</div>
+            </div>
+            <div class="stat-item">
+                <div class="value">${exchange.year_founded || 'N/A'}</div>
+                <div class="label">Year Founded</div>
+            </div>
             </div>
             
             <div class="details">
-                <div class="detail-card">
-                    <h3>Basic Information</h3>
-                    <p><strong>Registration Country:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
-                    <p><strong>Website:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
-                    <p><strong>KYC Type:</strong> ${exchange.kyc_type || 'N/A'}</p>
-                    <p>
-                        <strong>P2P Available:</strong>
-                        ${exchange.has_p2p ? '<span class="available">Yes</span>' : '<span class="unavailable">No</span>'}
-                    </p>
-                </div>
-                
-                <div class="detail-card">
-                    <h3>Fee Structure</h3>
-                    <p><strong>Maker Fee:</strong> ${exchange.maker_fee ? parseFloat(exchange.maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-                    <p><strong>Taker Fee:</strong> ${exchange.taker_fee ? parseFloat(exchange.taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-                    <p><strong>Withdrawal Fee:</strong> ${exchange.withdrawal_fee ? exchange.withdrawal_fee : 'Varies by cryptocurrency'}</p>
-                    <p><strong>Deposit Methods:</strong> ${exchange.deposit_methods || 'Information not available'}</p>
-                </div>
-                
-                ${exchange.license_details && exchange.license_details.length > 0 ? `
-                    <div class="detail-card">
-                        <h3>Regulatory Information</h3>
-                        <ul>
-                            ${exchange.license_details.map(license => `
-                                <li><strong>${license.country.name}:</strong> ${license.license_number}</li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                ` : ''}
-                
-                <div class="detail-card">
-                    <h3>Supported Fiats</h3>
-                    ${exchange.supported_fiat_currencies && exchange.supported_fiat_currencies.length > 0 ? `
-                        <ul>
-                            ${exchange.supported_fiat_currencies.map(fiat => `
-                                <li>${fiat.code_iso_4217}</li>
-                            `).join('')}
-                        </ul>
-                    ` : '<p>No supported fiats information available.</p>'}
-                </div>
-                
+            <div class="detail-card">
+                <h3>Basic Information</h3>
+                <p><strong>Registration Country:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
+                <p><strong>Website:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
+                <p><strong>KYC Type:</strong> ${exchange.kyc_type || 'N/A'}</p>
+                <p>
+                <strong>P2P Available:</strong>
+                ${exchange.has_p2p ? '<span class="available">Yes</span>' : '<span class="unavailable">No</span>'}
+                </p>
             </div>
+            
+            <div class="detail-card">
+                <h3>Fee Structure</h3>
+                <p><strong>Maker Fee:</strong> ${exchange.maker_fee ? parseFloat(exchange.maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+                <p><strong>Taker Fee:</strong> ${exchange.taker_fee ? parseFloat(exchange.taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+                <p><strong>Withdrawal Fee:</strong> ${exchange.withdrawal_fee ? exchange.withdrawal_fee : 'Varies by cryptocurrency'}</p>
+                <p><strong>Deposit Methods:</strong> ${exchange.deposit_methods || 'Information not available'}</p>
+            </div>
+            
+            ${exchange.license_details && exchange.license_details.length > 0 ? `
+                <div class="detail-card">
+                <h3>Regulatory Information</h3>
+                ${renderListWithMore(
+                    exchange.license_details,
+                    license => `<li><strong>${license.country.name}:</strong> ${license.license_number}</li>`,
+                    'licenses'
+                )}
+                </div>
+            ` : ''}
+            
+            <div class="detail-card">
+                <h3>Supported Fiats</h3>
+                ${renderListWithMore(
+                exchange.supported_fiat_currencies,
+                fiat => `<li>${fiat.code_iso_4217}</li>`,
+                'fiats'
+                )}
+            </div>
+            
+            </div>
+            <br>
+            <p class="description">${exchange.description || 'No description available for this exchange.'}</p>
         `;
         console.log('Exchange detail HTML built and inserted into DOM');
 

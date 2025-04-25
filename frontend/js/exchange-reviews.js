@@ -118,7 +118,14 @@ const calculateAverageRating = (review) => {
  * Updates the text content of sorting buttons to include review counts.
  */
 const updateSortButtonCounts = () => {
-    if (!sortPositiveBtn || !sortNegativeBtn) return;
+    // Get button elements inside the function to ensure they are found, even if added dynamically.
+    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
+    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
+
+    if (!sortPositiveBtn || !sortNegativeBtn) {
+        console.warn("Sorting buttons not found during count update."); // Add warning if buttons aren't found
+        return;
+    }
 
     let positiveCount = 0;
     let negativeCount = 0;
@@ -338,32 +345,46 @@ function setupVoteButtons() {
  * Sets up event listeners for sorting buttons.
  */
 function setupSortingButtons() {
+    // Get button elements *inside* the function to ensure they exist, especially if dynamically added.
+    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
+    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
+    // const sortDateBtn = document.getElementById('sort-reviews-date'); // Ensure this ID exists if you need date sort here
+
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
+            console.log('Sort Positive clicked'); // Added console log for debugging
             const sortedReviews = [...currentReviews].sort((a, b) => {
                 return calculateAverageRating(b) - calculateAverageRating(a); // Descending
             });
             renderReviewsList(sortedReviews);
         });
+    } else {
+        console.warn('Sort Positive button not found during setup'); // Added warning
     }
 
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
+            console.log('Sort Negative clicked'); // Added console log for debugging
             const sortedReviews = [...currentReviews].sort((a, b) => {
                 return calculateAverageRating(a) - calculateAverageRating(b); // Ascending
             });
             renderReviewsList(sortedReviews);
         });
+    } else {
+        console.warn('Sort Negative button not found during setup'); // Added warning
     }
 
-     if (sortDateBtn) {
-        sortDateBtn.addEventListener('click', () => {
-            const sortedReviews = [...currentReviews].sort((a, b) => {
-                return new Date(b.created_at) - new Date(a.created_at); // Descending (Newest first)
-            });
-            renderReviewsList(sortedReviews);
-        });
-    }
+    //  if (sortDateBtn) {
+    //     sortDateBtn.addEventListener('click', () => {
+    //         console.log('Sort Date clicked'); // Added console log for debugging
+    //         const sortedReviews = [...currentReviews].sort((a, b) => {
+    //             return new Date(b.created_at) - new Date(a.created_at); // Descending (Newest first)
+    //         });
+    //         renderReviewsList(sortedReviews);
+    //     });
+    // } else {
+    //      console.warn('Sort Date button not found during setup'); // Added warning
+    //  }
 }
 
 // --- Initialization ---
@@ -377,18 +398,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         handleLogout();
     });
 
-    // Dynamically add sorting buttons if they don't exist in HTML (assuming reviews.html might not have them)
-    const sortControlsExist = document.getElementById('sort-reviews-positive');
-    if (!sortControlsExist && reviewsListContainer) {
-        const sortControlsDiv = document.createElement('div');
-        sortControlsDiv.classList.add('review-sort-controls');
-        sortControlsDiv.style.marginBottom = '15px';
-        sortControlsDiv.innerHTML = `
-            <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
-            <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
+    // Dynamically add sorting buttons if they don't exist in HTML
+    const sortControlsContainer = document.getElementById('review-sort-controls-container'); // Assuming a container exists
+    if (sortControlsContainer && !document.getElementById('sort-reviews-positive')) {
+        console.log('Dynamically adding sort controls...'); // Log dynamic addition
+        sortControlsContainer.innerHTML = `
+            <div class="review-sort-controls" style="margin-bottom: 15px;">
+                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
+                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
+            </div>
         `;
-        // Insert before the reviews list
-        reviewsListContainer.parentNode.insertBefore(sortControlsDiv, reviewsListContainer);
+        // No need to insertBefore if using innerHTML on a dedicated container
+    } else if (!sortControlsContainer) {
+        console.warn('Sort controls container not found. Cannot add buttons dynamically.');
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -419,7 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showElement(reviewSectionContainer);
 
         await loadReviews(exchangeId); // Load reviews (will store and render)
-        setupSortingButtons(); // Setup sorting button listeners
+        setupSortingButtons(); // Setup sorting button listeners *after* potential dynamic creation and loading reviews
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);

@@ -65,6 +65,11 @@
                     <div id="reviews-container">
                         <div id="reviews-loading" class="loading-message">Loading reviews...</div>
                         <div id="reviews-error" class="error-message"></div>
+                        <!-- Add container for sort buttons -->
+                        <div id="review-sort-controls-container">
+                            <!-- Sorting buttons will be dynamically added here by JS if not present -->
+                            <!-- Or you can add them directly here if preferred -->
+                        </div>
                         <div id="reviews-list">
                             <!-- Reviews will be loaded here -->
                         </div>
@@ -86,9 +91,11 @@
                             <div id="review-submit-success" class="success-message"></div>
                         </form>
                     </div>
-                     <div id="login-prompt-review" class="message info hidden">
-                        Please <a href="../login.html">log in</a> or <a href="../register.html">register</a> to add your review.
+                    <!-- Login Prompt -->
+                    <div id="login-prompt-review" class="message info-message hidden">
+                        You need to <a href="../login.html">sign in</a> to add your review.
                     </div>
+
                 </div>
 
                 <!-- Loading indicator (can be shared or separate) -->
