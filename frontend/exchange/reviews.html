@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Reviews - Crypta.Info</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles -->
+    <style>
+        /* Add any specific styles for reviews if needed */
+        #reviews-list .review-item { /* Example style */
+            border: 1px solid #eee;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            border-radius: 4px;
+        }
+        #add-review-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                </div>
+            </a>
+            <nav id="main-nav">
+                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-section">
+            <div class="container">
+                <div id="breadcrumb">
+                    <a href="/">Home</a> /
+                    <a href="#" id="exchange-link-breadcrumb">Exchange</a> <!-- JS will populate this -->
+                    / Reviews
+                </div>
+
+                <nav class="exchange-tabs" id="exchange-tabs">
+                    <a href="#" class="tab-link" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link active" id="tab-reviews">Reviews</a> <!-- Already active -->
+                    <a href="#" class="tab-link" id="tab-news">News</a>
+                    <a href="#" class="tab-link" id="tab-guide">Guide</a>
+                </nav>
+
+                <h1 id="exchange-name-heading">Exchange Reviews</h1> <!-- JS will populate this -->
+
+                <!-- Reviews Section -->
+                <div id="review-section">
+                    <div id="reviews-container">
+                        <div id="reviews-loading" class="loading-message">Loading reviews...</div>
+                        <div id="reviews-error" class="error-message"></div>
+                        <div id="reviews-list">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div id="add-review-section" class="hidden"> <!-- Initially hidden, shown for logged-in users -->
+                        <h3>Add Your Review</h3>
+                        <form id="review-form">
+                            <!-- Container for dynamically loaded rating categories -->
+                            <div id="review-ratings-container">
+                                <!-- Rating categories will be loaded here by JS -->
+                            </div>
+                            <div class="form-group">
+                                <label for="review-text">Your Review:</label>
+                                <textarea id="review-text" name="review-text" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            <div id="review-submit-error" class="error-message"></div>
+                            <div id="review-submit-success" class="success-message"></div>
+                        </form>
+                    </div>
+                     <div id="login-prompt-review" class="message info hidden">
+                        Please <a href="../login.html">log in</a> or <a href="../register.html">register</a> to add your review.
+                    </div>
+                </div>
+
+                <!-- Loading indicator (can be shared or separate) -->
+                <div id="page-loading" class="loading-message hidden">Loading...</div>
+
+                <!-- Error message container -->
+                <div id="page-error" class="error-message message hidden"></div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <nav>
+                <a href="/static-page.html?slug=privacy">Privacy Policy</a> |
+                <a href="/static-page.html?slug=terms">Terms of Service</a> |
+                <a href="/static-page.html?slug=about">About Us</a> |
+                <a href="/static-page.html?slug=faq">FAQ</a> |
+                <a href="/static-page.html?slug=contacts">Contacts</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Inline script for initial setup -->
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("Reviews page DOMContentLoaded.");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            console.log("Slug:", slug);
+
+            const exchangeNameHeading = document.getElementById('exchange-name-heading');
+            const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
+            const overviewTabLink = document.getElementById('tab-overview');
+            const newsTabLink = document.getElementById('tab-news');
+            const reviewsTabLink = document.getElementById('tab-reviews');
+            const guideTabLink = document.getElementById('tab-guide');
+
+            let exchangeName = 'Exchange'; // Default placeholder
+
+            if (slug) {
+                console.log("Setting initial tab links with slug:", slug);
+
+                const overviewPageUrl = `overview.html?slug=${slug}`;
+                const newsPageUrl = `news.html?slug=${slug}`;
+                const reviewsPageUrl = `#`; // Current page
+                const guidePageUrl = `guide.html?slug=${slug}`;
+
+                if (exchangeLinkBreadcrumb) {
+                    exchangeLinkBreadcrumb.href = overviewPageUrl;
+                    exchangeLinkBreadcrumb.textContent = exchangeName; // Will be updated by JS
+                }
+                if (exchangeNameHeading) {
+                    exchangeNameHeading.textContent = `${exchangeName} Reviews`; // Will be updated by JS
+                }
+
+                // Set tab links
+                if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
+                if (newsTabLink) newsTabLink.href = newsPageUrl;
+                if (reviewsTabLink) reviewsTabLink.href = reviewsPageUrl; // Current page
+                if (guideTabLink) guideTabLink.href = guidePageUrl;
+
+                console.log("Initial tab links set.");
+
+            } else {
+                console.error("Exchange slug is missing from URL.");
+                if (exchangeNameHeading) exchangeNameHeading.textContent = 'Error: Slug missing';
+                // Disable tabs or show error state
+                if (overviewTabLink) overviewTabLink.href = '#';
+                if (newsTabLink) newsTabLink.href = '#';
+                if (reviewsTabLink) reviewsTabLink.href = '#'; // Current page, but slug missing
+                if (guideTabLink) guideTabLink.href = '#';
+                document.getElementById('review-section').classList.add('hidden');
+                document.getElementById('page-error').textContent = 'Cannot load page: Exchange identifier (slug) is missing.';
+                document.getElementById('page-error').classList.remove('hidden');
+            }
+        });
+    </script>
+    <!-- Load the main script for this page -->
+    <script type="module" src="../js/exchange-reviews.js"></script>
+</body>
+</html>

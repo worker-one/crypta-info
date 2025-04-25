@@ -36,6 +36,7 @@
                 <!-- Tab Navigation -->
                 <nav class="exchange-tabs" id="exchange-tabs">
                     <a href="#" class="tab-link active" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link" id="tab-reviews">Reviews</a>
                     <a href="#" class="tab-link" id="tab-news">News</a>
                     <a href="#" class="tab-link" id="tab-guide">Guide</a>
                 </nav>
@@ -55,6 +56,12 @@
                             <!-- Reviews will be loaded here -->
                             <div id="reviews-loading" class="loading-message">Loading reviews...</div>
                             <div id="reviews-error" class="error-message"></div>
+                            <!-- Add Sorting Buttons -->
+                            <div class="review-sort-controls" style="margin-bottom: 15px;">
+                                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
+                                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
+                                <!-- <button id="sort-reviews-date" class="btn btn-secondary btn-sm">Sort: Newest First</button> -->
+                            </div>
                             <div id="reviews-list"></div>
                         </div>
 

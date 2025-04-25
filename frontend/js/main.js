@@ -114,6 +114,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Add listener for table body clicks (row navigation)
+        const tableBody = document.getElementById('exchange-list-body');
+        tableBody?.addEventListener('click', (event) => {
+            // Check if the click target is the reviews link or inside it
+            if (event.target.closest('a.reviews-link')) {
+                // Click was on the reviews link, let the default link behavior happen
+                return;
+            }
+
+            // Otherwise, handle the row click for navigation
+            const row = event.target.closest('tr.clickable-row'); // Find the closest clickable row
+            if (row && row.dataset.slug) {
+                const slug = row.dataset.slug;
+                console.log(`Navigating to exchange details for slug: ${slug}`);
+                window.location.href = `exchange/overview.html?slug=${slug}`;
+            }
+        });
+
         // Set initial sort indicators
         updateSortIndicators();
     }
@@ -450,6 +468,7 @@ function renderCardView(exchanges, containerId) {
                 { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
             const year = exchange.year_founded || '??';
             const country = exchange.registration_country?.name || 'Unknown';
+            const website_url = exchange.website_url || 'N/A';
             
             card.innerHTML = `
                 <div class="card-header">
@@ -471,7 +490,7 @@ function renderCardView(exchanges, containerId) {
                     </div>
                     <div class="card-info-row">
                         <div class="card-info-label">Info:</div>
-                        <div class="card-info-value">Est: ${year}, ${country}</div>
+                        <div class="card-info-value">Est: ${year}, ${website_url}</div>
                     </div>
                 </div>
                 <div class="card-footer">

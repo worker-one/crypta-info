@@ -1,5 +1,6 @@
 # app/exchanges/router.py
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from decimal import Decimal
@@ -15,6 +16,27 @@ router = APIRouter(
     prefix="/exchanges",
     tags=["Exchanges"]
 )
+
+@router.get("/go/{slug}", status_code=status.HTTP_302_FOUND, tags=["Redirects"], include_in_schema=False)
+async def redirect_to_exchange_website(
+    slug: str,
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Redirects the user to the official website of the exchange
+    identified by the slug. This endpoint is typically used for tracking
+    or masking the direct URL.
+    """
+    db_exchange = await service.exchange_service.get_exchange_by_slug(db, slug=slug)
+
+    if not db_exchange:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")
+
+    if not db_exchange.website_url:
+        fallback_url = f"/exchange/overview.html?slug={slug}"
+        return RedirectResponse(url=fallback_url, status_code=status.HTTP_302_FOUND)
+
+    return RedirectResponse(url=db_exchange.website_url)
 
 @router.get("/", response_model=PaginatedResponse[schemas.ExchangeReadBrief])
 async def list_exchanges(

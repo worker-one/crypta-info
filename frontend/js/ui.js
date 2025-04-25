@@ -245,11 +245,20 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
     if (errorContainer) errorContainer.classList.remove('visible'); // Hide list-specific errors
 
     if (exchanges && exchanges.length > 0) {
-        exchanges.forEach(exchange => {
+        exchanges.forEach((exchange, index) => { // Add index parameter here
             const tr = document.createElement('tr');
             tr.setAttribute('data-exchange-id', exchange.id); // Optional: add data attribute
+            tr.setAttribute('data-slug', exchange.slug); // Add slug for navigation
+            tr.classList.add('clickable-row'); // Add class for styling and event handling
 
             // --- Create Table Cells (td) ---
+
+            // 0. Number Cell (NEW)
+            const numberTd = document.createElement('td');
+            numberTd.className = 'number-cell'; // Add class for potential styling
+            numberTd.setAttribute('data-label', '#'); // Label for card view
+            numberTd.textContent = index + 1; // Display 1-based index
+            tr.appendChild(numberTd); // Add it first
 
             // 1. Logo Cell
             const logoTd = document.createElement('td');
@@ -285,7 +294,17 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             const reviewsTd = document.createElement('td');
             reviewsTd.className = 'reviews-cell';
             reviewsTd.setAttribute('data-label', 'Reviews');
-            reviewsTd.textContent = exchange.total_review_count?.toLocaleString() ?? 'N/A';
+            const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
+            // Wrap the count in a link
+            const reviewsLink = document.createElement('a');
+            reviewsLink.href = `exchange/reviews.html?slug=${exchange.slug}`;
+            reviewsLink.textContent = reviewCount;
+            reviewsLink.classList.add('reviews-link'); // Add class to identify the link
+            // Prevent row click when clicking the link itself
+            reviewsLink.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+            reviewsTd.appendChild(reviewsLink);
             tr.appendChild(reviewsTd);
 
             // 5. Volume Cell
@@ -305,16 +324,26 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             infoTd.textContent = `Est: ${year}, ${country}`; // Simplified info
             tr.appendChild(infoTd);
 
-            // 7. Action Cell
+            // 7. Action Cell (Now contains the Website button)
             const actionTd = document.createElement('td');
             actionTd.className = 'action-cell';
-            actionTd.setAttribute('data-label', 'Action');
-            const detailsLink = document.createElement('a');
-            detailsLink.href = `exchange/overview.html?slug=${exchange.slug}`;
-            detailsLink.className = 'btn btn-primary btn-sm';
-            detailsLink.textContent = 'Details';
-            actionTd.appendChild(detailsLink);
-            tr.appendChild(actionTd);
+            actionTd.setAttribute('data-label', 'Action'); // Keep label for card view consistency
+
+            // Create Website button/link
+            const websiteBtn = document.createElement('a');
+            websiteBtn.href = `http://localhost:8000/api/v1/exchanges/go/${exchange.slug}`;
+            websiteBtn.textContent = 'Website';
+            websiteBtn.target = '_blank'; // Open in new tab
+            // websiteBtn.rel = 'noopener noreferrer'; // Security best practice
+            websiteBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'website-link'); // Style as button
+
+            // Prevent row click when clicking the button
+            websiteBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+            actionTd.appendChild(websiteBtn);
+
+            tr.appendChild(actionTd); // Add the action cell to the row
 
             // --- Append row to table body ---
             tbody.appendChild(tr);
@@ -323,7 +352,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
         // Display a "no results" message within the table structure
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        const columnCount = tbody.previousElementSibling?.rows?.[0]?.cells?.length || 7; // Get column count from thead
+        const columnCount = tbody.previousElementSibling?.rows?.[0]?.cells?.length || 8; // Updated column count to 8
         td.colSpan = columnCount; // Span across all columns
         td.textContent = 'No exchanges found matching your criteria.';
         td.style.textAlign = 'center';

@@ -17,6 +17,23 @@ const showElement = (el) => el?.classList.remove('hidden');
 const hideElement = (el) => el?.classList.add('hidden');
 
 /**
+ * Updates the href attributes of the navigation tabs.
+ * @param {string} slug - The exchange slug.
+ */
+function updateTabLinks(slug) {
+    const overviewTabLink = document.getElementById('tab-overview');
+    const newsTabLink = document.getElementById('tab-news');
+    const guideTabLink = document.getElementById('tab-guide');
+    const reviewsTabLink = document.getElementById('tab-reviews');
+
+    if (overviewTabLink) overviewTabLink.href = `overview.html?slug=${slug}`;
+    if (newsTabLink) newsTabLink.href = `news.html?slug=${slug}`;
+    // if (guideTabLink) guideTabLink.href = `guide.html?slug=${slug}`; // Current page
+    if (reviewsTabLink) reviewsTabLink.href = `reviews.html?slug=${slug}`;
+    if (guideTabLink) guideTabLink.classList.add('active'); // Mark current tab as active
+}
+
+/**
  * Updates breadcrumbs and heading for the guide list view.
  * @param {string} exchangeName - The name of the exchange.
  * @param {string} exchangeSlug - The slug of the exchange.
@@ -86,6 +103,9 @@ const loadGuideList = async (slug) => {
     showElement(loadingIndicator);
     guideListContainer.innerHTML = ''; // Clear previous items
 
+    // Update tab links as soon as slug is confirmed valid for this page type
+    updateTabLinks(slug);
+
     try {
         // Fetch exchange details first to get ID and Name
         const exchangeInfo = await fetchExchangeDetailsForGuide(slug);
@@ -140,6 +160,9 @@ const loadSingleGuideItem = async (guideId, slug) => {
     hideElement(guideListContainer);   // Ensure list view is hidden
     showElement(guideDetailContainer); // Ensure detail view is shown
     clearErrorMessage('guide-error');
+
+    // Update tab links as soon as slug is confirmed valid for this page type
+    updateTabLinks(slug);
 
     try {
         showElement(loadingIndicator); // Show loading indicator

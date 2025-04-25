@@ -3,6 +3,40 @@ import { getExchangeDetails, submitExchangeReview, getRatingCategories, listExch
 import { updateHeaderNav, displayErrorMessage } from './ui.js';
 import { getAccessToken, isLoggedIn, handleLogout } from './auth.js';
 
+// --- Global variable to store fetched reviews ---
+let currentReviews = [];
+
+// --- DOM Elements (Moved review elements here) ---
+const reviewsList = document.getElementById('reviews-list');
+const reviewsLoadingElement = document.getElementById('reviews-loading');
+const reviewsErrorElement = document.getElementById('reviews-error');
+const sortPositiveBtn = document.getElementById('sort-reviews-positive');
+const sortNegativeBtn = document.getElementById('sort-reviews-negative');
+const sortDateBtn = document.getElementById('sort-reviews-date');
+
+/**
+ * Updates the text content of sorting buttons to include review counts.
+ */
+const updateSortButtonCounts = () => {
+    if (!sortPositiveBtn || !sortNegativeBtn) return;
+
+    let positiveCount = 0;
+    let negativeCount = 0;
+
+    currentReviews.forEach(review => {
+        const avgRating = calculateAverageRating(review);
+        if (avgRating >= 4) {
+            positiveCount++;
+        } else if (avgRating > 0) { // Count reviews with a rating < 4 but > 0 as negative
+            negativeCount++;
+        }
+        // Reviews with avgRating 0 (or N/A) are not counted in either category
+    });
+
+    sortPositiveBtn.textContent = `Positive (${positiveCount})`;
+    sortNegativeBtn.textContent = `Negative (${negativeCount})`;
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Exchange detail page initializing...');
     // Update navigation based on login status
@@ -22,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const slug = urlParams.get('slug'); // Tries to get 'slug' from URL query string
     console.log(`Retrieved slug from URL: ${slug}`);
 
-    // Get DOM elements
+    // Get DOM elements (Keep others here, remove moved ones)
     const loadingElement = document.getElementById('exchange-detail-loading');
     const errorElement = document.getElementById('exchange-detail-error');
     const detailContainer = document.getElementById('exchange-detail');
@@ -32,6 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overviewContent = document.getElementById('overview-content'); // Container for overview tab
     const newsTabLink = document.getElementById('tab-news');
     const guideTabLink = document.getElementById('tab-guide');
+    const reviewsTabLink = document.getElementById('tab-reviews');
+    const overviewTabLink = document.getElementById('tab-overview'); // Added overview tab link
     console.log('DOM elements retrieved');
 
     if (!slug) { // If 'slug' is not found in the URL
@@ -50,6 +86,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (guideTabLink) {
         guideTabLink.href = `guide.html?slug=${slug}`;
         console.log(`Set Guide tab link to: ${guideTabLink.href}`);
+    }
+
+    if (reviewsTabLink) {
+        reviewsTabLink.href = `reviews.html?slug=${slug}`;
+        console.log(`Set Reviews tab link to: ${reviewsTabLink.href}`);
+    }
+    if (overviewTabLink) {
+        overviewTabLink.classList.add('active'); // Mark current tab as active
     }
 
     try {
@@ -159,9 +203,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             await renderReviewForm(exchange.id);
         }
         
-        // Load exchange reviews
+        // Load exchange reviews and set up sorting
         console.log(`Loading reviews for exchange ID: ${exchange.id}`);
-        loadExchangeReviews(exchange.id);
+        await loadExchangeReviews(exchange.id);
+        setupSortingButtons();
 
     } catch (error) {
         console.error("Error fetching exchange details:", error);
@@ -291,58 +336,39 @@ async function renderReviewForm(exchangeId) {
     console.log('Review form setup complete');
 }
 
-
-async function loadExchangeReviews(exchangeId, params = { skip: 0, limit: 10 }) {
-    console.log(`Loading reviews for exchange ID: ${exchangeId} with params:`, params);
-    const reviewsList = document.getElementById('reviews-list');
-    const loadingElement = document.getElementById('reviews-loading');
-    const errorElement = document.getElementById('reviews-error');
-    const paginationElement = document.getElementById('reviews-pagination');
-
-    if (!reviewsList || !loadingElement || !errorElement) {
-        console.error('Required DOM elements for reviews not found');
-        return;
+/**
+ * Calculates the average rating for a review.
+ * @param {object} review - The review object.
+ * @returns {number} The average rating, or 0 if no ratings.
+ */
+const calculateAverageRating = (review) => {
+    if (!review.ratings || review.ratings.length === 0) {
+        return 0;
     }
+    const sum = review.ratings.reduce((acc, r) => acc + r.rating_value, 0);
+    return sum / review.ratings.length;
+};
 
-    loadingElement.classList.remove('hidden');
-    errorElement.classList.remove('visible');
-    reviewsList.innerHTML = '';
-    if (paginationElement) paginationElement.innerHTML = '';
+/**
+ * Renders a list of reviews into the DOM.
+ * @param {Array<object>} reviews - The array of review objects to render.
+ */
+const renderReviewsList = (reviews) => {
+    if (!reviewsList) return;
+    reviewsList.innerHTML = ''; // Clear previous reviews
 
-    try {
-        console.log('Calling API to list exchange reviews...');
-        const response = await listExchangeReviews(exchangeId, params);
-        console.log('Reviews response received:', response);
-
-        loadingElement.classList.add('hidden');
-
-        if (!response || !response.items) {
-            console.error('Invalid response structure:', response);
-            throw new Error("Invalid response structure for reviews.");
-        }
-
-        if (response.items.length === 0) {
-            console.log('No reviews found for this exchange');
-            reviewsList.innerHTML = '<p>No reviews found for this exchange yet.</p>';
-            return;
-        }
-
-        console.log(`Rendering ${response.items.length} reviews...`);
-        response.items.forEach(review => {
-            console.log(`Processing review ID: ${review.id} by ${review.user.nickname}`);
+    if (reviews && reviews.length > 0) {
+        reviews.forEach(review => {
             const reviewElement = document.createElement('div');
             reviewElement.classList.add('review-item');
-            const averageRating = review.ratings.length > 0
-                ? (review.ratings.reduce((sum, r) => sum + r.rating_value, 0) / review.ratings.length).toFixed(1)
-                : 'N/A';
-            console.log(`Average rating for review ${review.id}: ${averageRating}`);
+            const averageRating = calculateAverageRating(review);
 
             reviewElement.innerHTML = `
                 <div class="review-header">
                     <span class="review-author">${review.user.nickname}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
-                <div class="review-rating">Overall Rating: ${averageRating} ★</div>
+                <div class="review-rating">Overall Rating: ${averageRating > 0 ? averageRating.toFixed(1) + ' ★' : 'N/A'}</div>
                 <div class="review-content">
                     <p>${review.comment}</p>
                 </div>
@@ -353,17 +379,59 @@ async function loadExchangeReviews(exchangeId, params = { skip: 0, limit: 10 }) 
                 </div>
             `;
             reviewsList.appendChild(reviewElement);
-            console.log(`Review ${review.id} added to DOM`);
         });
+        setupVoteButtons(); // Re-attach event listeners after rendering
+    } else {
+        reviewsList.innerHTML = '<p>No reviews match the criteria or none available.</p>';
+    }
+};
 
-        console.log('Setting up vote buttons...');
-        setupVoteButtons();
+async function loadExchangeReviews(exchangeId) {
+    console.log(`Loading reviews for exchange ID: ${exchangeId}`);
+    const paginationElement = document.getElementById('reviews-pagination');
+
+    if (!reviewsList || !reviewsLoadingElement || !reviewsErrorElement) {
+        console.error('Required DOM elements for reviews not found');
+        return;
+    }
+
+    reviewsLoadingElement.classList.remove('hidden');
+    reviewsErrorElement.classList.remove('visible');
+    reviewsList.innerHTML = '';
+    if (paginationElement) paginationElement.innerHTML = '';
+    currentReviews = []; // Reset reviews before fetch
+    updateSortButtonCounts(); // Update counts to 0 initially
+
+    try {
+        console.log('Calling API to list exchange reviews...');
+        const response = await listExchangeReviews(exchangeId, { limit: 100, sort_by: 'created_at', direction: 'desc' });
+        console.log('Reviews response received:', response);
+
+        reviewsLoadingElement.classList.add('hidden');
+
+        if (!response || !response.items) {
+            console.error('Invalid response structure:', response);
+            throw new Error("Invalid response structure for reviews.");
+        }
+
+        currentReviews = response.items;
+        updateSortButtonCounts(); // Update counts after fetching
+
+        if (currentReviews.length === 0) {
+            console.log('No reviews found for this exchange');
+            reviewsList.innerHTML = '<p>No reviews found for this exchange yet.</p>';
+        } else {
+            console.log(`Rendering ${currentReviews.length} reviews initially (sorted by date)...`);
+            renderReviewsList(currentReviews);
+        }
 
     } catch (error) {
         console.error("Error loading exchange reviews:", error);
-        loadingElement.classList.add('hidden');
-        errorElement.textContent = error.message || 'Failed to load reviews.';
-        errorElement.classList.add('visible');
+        reviewsLoadingElement.classList.add('hidden');
+        reviewsErrorElement.textContent = error.message || 'Failed to load reviews.';
+        reviewsErrorElement.classList.add('visible');
+        currentReviews = [];
+        updateSortButtonCounts(); // Update counts on error (to 0)
     }
 }
 
@@ -419,4 +487,46 @@ function setupVoteButtons() {
         });
     });
     console.log('Vote button setup complete');
+}
+
+/**
+ * Sets up event listeners for sorting buttons.
+ */
+function setupSortingButtons() {
+    console.log('Setting up sorting button event handlers');
+    if (sortPositiveBtn) {
+        sortPositiveBtn.addEventListener('click', () => {
+            console.log('Sort Positive clicked');
+            const sortedReviews = [...currentReviews].sort((a, b) => {
+                return calculateAverageRating(b) - calculateAverageRating(a);
+            });
+            renderReviewsList(sortedReviews);
+        });
+    } else {
+        console.warn('Sort Positive button not found');
+    }
+
+    if (sortNegativeBtn) {
+        sortNegativeBtn.addEventListener('click', () => {
+            console.log('Sort Negative clicked');
+            const sortedReviews = [...currentReviews].sort((a, b) => {
+                return calculateAverageRating(a) - calculateAverageRating(b);
+            });
+            renderReviewsList(sortedReviews);
+        });
+    } else {
+        console.warn('Sort Negative button not found');
+    }
+
+    if (sortDateBtn) {
+        sortDateBtn.addEventListener('click', () => {
+            console.log('Sort Date clicked');
+            const sortedReviews = [...currentReviews].sort((a, b) => {
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+            renderReviewsList(sortedReviews);
+        });
+    } else {
+        console.warn('Sort Date button not found');
+    }
 }

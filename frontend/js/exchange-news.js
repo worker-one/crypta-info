@@ -17,6 +17,23 @@ const showElement = (el) => el?.classList.remove('hidden');
 const hideElement = (el) => el?.classList.add('hidden');
 
 /**
+ * Updates the href attributes of the navigation tabs.
+ * @param {string} slug - The exchange slug.
+ */
+function updateTabLinks(slug) {
+    const overviewTabLink = document.getElementById('tab-overview');
+    const newsTabLink = document.getElementById('tab-news');
+    const guideTabLink = document.getElementById('tab-guide');
+    const reviewsTabLink = document.getElementById('tab-reviews');
+
+    if (overviewTabLink) overviewTabLink.href = `overview.html?slug=${slug}`;
+    // if (newsTabLink) newsTabLink.href = `news.html?slug=${slug}`; // Current page
+    if (guideTabLink) guideTabLink.href = `guide.html?slug=${slug}`;
+    if (reviewsTabLink) reviewsTabLink.href = `reviews.html?slug=${slug}`;
+    if (newsTabLink) newsTabLink.classList.add('active'); // Mark current tab as active
+}
+
+/**
  * Updates breadcrumbs and heading for the news list view.
  * @param {string} exchangeName - The name of the exchange.
  * @param {string} exchangeSlug - The slug of the exchange.
@@ -65,6 +82,9 @@ const loadNewsList = async (slug) => {
     hideElement(newsDetailContainer); // Ensure detail view is hidden
     showElement(newsListContainer);
     clearErrorMessage('news-error');
+
+    // Update tab links as soon as slug is confirmed valid for this page type
+    updateTabLinks(slug);
 
     try {
         showElement(loadingIndicator);
@@ -115,6 +135,9 @@ const loadSingleNewsItem = async (newsId, slug) => {
     hideElement(newsListContainer); // Ensure list view is hidden
     showElement(newsDetailContainer);
     clearErrorMessage('news-error');
+
+    // Update tab links as soon as slug is confirmed valid for this page type
+    updateTabLinks(slug);
 
     try {
         showElement(loadingIndicator); // Show loading indicator (can be the same one)
