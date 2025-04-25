@@ -12,7 +12,7 @@ const reviewsLoadingElement = document.getElementById('reviews-loading');
 const reviewsErrorElement = document.getElementById('reviews-error');
 const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
-const sortDateBtn = document.getElementById('sort-reviews-date');
+// const sortDateBtn = document.getElementById('sort-reviews-date');
 
 /**
  * Updates the text content of sorting buttons to include review counts.
@@ -531,15 +531,15 @@ function setupSortingButtons() {
         console.warn('Sort Negative button not found');
     }
 
-    if (sortDateBtn) {
-        sortDateBtn.addEventListener('click', () => {
-            console.log('Sort Date clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => {
-                return new Date(b.created_at) - new Date(a.created_at);
-            });
-            renderReviewsList(sortedReviews);
-        });
-    } else {
-        console.warn('Sort Date button not found');
-    }
+    // if (sortDateBtn) {
+    //     sortDateBtn.addEventListener('click', () => {
+    //         console.log('Sort Date clicked');
+    //         const sortedReviews = [...currentReviews].sort((a, b) => {
+    //             return new Date(b.created_at) - new Date(a.created_at);
+    //         });
+    //         renderReviewsList(sortedReviews);
+    //     });
+    // } else {
+    //     console.warn('Sort Date button not found');
+    // }
 }

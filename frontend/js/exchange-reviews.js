@@ -20,7 +20,7 @@ const pageLoadingIndicator = document.getElementById('page-loading'); // General
 const reviewSectionContainer = document.getElementById('review-section'); // Main content container
 const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Added
 const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Added
-const sortDateBtn = document.getElementById('sort-reviews-date'); // Added
+// const sortDateBtn = document.getElementById('sort-reviews-date'); // Added
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = []; // Added
