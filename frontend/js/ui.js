@@ -1,6 +1,9 @@
 // DOM Manipulation and UI Update Logic
 import { isLoggedIn, getUserProfileData } from './auth.js'; // Need auth state
 
+// take value from the environment variable
+const BASE_URL_API = process.env.BASE_URL_API || 'http://localhost:8000/api/v1'; // Use a default for local dev
+
 /**
  * Updates the main navigation based on login status.
  */
@@ -331,7 +334,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
 
             // Create Website button/link
             const websiteBtn = document.createElement('a');
-            websiteBtn.href = `http://localhost:8000/api/v1/exchanges/go/${exchange.slug}`;
+            websiteBtn.href = `${BASE_URL_API}/exchanges/go/${exchange.slug}`;
             websiteBtn.textContent = 'Website';
             websiteBtn.target = '_blank'; // Open in new tab
             // websiteBtn.rel = 'noopener noreferrer'; // Security best practice

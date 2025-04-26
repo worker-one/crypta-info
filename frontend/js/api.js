@@ -1,8 +1,10 @@
 // API Interaction Logic
 import { getAccessToken } from './auth.js'; // Import the auth function
 
-// Base URL for API that's served on a different port
-const BASE_URL = 'http://localhost:8000/api/v1';
+// Base URL for API, taken from environment variable or fallback to default
+const BASE_API_URL = typeof process !== 'undefined' && process.env && process.env.BASE_API_URL
+    ? process.env.BASE_API_URL
+    : (window.BASE_API_URL || 'http://localhost:8000/api/v1');
 
 /**
  * Performs a fetch request to the API.
@@ -13,7 +15,7 @@ const BASE_URL = 'http://localhost:8000/api/v1';
  * @returns {Promise<any>} - Resolves with the JSON response data or rejects with an error.
  */
 async function fetchApi(endpoint, options = {}, requiresAuth = false) {
-    const url = `${BASE_URL}${endpoint}`;
+    const url = `${BASE_API_URL}${endpoint}`;
     const defaultHeaders = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
