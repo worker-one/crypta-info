@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <h1>${exchange.name}</h1>
             
-            <p class="description">${exchange.description || 'No description available for this exchange.'}</p>
+            <p class="description">${exchange.overview || 'No overview available for this exchange.'}</p>
             
             <div class="stats-overview">
             <div class="stat-item">

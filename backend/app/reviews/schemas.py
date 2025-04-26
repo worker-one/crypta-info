@@ -34,7 +34,7 @@ class ReviewRatingRead(ReviewRatingBase):
 class ExchangeReviewCreate(BaseModel):
     exchange_id: int
     ratings: List[ReviewRatingCreate] = Field(..., min_length=1) # Require at least one category rating
-    comment: str = Field(..., min_length=5, max_length=5000)
+    comment: str = Field(..., min_length=3, max_length=5000)
 
 # --- Screenshot Schemas ---
 class ReviewScreenshotRead(BaseModel):
@@ -52,7 +52,7 @@ class ReviewUsefulnessVoteCreate(BaseModel):
 
 # --- Review Schemas ---
 class ReviewBase(BaseModel):
-    comment: str = Field(..., min_length=5, max_length=5000)
+    comment: str = Field(..., min_length=3, max_length=5000)
 
 class ReviewCreate(ReviewBase):
     exchange_id: int # Link to exchange

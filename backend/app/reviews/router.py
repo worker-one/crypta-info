@@ -1,6 +1,7 @@
 # app/reviews/router.py
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path, Body
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError  # Import IntegrityError if checking for DB constraints
 from typing import Optional, List
 
 from app.core.database import get_async_db
@@ -135,9 +136,16 @@ async def create_review_for_exchange(
         return created_review
     except HTTPException as e:
         raise e
+    except IntegrityError:  # Catch potential unique constraint violations from the DB
+        await db.rollback()  # Rollback the transaction
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You have already submitted a review for this exchange."
+        )
     except Exception as e:
+        await db.rollback()  # Rollback on generic errors too
         print(f"Error creating review: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not create review")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not create review due to an internal error.")
 
 
 @router.post("/{review_id}/vote", response_model=schemas.ReviewRead)
@@ -187,14 +195,6 @@ async def get_all_reviews_admin(
         # Only include moderation_status if it's provided in the query
         **({"moderation_status": moderation_status} if moderation_status is not None else {}),
     }
-    # Note: ReviewFilterParams has a default for moderation_status ('approved')
-    # If None is passed from query, this default won't be overridden here,
-    # but the service layer needs to handle the filter logic correctly.
-    # Let's adjust the schema to be Optional to truly reflect the intent.
-    # *** OR *** adjust the service layer to handle the default from schema if status is None.
-    # For now, this router change prevents the Pydantic error.
-    # We will also adjust the schema below for clarity.
-
     filters = schemas.ReviewFilterParams(**filter_data)
 
 

@@ -224,10 +224,16 @@ const loadReviews = async (exchangeId) => {
  * @param {number} exchangeId - The ID of the exchange being reviewed.
  */
 const handleReviewSubmit = async (event, exchangeId) => {
+    console.log('handleReviewSubmit called for exchangeId:', exchangeId); // Debug log
     event.preventDefault();
-    if (!reviewForm) return;
+    if (!reviewForm) {
+        console.error('Review form element not found in handleReviewSubmit.'); // Debug log
+        return;
+    }
+    console.log('Review form found:', reviewForm); // Debug log
 
     const authToken = getAccessToken();
+    console.log('Auth token present:', !!authToken); // Debug log
     if (!authToken) {
         displayErrorMessage('review-submit-error', 'You must be logged in to submit a review.');
         showElement(reviewSubmitError);
@@ -238,12 +244,18 @@ const handleReviewSubmit = async (event, exchangeId) => {
     hideElement(reviewSubmitError);
     hideElement(reviewSubmitSuccess);
     const submitButton = reviewForm.querySelector('button[type="submit"]');
+    if (!submitButton) {
+        console.error('Submit button not found within the form.'); // Debug log
+        return;
+    }
+    console.log('Disabling submit button'); // Debug log
     submitButton.disabled = true;
     submitButton.textContent = 'Submitting...';
 
     const commentText = document.getElementById('review-text').value; // Get text directly
     const ratings = [];
     const ratingGroups = reviewRatingsContainer.querySelectorAll('.rating-category-group .star-rating');
+    console.log('Found rating groups:', ratingGroups.length); // Debug log
 
     let allRatingsSelected = true;
     ratingGroups.forEach(group => {
@@ -255,19 +267,26 @@ const handleReviewSubmit = async (event, exchangeId) => {
                 rating_value: parseInt(selectedRatingInput.value, 10) // Correct field name
             });
         } else {
+            console.log(`Rating not selected for category ID: ${categoryId}`); // Debug log
             allRatingsSelected = false;
         }
     });
+    console.log('Ratings collected:', ratings); // Debug log
+    console.log('All ratings selected:', allRatingsSelected); // Debug log
 
     // Basic validation
-    if (!commentText || commentText.trim().length < 10) {
+    console.log('Validating comment text:', commentText); // Debug log
+    if (!commentText || commentText.trim().length < 3) {
+         console.log('Validation failed: Comment too short.'); // Debug log
          displayErrorMessage('review-submit-error', 'Please provide a review text (at least 10 characters).');
          showElement(reviewSubmitError);
          submitButton.disabled = false;
          submitButton.textContent = 'Submit Review';
          return;
     }
-     if (!allRatingsSelected) {
+    console.log('Validating all ratings selected.'); // Debug log
+    if (!allRatingsSelected) {
+        console.log('Validation failed: Not all ratings selected.'); // Debug log
         displayErrorMessage('review-submit-error', 'Please rate all categories.');
         showElement(reviewSubmitError);
         submitButton.disabled = false;
@@ -279,17 +298,21 @@ const handleReviewSubmit = async (event, exchangeId) => {
         comment: commentText.trim(),
         ratings: ratings,
     };
+    console.log('Review data prepared:', reviewData); // Debug log
 
     try {
+        console.log('Attempting to submit review via API...'); // Debug log
         await submitExchangeReview(exchangeId, reviewData);
+        console.log('Review submission successful (API call).'); // Debug log
         showElement(reviewSubmitSuccess);
         reviewSubmitSuccess.textContent = 'Review submitted successfully! It is pending moderation.';
         reviewForm.reset(); // Clear the form
     } catch (error) {
-        console.error('Failed to submit review:', error);
+        console.error('Failed to submit review (API error):', error); // Debug log
         displayErrorMessage('review-submit-error', `Failed to submit review: ${error.message}`);
         showElement(reviewSubmitError);
     } finally {
+        console.log('Re-enabling submit button.'); // Debug log
         submitButton.disabled = false;
         submitButton.textContent = 'Submit Review';
     }
@@ -447,7 +470,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             hideElement(loginPrompt);
             showElement(addReviewSection);
             await loadRatingCategoriesForForm();
+            console.log('Checking if review form exists before adding listener:', reviewForm); // Debug log
             reviewForm?.addEventListener('submit', (event) => handleReviewSubmit(event, exchangeId));
+            if (!reviewForm) {
+                console.error('Review form element not found when trying to add submit listener.'); // Debug log
+            } else {
+                console.log('Submit event listener added to review form.'); // Debug log
+            }
         } else {
             hideElement(addReviewSection);
             showElement(loginPrompt);

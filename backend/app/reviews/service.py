@@ -120,16 +120,16 @@ class ReviewService:
         if not exchange:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")
 
-        existing_review_query = select(Review.id).filter(
-            Review.exchange_id == review_in.exchange_id,
-            Review.user_id == user_id
-        )
-        existing_review = await db.execute(existing_review_query)
-        if existing_review.scalar_one_or_none() is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="You have already submitted a review for this exchange."
-            )
+        # existing_review_query = select(Review.id).filter(
+        #     Review.exchange_id == review_in.exchange_id,
+        #     Review.user_id == user_id
+        # )
+        # existing_review = await db.execute(existing_review_query)
+        # if existing_review.scalar_one_or_none() is not None:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_409_CONFLICT,
+        #         detail="You have already submitted a review for this exchange."
+        #     )
 
         db_review = Review(
             comment=review_in.comment,

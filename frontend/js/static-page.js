@@ -8,22 +8,24 @@ const showElement = (element) => element?.classList.remove('hidden');
 const hideElement = (element) => element?.classList.add('hidden');
 
 /**
- * Fetches and displays the static page content.
+ * Fetches and displays the static page content based on the HTML filename.
  */
 async function loadStaticPage() {
     const titleElement = document.getElementById('page-title');
     const bodyElement = document.getElementById('page-body');
     const errorElement = document.getElementById('page-error');
 
-    // 1. Get the slug from the URL query parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
+    // 1. Get the slug from the current HTML filename
+    const path = window.location.pathname; // e.g., "/privacy.html" or "/about.html"
+    const filename = path.substring(path.lastIndexOf('/') + 1); // e.g., "privacy.html"
+    const slug = filename.replace('.html', ''); // e.g., "privacy"
 
-    if (!slug) {
+    // Basic check if a slug was derived
+    if (!slug || slug === 'static-page') { // Avoid running on the generic page if it exists
         titleElement.textContent = 'Error';
-        displayErrorMessage('page-error', 'No page specified. Please provide a slug in the URL (e.g., ?slug=about).');
+        displayErrorMessage('page-error', 'Could not determine the page content to load.');
         showElement(errorElement);
-        hideElement(bodyElement); // Hide the loading message
+        hideElement(bodyElement);
         return;
     }
 
@@ -33,26 +35,24 @@ async function loadStaticPage() {
     titleElement.textContent = 'Loading...';
     bodyElement.innerHTML = '<p>Please wait...</p>';
 
-    // 3. Fetch page content from the API
+    // 3. Fetch page content from the API using the derived slug
     try {
         const pageData = await fetchStaticPage(slug);
 
         // 4. Display the content
         titleElement.textContent = pageData.title;
-        // IMPORTANT: Sanitize HTML content if it comes from untrusted sources (e.g., user input via admin panel)
-        // For now, assuming content is safe or sanitized server-side.
-        // If content might contain scripts, use DOMPurify or similar library before setting innerHTML.
+        // IMPORTANT: Sanitize HTML content if it comes from untrusted sources
         bodyElement.innerHTML = pageData.content; // Render HTML content
         document.title = `${pageData.title} - CryptaInfo`; // Update browser tab title
 
     } catch (error) {
-        // 5. Handle errors (e.g., page not found)
-        console.error(`Error fetching static page '${slug}':`, error);
+        // 5. Handle errors
+        console.error(`Error fetching static page content for '${slug}':`, error);
         titleElement.textContent = 'Page Not Found';
         document.title = 'Page Not Found - CryptaInfo';
-        displayErrorMessage('page-error', `Could not load the page '${slug}'. It might not exist or there was a server error.`);
+        displayErrorMessage('page-error', `Could not load the content for '${slug}'. It might not exist or there was a server error.`);
         showElement(errorElement);
-        hideElement(bodyElement); // Hide the loading message
+        hideElement(bodyElement);
     }
 }
 

@@ -43,6 +43,7 @@ class ExchangeBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=255)
     slug: str = Field(..., min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$") # Basic slug pattern
     description: Optional[str] = None
+    overview: Optional[str] = None
     logo_url: Optional[str] = None
     website_url: Optional[str] = None
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
@@ -72,6 +73,7 @@ class ExchangeUpdate(ExchangeBase):
     name: Optional[str] = Field(None, min_length=2, max_length=255)
     slug: Optional[str] = Field(None, min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$")
     description: Optional[str] = None
+    overview: Optional[str] = None
     kyc_type: Optional[KYCTypeEnum] = None
     has_p2p: Optional[bool] = None
      # Allow updating related IDs - service needs to handle this

@@ -2,15 +2,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
+from typing import Optional
 from decimal import Decimal
 
 from app.core.database import get_async_db
 from app.exchanges import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse
 from app.models.exchange import KYCTypeEnum
-from app.dependencies import get_current_admin_user
-from app.models.user import User
 
 router = APIRouter(
     prefix="/exchanges",
