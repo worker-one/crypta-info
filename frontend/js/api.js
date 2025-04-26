@@ -2,9 +2,7 @@
 import { getAccessToken } from './auth.js'; // Import the auth function
 
 // Base URL for API, taken from environment variable or fallback to default
-const BASE_API_URL = typeof process !== 'undefined' && process.env && process.env.BASE_API_URL
-    ? process.env.BASE_API_URL
-    : (window.BASE_API_URL || 'http://localhost:8000/api/v1');
+const BASE_API_URL = 'http://localhost:8000/api/v1'
 
 /**
  * Performs a fetch request to the API.

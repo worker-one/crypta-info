@@ -1,8 +1,8 @@
 // DOM Manipulation and UI Update Logic
 import { isLoggedIn, getUserProfileData } from './auth.js'; // Need auth state
 
-// take value from the environment variable
-const BASE_URL_API = process.env.BASE_URL_API || 'http://localhost:8000/api/v1'; // Use a default for local dev
+// Define the API base URL directly. For production, consider a configuration approach.
+const BASE_URL_API = 'http://localhost:8000/api/v1'; // Default for local dev or replace with your actual API URL
 
 /**
  * Updates the main navigation based on login status.
