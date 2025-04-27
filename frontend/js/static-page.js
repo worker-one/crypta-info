@@ -16,8 +16,8 @@ async function loadStaticPage() {
     const errorElement = document.getElementById('page-error');
 
     // 1. Get the slug from the current HTML filename
-    const path = window.location.pathname; // e.g., "/privacy.html" or "/about.html"
-    const filename = path.substring(path.lastIndexOf('/') + 1); // e.g., "privacy.html"
+    const path = window.location.pathname; // e.g., "/privacy" or "/about"
+    const filename = path.substring(path.lastIndexOf('/') + 1); // e.g., "privacy"
     const slug = filename.replace('.html', ''); // e.g., "privacy"
 
     // Basic check if a slug was derived
