@@ -300,7 +300,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
             // Wrap the count in a link
             const reviewsLink = document.createElement('a');
-            reviewsLink.href = `exchange/reviews.html?slug=${exchange.slug}`;
+            reviewsLink.href = `exchanges/reviews.html?slug=${exchange.slug}`;
             reviewsLink.textContent = reviewCount;
             reviewsLink.classList.add('reviews-link'); // Add class to identify the link
             // Prevent row click when clicking the link itself
@@ -366,6 +366,303 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
     }
 }
 
+/**
+ * Renders the list of books as rows in a table body.
+ * @param {Array<object>} books - Array of book data objects (expecting BookRead structure).
+ * @param {string} tbodyId - ID of the table body element (tbody).
+ * @param {string} loadingElementId - ID of the loading indicator element.
+ * @param {string} errorContainerId - ID of the error message container.
+ * @param {number} startIndex - The starting index for numbering (e.g., (page - 1) * limit).
+ */
+export function renderBookList(books, tbodyId, loadingElementId, errorContainerId, startIndex = 0) {
+    const tbody = document.getElementById(tbodyId);
+    const loadingIndicator = document.getElementById(loadingElementId);
+    const errorContainer = document.getElementById(errorContainerId);
+
+    if (!tbody) {
+        console.error(`Book list tbody #${tbodyId} not found.`);
+        return;
+    }
+
+    // Clear previous content
+    tbody.innerHTML = '';
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    if (errorContainer) errorContainer.classList.remove('visible');
+
+    if (books && books.length > 0) {
+        books.forEach((book, index) => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-book-id', book.id); // Keep book ID
+            tr.classList.add('clickable-row'); // Consistent class for click handling/styling
+
+            // --- Create Table Cells (td) - Ensure consistent structure ---
+
+            // 0. Number Cell
+            const numberTd = document.createElement('td');
+            numberTd.className = 'number-cell'; // Consistent class
+            numberTd.setAttribute('data-label', '#'); // Consistent attribute
+            numberTd.textContent = startIndex + index + 1;
+            tr.appendChild(numberTd);
+
+            // 1. Cover Cell
+            const coverTd = document.createElement('td');
+            coverTd.className = 'cover-cell'; // Specific class for books
+            coverTd.setAttribute('data-label', 'Cover'); // Consistent attribute
+            const coverImg = document.createElement('img');
+            coverImg.src = book.logo_url || '../assets/images/book-placeholder.png'; // Use logo_url if available, else placeholder
+            coverImg.alt = `${book.name} Cover`; // Use book.name
+            coverImg.loading = 'lazy';
+            coverImg.style.maxWidth = '50px';
+            coverImg.style.maxHeight = '75px';
+            coverImg.onerror = function() { this.onerror=null; this.src='../assets/images/book-placeholder.png'; };
+            coverTd.appendChild(coverImg);
+            tr.appendChild(coverTd);
+
+            // 2. Title Cell
+            const titleTd = document.createElement('td');
+            titleTd.className = 'title-cell'; // Specific class for books
+            titleTd.setAttribute('data-label', 'Title'); // Consistent attribute
+            titleTd.textContent = book.name; // Use book.name
+            tr.appendChild(titleTd);
+
+            // 3. Rating Cell
+            const ratingTd = document.createElement('td');
+            ratingTd.className = 'rating-cell';
+            ratingTd.setAttribute('data-label', 'Rating');
+            const ratingValue = parseFloat(book.overall_average_rating);
+            const ratingSpan = document.createElement('span');
+            ratingSpan.className = 'rating-value';
+            ratingSpan.textContent = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+            ratingTd.appendChild(ratingSpan);
+            tr.appendChild(ratingTd);
+
+            // 4. Reviews Cell (Updated to be a clickable link)
+            const reviewsTd = document.createElement('td');
+            reviewsTd.className = 'reviews-cell'; // Consistent class
+            reviewsTd.setAttribute('data-label', 'Reviews'); // Consistent attribute
+            const reviewCount = book.total_review_count?.toLocaleString() ?? 'N/A';
+            // Wrap the count in a link
+            const reviewsLink = document.createElement('a');
+            reviewsLink.href = `books/reviews.html?id=${book.id}`; // Link to book reviews page
+            reviewsLink.textContent = reviewCount;
+            reviewsLink.classList.add('reviews-link'); // Add class to identify the link
+            // Prevent row click when clicking the link itself
+            reviewsLink.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+            reviewsTd.appendChild(reviewsLink); // Append link to td
+            tr.appendChild(reviewsTd);
+
+            // 5. Year Cell
+            const yearTd = document.createElement('td');
+            yearTd.className = 'year-cell'; // Specific class for books
+            yearTd.setAttribute('data-label', 'Year'); // Consistent attribute
+            yearTd.textContent = book.year || 'N/A';
+            tr.appendChild(yearTd);
+
+            // 6. Info Cell (e.g., Author, Topic)
+            const infoTd = document.createElement('td');
+            infoTd.className = 'info-cell'; // Consistent class
+            infoTd.setAttribute('data-label', 'Info'); // Consistent attribute
+            const author = book.author || 'Unknown Author';
+            infoTd.textContent = `${author}`; // Combine relevant info
+            tr.appendChild(infoTd);
+
+            // 7. Action Cell (e.g., Link to details)
+            const actionTd = document.createElement('td');
+            actionTd.className = 'action-cell'; // Consistent class
+            actionTd.setAttribute('data-label', 'Action'); // Consistent attribute
+            const detailBtn = document.createElement('a');
+            detailBtn.href = `/books/overview.html?id=${book.id}`;
+            detailBtn.textContent = 'Details';
+            detailBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'details-link'); // Consistent button styling
+
+            detailBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent row click
+            });
+            actionTd.appendChild(detailBtn);
+            tr.appendChild(actionTd);
+
+            // --- Append row to table body ---
+            tbody.appendChild(tr);
+        });
+    } else {
+        // Display a "no results" message - structure is consistent
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        const columnCount = tbody.previousElementSibling?.rows?.[0]?.cells?.length || 8; // Ensure correct colspan
+        td.colSpan = columnCount;
+        td.textContent = 'No books found matching your criteria.';
+        td.style.textAlign = 'center';
+        td.style.padding = '2rem';
+        td.style.color = '#6c757d';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
+}
+
+/**
+ * Renders a single book card.
+ * Assumes BookRead schema: { id, title, cover_image_url, rating, total_review_count, year, author, topic, amazon_link }
+ * @param {object} book - The book data object.
+ * @returns {HTMLElement|null} - The created card element or null if book is invalid.
+ */
+export function renderBookCard(book) {
+    if (!book || !book.id) return null;
+
+    const card = document.createElement('div');
+    card.className = 'book-card'; // Use a specific class for styling
+
+    const imageUrl = book.cover_image_url || '../assets/images/book-placeholder.png';
+    const title = book.title || 'Untitled Book';
+    const author = book.author || 'Unknown Author';
+    const year = book.year || 'N/A';
+    const ratingValue = parseFloat(book.overall_average_rating);
+    const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+    const reviewCount = book.total_review_count?.toLocaleString() ?? '0';
+    const topicName = book.topic?.name || 'General';
+
+    // Example: Link to an external site or a non-existent detail page
+    const actionLink = book.amazon_link
+        ? `<a href="${book.amazon_link}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary btn-sm external-link">View</a>`
+        : `<span class="text-muted">No link</span>`; // Placeholder if no link
+
+    card.innerHTML = `
+        <div class="card-header">
+             <img src="${imageUrl}" alt="${title} Cover" class="card-cover-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/book-placeholder.png';">
+        </div>
+        <div class="card-body">
+            <h3 class="card-title">${title}</h3>
+            <div class="card-info-row">
+                <div class="card-info-label">Author:</div>
+                <div class="card-info-value">${author}</div>
+            </div>
+             <div class="card-info-row">
+                <div class="card-info-label">Year:</div>
+                <div class="card-info-value">${year}</div>
+            </div>
+            <div class="card-info-row">
+                <div class="card-info-label">Rating:</div>
+                <div class="card-info-value card-rating">${formattedRating} (${reviewCount} reviews)</div>
+            </div>
+            <div class="card-info-row">
+                <div class="card-info-label">Topic:</div>
+                <div class="card-info-value">${topicName}</div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="card-action">
+                ${actionLink}
+            </div>
+        </div>
+    `;
+
+    // Add event listener to external link if needed (e.g., for analytics)
+    const externalLink = card.querySelector('.external-link');
+    externalLink?.addEventListener('click', (event) => {
+        // Optional: Add analytics tracking here
+        console.log(`Clicked external link for book ID: ${book.id}`);
+        // Allow default link behavior
+    });
+
+
+    return card;
+}
+
+
+/**
+ * Renders pagination controls.
+ * @param {string} containerId - The ID of the container element for pagination buttons.
+ * @param {number} totalItems - Total number of items available.
+ * @param {number} currentPage - The current active page (1-based).
+ * @param {number} itemsPerPage - How many items are displayed per page.
+ * @param {number} maxPagesToShow - Maximum number of page buttons to display directly (e.g., 5 or 7).
+ */
+export function renderPaginationControls(containerId, totalItems, currentPage, itemsPerPage, maxPagesToShow = 5) {
+    const container = document.getElementById(containerId);
+    if (!container || totalItems <= itemsPerPage) {
+        if (container) container.innerHTML = ''; // Clear if not needed
+        return; // No pagination needed if only one page or container missing
+    }
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    container.innerHTML = ''; // Clear previous controls
+
+    // --- Helper function to create a button ---
+    const createButton = (text, page, isDisabled = false, isActive = false, isEllipsis = false) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = text;
+        button.dataset.page = page;
+        button.disabled = isDisabled;
+        button.classList.add('btn', 'btn-sm');
+        if (isActive) {
+            button.classList.add('btn-primary'); // Active page style
+            button.classList.remove('btn-outline-secondary');
+        } else if (isEllipsis) {
+             button.classList.add('btn-light', 'disabled'); // Ellipsis style
+             button.style.pointerEvents = 'none'; // Make unclickable
+        }
+        else {
+            button.classList.add('btn-outline-secondary'); // Default style
+        }
+        return button;
+    };
+
+    // --- Previous Button ---
+    container.appendChild(createButton('« Prev', currentPage - 1, currentPage === 1));
+
+    // --- Page Number Buttons ---
+    if (totalPages <= maxPagesToShow) {
+        // Show all pages if total is less than or equal to max
+        for (let i = 1; i <= totalPages; i++) {
+            container.appendChild(createButton(i, i, false, i === currentPage));
+        }
+    } else {
+        // Show truncated pages with ellipsis
+        const halfMax = Math.floor(maxPagesToShow / 2);
+        let startPage, endPage;
+
+        if (currentPage <= halfMax) {
+            // Near the beginning
+            startPage = 1;
+            endPage = maxPagesToShow - 1; // Leave space for ellipsis and last page
+            container.appendChild(createButton(1, 1, false, 1 === currentPage));
+            for (let i = 2; i <= endPage; i++) {
+                container.appendChild(createButton(i, i, false, i === currentPage));
+            }
+            container.appendChild(createButton('...', -1, true, false, true)); // Ellipsis
+            container.appendChild(createButton(totalPages, totalPages, false, totalPages === currentPage));
+        } else if (currentPage + halfMax >= totalPages) {
+            // Near the end
+            startPage = totalPages - (maxPagesToShow - 2); // Leave space for first page and ellipsis
+            endPage = totalPages;
+            container.appendChild(createButton(1, 1, false, 1 === currentPage));
+            container.appendChild(createButton('...', -1, true, false, true)); // Ellipsis
+            for (let i = startPage; i <= endPage; i++) {
+                container.appendChild(createButton(i, i, false, i === currentPage));
+            }
+        } else {
+            // In the middle
+            startPage = currentPage - Math.floor((maxPagesToShow - 3) / 2); // Adjust for first, last, and two ellipses
+            endPage = currentPage + Math.ceil((maxPagesToShow - 3) / 2);
+
+            container.appendChild(createButton(1, 1, false, 1 === currentPage));
+            container.appendChild(createButton('...', -1, true, false, true)); // Ellipsis start
+
+            for (let i = startPage; i <= endPage; i++) {
+                container.appendChild(createButton(i, i, false, i === currentPage));
+            }
+
+            container.appendChild(createButton('...', -1, true, false, true)); // Ellipsis end
+            container.appendChild(createButton(totalPages, totalPages, false, totalPages === currentPage));
+        }
+    }
+
+
+    // --- Next Button ---
+    container.appendChild(createButton('Next »', currentPage + 1, currentPage === totalPages));
+}
 
 /**
  * Displays a success message in a designated element.
@@ -418,42 +715,35 @@ export function displayErrorMessage(elementId, message) {
  * Also sets initial state based on screen size
  */
 export function initTableViewToggle() {
-    const toggleBtn = document.getElementById('toggle-view-btn'); // Button still exists but is hidden
-    const tableView = document.getElementById('exchange-table');
-    const cardView = document.getElementById('exchange-card-container');
+    // const toggleBtn = document.getElementById('toggle-view-btn'); // Button might be hidden by default now
+    // Find the relevant table and card containers based on the current page context
+    // This might need adjustment if IDs are not consistent or if used on multiple pages
+    const tableView = document.querySelector('.data-table:not(.hidden)') || document.getElementById('exchange-table') || document.getElementById('book-table');
+    const cardView = document.querySelector('.card-list:not(.hidden)') || document.getElementById('exchange-card-container') || document.getElementById('book-card-container');
+
 
     // Check if essential elements exist
-    if (!tableView || !cardView) { // Removed toggleBtn check as it's not essential for logic anymore
-        console.warn('Table/Card view elements not found. Aborting toggle initialization.');
+    if (!tableView || !cardView) {
+        console.warn('Table/Card view elements not found for toggle initialization.');
         return;
     }
-
-    // Get references to the text spans inside the button (keep for potential future use, but not strictly needed now)
-    // const tableViewText = toggleBtn?.querySelector('.table-view-text');
-    // const cardViewText = toggleBtn?.querySelector('.card-view-text');
 
     // Helper functions to manage view state
     function toggleToCardView() {
         tableView.classList.add('hidden');
         cardView.classList.remove('hidden');
-        // Remove button text updates
-        // if (tableViewText) tableViewText.classList.remove('hidden');
-        // if (cardViewText) cardViewText.classList.add('hidden');
         console.log("Switched to Card View (responsive)");
     }
 
     function toggleToTableView() {
         tableView.classList.remove('hidden');
         cardView.classList.add('hidden');
-        // Remove button text updates
-        // if (tableViewText) tableViewText.classList.add('hidden');
-        // if (cardViewText) cardViewText.classList.remove('hidden');
         console.log("Switched to Table View (responsive)");
     }
 
     // Set initial state based on screen size
     const checkInitialView = () => {
-        const isSmallScreen = window.innerWidth <= 767;
+        const isSmallScreen = window.innerWidth <= 767; // Breakpoint from CSS
         if (isSmallScreen) {
             toggleToCardView();
         } else {
@@ -462,31 +752,23 @@ export function initTableViewToggle() {
         }
     };
 
-    // Remove the click listener for the button
-    // toggleBtn?.addEventListener('click', () => {
-    //     if (tableView.classList.contains('hidden')) {
-    //         toggleToTableView();
-    //     } else {
-    //         toggleToCardView();
-    //     }
-    // });
-
     // Add resize listener to handle responsive switching
     let resizeTimeout;
     window.addEventListener('resize', () => {
-        // Debounce resize event
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             const isSmallScreen = window.innerWidth <= 767;
-            if (isSmallScreen && !tableView.classList.contains('hidden')) {
-                // Small screen but currently in table view - switch to card
+            // Check current state before toggling
+            const isCurrentlyTable = !tableView.classList.contains('hidden');
+            const isCurrentlyCard = !cardView.classList.contains('hidden');
+
+            if (isSmallScreen && isCurrentlyTable) {
                 toggleToCardView();
-            } else if (!isSmallScreen && tableView.classList.contains('hidden')) {
-                // Large screen but currently in card view - switch to table
+            } else if (!isSmallScreen && isCurrentlyCard) {
                 toggleToTableView();
             }
             // No action needed if the view already matches the screen size
-        }, 250); // Adjust debounce delay as needed
+        }, 250);
     });
 
     // Set the initial view when the function runs

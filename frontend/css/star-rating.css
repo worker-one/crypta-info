@@ -1,0 +1,45 @@
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.star-rating input {
+  display: none;
+}
+
+.star-rating label {
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+  background-image: url('../img/star-empty.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-right: 5px;
+}
+
+/* No image file? Use this CSS-only star instead */
+.star-rating label:after {
+  content: '☆';
+  font-size: 25px;
+  color: #ccc;
+}
+
+.star-rating input:checked ~ label:after,
+.star-rating input:hover ~ label:after {
+  content: '★';
+  color: #ffc107;
+}
+
+.star-rating input:checked ~ label,
+.star-rating input:hover ~ label {
+  background-image: url('../img/star-filled.svg');
+}
+
+/* For accessibility */
+.star-rating label span {
+  position: absolute;
+  left: -9999px;
+}

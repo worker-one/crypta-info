@@ -7,7 +7,8 @@ import {
     adminUpdateExchange,
     adminDeleteExchange,
     adminListPendingReviews,
-    adminModerateReview // Use the correct function for moderation
+    adminModerateReview, // Use the correct function for moderation
+    getItemDetails // Import getItemDetails
 } from './api.js'; // Corrected imports
 // Import the function responsible for checking login and updating the header
 import { checkAndCacheUserProfile } from './auth.js';
@@ -87,7 +88,7 @@ async function loadExchangesTable() {
                         ${exchange.name}
                     </td>
                     <td>${exchange.slug}</td>
-                    <td>${exchange.overall_average_rating || 'N/A'}</td>
+                    <td>${exchange.rating || 'N/A'}</td>
                     <td>${exchange.total_review_count}</td>
                     <td>
                         <button class="btn btn-sm btn-primary edit-exchange" data-slug="${exchange.slug}">Edit</button>
@@ -277,25 +278,32 @@ async function loadPendingReviews() {
 
         if (reviews && reviews.length > 0) {
             reviewsContainer.innerHTML = ''; // Clear loading state
-            reviews.forEach(review => {
-                const reviewElement = document.createElement('div');
-                // Use the same card structure as profile.js
-                reviewElement.classList.add('card', 'mb-3', 'review-item'); // Added review-item for potential specific styling
 
-                // Format date for better readability
+            // Use Promise.all to fetch item details concurrently
+            const reviewPromises = reviews.map(async (review) => {
+                let itemName = 'Unknown Item';
+                try {
+                    // Fetch item details using the item_id from the review
+                    const itemDetails = await getItemDetails(review.item_id);
+                    itemName = itemDetails?.name || `Item ID ${review.item_id}`; // Use item name or fallback
+                } catch (itemError) {
+                    console.error(`Error fetching details for item ${review.item_id}:`, itemError);
+                    itemName = `Item ID ${review.item_id} (Error loading name)`;
+                }
+
+                const reviewElement = document.createElement('div');
+                reviewElement.classList.add('card', 'mb-3', 'review-item');
+
                 const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric'
                 });
 
-                // Use Bootstrap card structure similar to profile.js
                 reviewElement.innerHTML = `
                     <div class="card-body">
-                        <h5 class="card-title">Review for: ${review.exchange?.name || 'Unknown Exchange'} (#${review.id})</h5>
+                        <h5 class="card-title">Review for: ${itemName} (#${review.id})</h5>
                         <h6 class="card-subtitle mb-2 text-muted">Submitted by: ${review.user?.nickname || 'Unknown User'} on ${reviewDate}</h6>
-                        <p class="card-text comment-preview">${review.comment}</p> <!-- Show full comment for moderation -->
-                        ${review.ratings && review.ratings.length > 0 ? `
-                        <p class="card-text mb-1"><strong>Ratings:</strong> ${review.ratings.map(r => `${r.category?.name || 'Category '+r.category_id}: ${r.rating_value}/5`).join(', ')}</p>
-                        ` : '<p class="card-text mb-1"><strong>Ratings:</strong> Not provided</p>'}
+                        <p class="card-text comment-preview">${review.comment}</p>
+                        <p class="card-text mb-1"><strong>Rating:</strong> <span class="review-rating">${review.rating || 'N/A'}</span>/5</p>
                         <p class="card-text"><strong>Current Status:</strong> <span class="status-${review.moderation_status}">${review.moderation_status}</span></p>
                     </div>
                     <div class="card-footer review-actions text-end">
@@ -303,16 +311,20 @@ async function loadPendingReviews() {
                         <button class="btn btn-sm btn-danger reject-review" data-id="${review.id}">Reject</button>
                     </div>
                 `;
-                reviewsContainer.appendChild(reviewElement);
+                return reviewElement; // Return the created element
             });
-            addReviewButtonListeners(); // Add listeners to newly created buttons
+
+            // Wait for all promises to resolve
+            const reviewElements = await Promise.all(reviewPromises);
+            // Append all elements to the container
+            reviewElements.forEach(element => reviewsContainer.appendChild(element));
+
+            addReviewButtonListeners(); // Add listeners after elements are in the DOM
         } else {
-            // Use alert structure for consistency if desired, or keep simple text
             reviewsContainer.innerHTML = '<div class="alert alert-info">No pending reviews found.</div>';
         }
     } catch (error) {
         console.error('Error loading pending reviews:', error);
-        // Use alert structure for consistency
         reviewsContainer.innerHTML =
             '<div class="alert alert-danger">Error loading pending reviews. Please try again later.</div>';
     }

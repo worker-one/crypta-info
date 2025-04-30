@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books - Crypta.Info</title> <!-- Changed Title -->
+    <link rel="stylesheet" href="../css/layout.css?v=1.0"> <!-- Adjusted path -->
+    <link rel="stylesheet" href="../css/main.css?v=1.0"> <!-- Adjusted path -->
+    <link rel="stylesheet" href="../css/pages/book-detail.css?v=1.0">
+</head>
+<body>
+    <!-- Header Section (Same as exchanges) -->
+    <header class="main-header">
+        <div class="container">
+            <!-- Logo Title (left) -->
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40"> <!-- Adjusted path -->
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                </div>
+            </a>
+
+            <!-- Sign Up and Sign In (Now directly in container) -->
+            <nav id="main-nav">
+                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a> <!-- Adjusted path -->
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a> <!-- Adjusted path -->
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Adjusted path -->
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Adjusted path -->
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- Site Navigation - Added Below Header -->
+    <div class="site-nav-container">
+        <div class="container">
+            <nav class="site-nav">
+                <a href="/exchanges" class="nav-link">Exchanges</a>
+                <a href="/books" class="nav-link active">Books</a> <!-- Set active class -->
+            </nav>
+        </div>
+    </div>
+
+    <main>
+
+
+        <!-- Book List Section -->
+        <section id="book-list-section" class="book-list-section"> <!-- Changed ID -->
+            <div class="container">
+
+            <div class="intro-text-box" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+                <p>Explore our curated list of books covering various topics in the crypto and blockchain space. Find valuable resources to deepen your understanding.</p> <!-- Changed Intro Text -->
+            </div>
+            
+            <!-- Filters Section -->
+            <div id="book-filters" class="book-filters-container"> <!-- Changed ID -->
+                <!-- Combined Search and Filter Form -->
+                <form id="search-filter-form">
+                    <!-- Search Input -->
+                    <input type="search" id="search-input" placeholder="Search books by title..." style="flex:1; min-width:0;"> <!-- Changed placeholder -->
+
+                    <!-- Topic Filter -->
+                    <div class="filter-group">
+                        <label for="filter-topic">Topic:</label>
+                        <select id="filter-topic" name="topic_id"> <!-- Changed filter -->
+                            <option value="">Any Topic</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="filter-buttons">
+                        <button type="submit" class="btn btn-primary btn-sm">Search</button> <!-- Use submit for search -->
+                        <button type="button" id="apply-filters-btn" class="btn btn-secondary btn-sm">Apply Filters</button> <!-- Keep separate apply for filters if needed, or combine logic -->
+                        <button type="button" id="reset-filters-btn" class="btn btn-outline-secondary btn-sm">Reset</button>
+                    </div>
+                </form>
+                <!-- Removed the separate filter-form and header-search-container wrapper -->
+            </div>
+
+                <!-- Table container -->
+                <div id="book-table-container"> <!-- Changed ID -->
+                    <p id="loading-books">Loading books...</p> <!-- Changed ID -->
+                    <div id="book-list-error" class="error-message"></div> <!-- Changed ID -->
+                    <div class="card-view-toggle">
+                        <button id="toggle-view-btn" class="btn btn-sm btn-secondary hidden">
+                            <span class="table-view-text hidden">Table View</span>
+                            <span class="card-view-text">Switch to Card View</span>
+                        </button>
+                    </div>
+
+                    <!-- Table View -->
+                    <table class="data-table book-table" id="book-table"> <!-- Changed class and ID -->
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cover</th> <!-- Changed Header -->
+                                <th class="sortable" data-sort-key="name">Title</th> <!-- Changed Header and sort key -->
+                                <th class="sortable" data-sort-key="rating">Rating</th>
+                                <th class="sortable" data-sort-key="total_review_count">Reviews</th>
+                                <th class="sortable" data-sort-key="year">Year</th> <!-- Changed Header and sort key -->
+                                <th>Info</th>
+                                <th><!-- Action column header removed/emptied --></th>
+                            </tr>
+                        </thead>
+                        <tbody id="book-list-body"> <!-- Changed ID -->
+                            <!-- Table rows loaded here -->
+                        </tbody>
+                    </table>
+
+                    <!-- Card View -->
+                    <div id="book-card-container" class="book-card-list hidden"> <!-- Changed ID and class -->
+                        <!-- Card items will be loaded here -->
+                    </div>
+                </div>
+                <!-- Pagination -->
+                 <div id="pagination-controls" class="pagination-controls" style="margin-top: 20px;">
+                    <!-- Pagination buttons will be added here by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section (Same as exchanges) -->
+    <footer class="main-footer">
+        <div class="container">
+           <p>© 2025 Crypta.Info. All rights reserved.</p>
+           <nav>
+               <a href="../privacy.html">Privacy Policy</a> | <!-- Adjusted path -->
+               <a href="../terms.html">Terms of Service</a> | <!-- Adjusted path -->
+               <a href="../about.html">About Us</a> | <!-- Adjusted path -->
+               <a href="../faq.html">FAQ</a> | <!-- Adjusted path -->
+               <a href="../contacts.html">Contacts</a> <!-- Adjusted path -->
+           </nav>
+       </div>
+   </footer>
+
+    <!-- Reference the new books JS file -->
+    <script type="module" src="../js/books-main.js?v=1.0"></script> <!-- Changed script reference -->
+</body>
+</html>

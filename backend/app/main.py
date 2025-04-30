@@ -6,13 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.auth.router import router as auth_router
 from app.exchanges.router import router as exchanges_router
-from app.rating_categories.router import router as rating_categories_router
+from app.books.router import router as books_router
 from app.reviews.router import router as reviews_router
 from app.news.router import router as news_router
 from app.static_pages.router import router as static_pages_router
 from app.admin.router import router as admin_router
 from app.common.router import router as common_router # Import the new router
 from app.guides.router import router as guides_router # Import the guides router
+from app.item.router import router as item_router # Import the item router
 
 # Create FastAPI app instance
 app = FastAPI(
@@ -42,13 +43,14 @@ api_router_v1 = APIRouter() # Create a router for versioning
 
 api_router_v1.include_router(auth_router)
 api_router_v1.include_router(exchanges_router)
+api_router_v1.include_router(books_router)
 api_router_v1.include_router(reviews_router)
 api_router_v1.include_router(news_router)
 api_router_v1.include_router(admin_router) # Include admin routes under v1 prefix
-api_router_v1.include_router(rating_categories_router)
 api_router_v1.include_router(static_pages_router) # Static pages router
 api_router_v1.include_router(guides_router) # Include guides router
 api_router_v1.include_router(common_router) # Include the common data router
+api_router_v1.include_router(item_router) # Include the item router
 
 app.include_router(api_router_v1, prefix=settings.API_V1_STR)
 

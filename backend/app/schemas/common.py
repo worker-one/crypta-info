@@ -4,6 +4,15 @@ from typing import List, TypeVar, Generic, Optional
 
 T = TypeVar('T')
 
+class ItemReadBrief(BaseModel):
+    id: int
+    name: str
+    slug: str
+    logo_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True # For SQLAlchemy ORM mode compatibility (previously orm_mode)
+
 class Message(BaseModel):
     message: str
 

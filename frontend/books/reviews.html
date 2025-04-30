@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Reviews - Crypta.Info</title> <!-- Changed title -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/pages/book-detail.css"> <!-- Reuse styles -->
+    <link rel="stylesheet" href="../css/star-rating.css"> <!-- Added star rating CSS -->
+    <style>
+        /* Add any specific styles for reviews if needed */
+        #reviews-list .review-item { /* Example style */
+            border: 1px solid #eee;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            border-radius: 4px;
+        }
+        #add-review-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section (Copied from overview.html) -->
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                </div>
+            </a>
+            <nav id="main-nav">
+                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-section"> <!-- Reusing class -->
+            <div class="container">
+                <div id="breadcrumb">
+                    <a href="/books">Books</a> /
+                    <a href="#" id="book-link-breadcrumb">Book</a> <!-- JS will populate this -->
+                    / Reviews
+                </div>
+
+                <!-- Added Tab Navigation -->
+                <nav class="exchange-tabs" id="book-tabs"> <!-- Reusing class, added ID -->
+                    <a href="#" class="tab-link" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link active" id="tab-reviews">Reviews</a> <!-- Active tab -->
+                </nav>
+
+                <h1 id="book-name-heading">Book Reviews</h1> <!-- JS will populate this -->
+
+                <!-- Reviews Section -->
+                <div id="review-section">
+                    <div id="reviews-container">
+                        <div id="reviews-loading" class="loading-message">Loading reviews...</div>
+                        <div id="reviews-error" class="error-message"></div>
+                        <!-- Add container for sort buttons -->
+                        <div id="review-sort-controls-container">
+                            <!-- Sorting buttons will be dynamically added here by JS if not present -->
+                        </div>
+                        <div id="reviews-list">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div id="add-review-section" class="hidden"> <!-- Initially hidden, shown for logged-in users -->
+                        <h3>Add Your Review</h3>
+                        <form id="review-form">
+                            <!-- Container for the single rating input -->
+                            <div id="review-rating-input-container" class="form-group">
+                                <label>Your Rating:</label>
+                                <div class="star-rating single-rating" data-rating-group="overall">
+                                    <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
+                                    <label for="star-overall-5"></label>
+                                    <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
+                                    <label for="star-overall-4"></label>
+                                    <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
+                                    <label for="star-overall-3"></label>
+                                    <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
+                                    <label for="star-overall-2"></label>
+                                    <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
+                                    <label for="star-overall-1"></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="review-text">Your Review:</label>
+                                <textarea id="review-text" name="review-text" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            <div id="review-submit-error" class="error-message"></div>
+                            <div id="review-submit-success" class="success-message"></div>
+                        </form>
+                    </div>
+                    <!-- Login Prompt -->
+                    <div id="login-prompt-review" class="message info-message hidden">
+                        You need to <a href="../login.html">sign in</a> to add your review. <!-- Adjusted path -->
+                    </div>
+
+                </div>
+
+                <!-- Loading indicator (can be shared or separate) -->
+                <div id="page-loading" class="loading-message hidden">Loading...</div>
+
+                <!-- Error message container -->
+                <div id="page-error" class="error-message message hidden"></div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section (Copied from overview.html) -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <nav>
+                <a href="/privacy">Privacy Policy</a> |
+                <a href="/terms">Terms of Service</a> |
+                <a href="/about">About Us</a> |
+                <a href="/faq">FAQ</a> |
+                <a href="/contacts">Contacts</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Inline script for initial setup -->
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("Book Reviews page DOMContentLoaded.");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('id'); // Assuming 'id' is used
+            console.log("Book ID:", bookId);
+
+            const bookNameHeading = document.getElementById('book-name-heading');
+            const bookLinkBreadcrumb = document.getElementById('book-link-breadcrumb');
+            const overviewTabLink = document.getElementById('tab-overview');
+            const reviewsTabLink = document.getElementById('tab-reviews');
+
+            let bookName = 'Book'; // Default placeholder
+
+            if (bookId) {
+                console.log("Setting initial tab links with book ID:", bookId);
+
+                const overviewPageUrl = `overview.html?id=${bookId}`;
+                const reviewsPageUrl = `#`; // Current page
+
+                if (bookLinkBreadcrumb) {
+                    bookLinkBreadcrumb.href = overviewPageUrl;
+                    bookLinkBreadcrumb.textContent = bookName; // Will be updated by JS
+                }
+                if (bookNameHeading) {
+                    bookNameHeading.textContent = `${bookName} Reviews`; // Will be updated by JS
+                }
+
+                // Set tab links
+                if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
+                if (reviewsTabLink) reviewsTabLink.href = reviewsPageUrl; // Current page
+
+                console.log("Initial tab links set.");
+
+            } else {
+                console.error("Book identifier is missing from URL.");
+                if (bookNameHeading) bookNameHeading.textContent = 'Error: Book ID missing';
+                // Disable tabs or show error state
+                if (overviewTabLink) overviewTabLink.href = '#';
+                if (reviewsTabLink) reviewsTabLink.href = '#'; // Current page, but ID missing
+                document.getElementById('review-section').classList.add('hidden');
+                document.getElementById('page-error').textContent = 'Cannot load page: Book identifier (ID) is missing.';
+                document.getElementById('page-error').classList.remove('hidden');
+            }
+        });
+    </script>
+    <!-- Load the main script for this page (NEEDS TO BE CREATED) -->
+    <script type="module" src="../js/books-reviews.js"></script>
+</body>
+</html>

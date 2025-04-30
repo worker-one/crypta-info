@@ -6,7 +6,7 @@
     top: 0;
     z-index: 1020; /* Ensure it's above other content */
     padding: 0.75rem 0; /* Slightly reduced padding */
-    margin-bottom: 2rem; /* Increased margin */
+    margin-bottom: 1rem; /* Increased margin */
     border-bottom: 1px solid #dee2e6; /* Consistent border color */
     background-color: #ffffff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow */
@@ -18,7 +18,7 @@
     flex-wrap: nowrap; /* Prevent wrapping initially */
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem; /* Adjust gap between logo, search, nav */
+    gap: 1rem; /* Reduced gap between logo, search, nav */
 }
 
 .logo {
@@ -78,12 +78,51 @@
     text-decoration: none;
 }
 
+/* Styles for the main site navigation container (below header) */
+.site-nav-container {
+    background-color: #f8f9fa; /* Light background */
+    border-bottom: 0.75px solid #dee2e6; /* Separator line */
+    margin-bottom: 0.1rem; /* Space below the nav */
+}
+
+/* Styles for the main site navigation (Exchanges, Books) */
+.site-nav {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    padding: 0; /* Remove padding if container handles it */
+}
+
+.site-nav .nav-link {
+    padding: 0.75rem 1rem; /* Padding similar to tabs */
+    margin: 0 0.25rem; /* Small horizontal margin between tabs */
+    color: #495057; /* Muted text color */
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 3px solid transparent; /* Invisible border for spacing */
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+    white-space: nowrap; /* Prevent wrapping */
+    position: relative; /* For potential future pseudo-elements */
+    text-transform: uppercase; /* Common tab style */
+    letter-spacing: 0.5px; /* Slight letter spacing */
+    margin-bottom: -1px; /* Overlap the container's border */
+}
+
+.site-nav .nav-link:hover,
+.site-nav .nav-link.active { /* Style for active/hovered link */
+    color: #007bff; /* Primary color */
+    border-bottom-color: #007bff; /* Primary color underline */
+    text-decoration: none;
+}
+
 /* --- Main Content Area --- */
 main {
     flex-grow: 1; /* Ensure main pushes footer down */
+}
+
+main .container {
+    padding-top: 1rem; /* Add padding if needed */
     padding-bottom: 4rem; /* More space above footer */
-    /* Container handles horizontal padding */
-    padding: 1rem 0;
 }
 
 /* --- Main Footer --- */
@@ -143,20 +182,51 @@ main {
 /* Styles for the form itself, now potentially inside .header-search-container */
 #search-filter-form {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%; /* Allow it to fill the container up to max-width */
-    max-width: 450px; /* Adjust max-width as needed */
-    margin: 0 auto; /* Center form within its container */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    align-items: center; /* Align items vertically */
+    gap: 0.75rem; /* Consistent gap between elements */
+    width: 100%; /* Allow it to fill the container */
+    /* max-width: 450px; */ /* Remove or adjust max-width if it should span more */
+    /* margin: 0 auto; */ /* Remove auto margin if it shouldn't be centered */
+    margin-bottom: 1rem; /* Add some space below the filter bar */
 }
 
 #search-filter-form input[type="search"] {
-    flex-grow: 1;
+    flex-grow: 1; /* Allow search input to take available space */
     min-width: 150px; /* Prevent input becoming too small */
     padding: 0.375rem 0.75rem;
     /* Ensure base input styles apply */
     border: 1px solid #ced4da; /* Example border */
     border-radius: 0.25rem; /* Example radius */
+}
+
+/* Style the filter group within the form */
+#search-filter-form .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Gap between label and select */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+#search-filter-form label {
+    margin-bottom: 0; /* Override default label margin */
+    white-space: nowrap; /* Prevent label wrapping */
+}
+
+#search-filter-form select {
+    /* Add base select styles if not inherited */
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    background-color: #fff;
+    min-width: 120px; /* Give select some minimum width */
+}
+
+/* Style the button group within the form */
+#search-filter-form .filter-buttons {
+    display: flex;
+    gap: 0.5rem; /* Gap between buttons */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 #search-filter-form button {

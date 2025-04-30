@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details - Crypta.Info</title> <!-- Changed title -->
+    <link rel="stylesheet" href="../css/main.css">
+    <!-- Optional: Add a specific CSS file for book details if needed -->
+    <link rel="stylesheet" href="../css/pages/book-detail.css"> <!-- Assuming a similar CSS structure -->
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                </div>
+            </a>
+            <nav id="main-nav">
+                <!-- Navigation links remain the same -->
+                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="book-detail-section"> <!-- Changed class name -->
+            <div class="container">
+
+                <!-- Added Tab Navigation -->
+                <nav class="exchange-tabs" id="book-tabs"> <!-- Reusing class, added ID -->
+                    <a href="#" class="tab-link active" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link active" id="tab-reviews">Reviews</a>
+                </nav>
+
+                <div id="book-detail-loading" class="loading-message">Loading book details...</div> <!-- Changed ID -->
+                <div id="book-detail-error" class="error-message"></div> <!-- Changed ID -->
+
+                <!-- Main Content Area -->
+                <div id="book-detail-content"> <!-- Wrapper for details and reviews -->
+                    <div id="book-detail" class="book-detail hidden"> <!-- Changed ID and class -->
+                        <!-- Book details (like title, author, description) will be loaded here via JavaScript -->
+                        <div id="book-main-info">
+                            <!-- Placeholder for main info like title, author, description -->
+                        </div>
+
+                        <!-- New Horizontal Section for Additional Info and Where to Buy -->
+                        <div class="book-extra-info-container">
+                            <div class="additional-info-section">
+                                <h2>Additional Information</h2>
+                                <!-- Content loaded by JS -->
+                                <div id="additional-info-content">
+                                    <!-- Placeholder: Additional details loaded here -->
+                                </div>
+                            </div>
+                            <div class="where-to-buy-section">
+                                <h2>Where to Buy</h2>
+                                <!-- Content loaded by JS -->
+                                <div id="where-to-buy-content">
+                                    <!-- Placeholder: Links/info on where to buy loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End New Horizontal Section -->
+                    </div>
+
+                    <!-- Reviews Section (Preview/Summary on Overview) -->
+                    <div id="review-section"> <!-- Removed hidden class -->
+                        <h2>User Reviews</h2>
+                        <div id="reviews-container"> <!-- Kept ID, context is clear -->
+                            <div id="reviews-loading" class="loading-message">Loading reviews...</div>
+                            <div id="reviews-error" class="error-message"></div>
+                            <!-- Optional: Add Sorting Buttons if needed for book reviews -->
+                            <div class="review-sort-controls" style="margin-bottom: 15px;">
+                                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
+                                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
+                                <!-- <button id="sort-reviews-date" class="btn btn-secondary btn-sm">Sort: Newest First</button> -->
+                            </div>
+                            <div id="reviews-list"></div>
+                            <!-- Add Review Button (Link) -->
+                            <div style="margin-top: 20px;">
+                                <!-- The href will be set dynamically by JS based on book ID/slug -->
+                                <a href="#" id="add-review-link" class="btn btn-primary">Add Your Review</a>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- End #book-detail-content -->
+
+                <!-- Removed News/Guide content placeholders -->
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <nav>
+                <!-- Footer links remain the same -->
+                <a href="/privacy">Privacy Policy</a> |
+                <a href="/terms">Terms of Service</a> |
+                <a href="/about">About Us</a> |
+                <a href="/faq">FAQ</a> |
+                <a href="/contacts">Contacts</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Changed script import -->
+    <script type="module" src="../js/books-details.js"></script>
+    <!-- Added inline script for tabs -->
+    <script>
+        // Basic JS to set tab links based on book identifier (e.g., 'id')
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('id'); // Assuming 'id' is used
+            const overviewTabLink = document.getElementById('tab-overview');
+            const reviewsTabLink = document.getElementById('tab-reviews');
+
+            if (bookId) {
+                // Update links for sibling pages
+                if (overviewTabLink) overviewTabLink.href = `#`; // Current page
+                if (reviewsTabLink) reviewsTabLink.href = `reviews.html?id=${bookId}`; // Link to reviews page
+            } else {
+                console.error("Book identifier is missing from URL. Tab links may be incorrect.");
+                // Optionally disable or hide tabs if identifier is missing
+                if (reviewsTabLink) reviewsTabLink.href = '#'; // Prevent navigation without ID
+            }
+        });
+    </script>
+</body>
+</html>

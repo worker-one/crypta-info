@@ -104,20 +104,15 @@ export async function getUserProfile() {
  * @returns {Promise<object>} - The registered user profile object (adjust based on your API response)
  */
 export async function registerUser(email, nickname, password) {
-    // Note: API spec shows UserCreate requires 'avatar_url' but allows null.
-    // We don't have an avatar upload yet, so we won't send it or send null if needed.
-    // Check if your backend handles missing optional fields or requires explicit null.
     const payload = {
         email,
         nickname,
         password,
-        // avatar_url: null // Include if backend requires it explicitly
     };
     return fetchApi('/auth/register', {
         method: 'POST',
         body: JSON.stringify(payload),
     });
-    // API returns UserRead on 201 Created
 }
 
 /**
@@ -127,10 +122,6 @@ export async function registerUser(email, nickname, password) {
  * @returns {Promise<object>} - The token object { access_token, refresh_token, token_type } from the API.
  */
 export async function loginUser(email, password) {
-    // The API spec uses 'email' and 'password' in the LoginRequest schema.
-    // If your backend expects 'username' instead of 'email' for the OAuth2 form data,
-    // you might need to adjust the payload *or* how fetchApi handles form data vs JSON.
-    // Assuming the API endpoint `/api/v1/auth/login` expects JSON body:
     return fetchApi('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }), // Sending JSON
@@ -146,10 +137,7 @@ export async function loginUser(email, password) {
  */
 export async function adminListExchanges(params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
-    // Use the public endpoint as requested, but still require admin auth for access control if needed on the frontend side
-    // Note: The backend might not require auth for GET /exchanges/, but the admin panel context implies it might be desired.
-    // If the public endpoint is truly public, the 'true' flag might be removed later.
-    return fetchApi(`/exchanges/?${query}`, { method: 'GET' }, true); // Changed endpoint, kept auth requirement for admin context
+    return fetchApi(`/exchanges/?${query}`, { method: 'GET' }, true); // Requires admin auth
 }
 
 /**
@@ -166,24 +154,24 @@ export async function adminCreateExchange(exchangeData) {
 
 /**
  * Updates an existing exchange
- * @param {string|number} exchangeId - The exchange ID
+ * @param {string} slug - The exchange slug
  * @param {object} exchangeData - The updated exchange data
  * @returns {Promise<object>} - The updated exchange object
  */
-export async function adminUpdateExchange(exchangeId, exchangeData) {
-    return fetchApi(`/admin/exchanges/${exchangeId}`, {
-        method: 'PATCH', // or PUT depending on your API
+export async function adminUpdateExchange(slug, exchangeData) {
+    return fetchApi(`/admin/exchanges/${slug}`, {
+        method: 'PUT', // Changed from PATCH/POST to PUT as per new spec
         body: JSON.stringify(exchangeData),
     }, true); // Requires admin auth
 }
 
 /**
  * Deletes an exchange
- * @param {string|number} exchangeId - The exchange ID to delete
- * @returns {Promise<null>} - Empty response on success
+ * @param {string} slug - The exchange slug to delete
+ * @returns {Promise<null>} - Empty response on success (204)
  */
-export async function adminDeleteExchange(exchangeId) {
-    return fetchApi(`/admin/exchanges/${exchangeId}`, {
+export async function adminDeleteExchange(slug) {
+    return fetchApi(`/admin/exchanges/${slug}`, { // Use slug instead of ID
         method: 'DELETE',
     }, true); // Requires admin auth
 }
@@ -198,44 +186,46 @@ export async function getExchangeDetails(slug) {
 }
 
 /**
- * Submits a review for a specific exchange.
- * @param {string|number} exchangeId - The ID of the exchange being reviewed.
- * @param {object} reviewData - The review data { comment: string, ratings: Array<{category_id: number, rating_value: number}> }.
+ * Gets details for a specific item by its ID.
+ * @param {string|number} itemId - The ID of the item.
+ * @returns {Promise<object>} - The item details object.
+ */
+export async function getItemDetails(itemId) {
+    return fetchApi(`/items/${itemId}`, { method: 'GET' }); // Assuming public endpoint
+}
+
+/**
+ * Submits a review for a specific item (e.g., exchange, book).
+ * @param {string|number} itemId - The ID of the item being reviewed.
+ * @param {object} reviewData - The review data { comment: string, rating: number }.
  * @returns {Promise<object>} - The submitted review object (or confirmation).
  */
-export async function submitExchangeReview(exchangeId, reviewData) {
-    // Backend expects exchange_id in the path AND potentially in the body
-    // The ExchangeReviewCreate schema likely includes exchange_id, so let's ensure it's there.
-    // If your backend schema *doesn't* require exchange_id in the body, you can remove it here.
+export async function submitItemReview(itemId, reviewData) {
+    // Ensure item_id and rating are in the payload
     const payload = {
-            ...reviewData,
-            exchange_id: parseInt(exchangeId, 10) // Ensure exchange_id is in the payload
+        comment: reviewData.comment,
+        rating: reviewData.rating, // Send single rating
+        item_id: parseInt(itemId, 10)
     };
-    return fetchApi(`/reviews/exchange/${exchangeId}`, { // ID in URL path
+    // Validate rating is a number between 1 and 5 if needed here
+    if (typeof payload.rating !== 'number' || payload.rating < 1 || payload.rating > 5) {
+        return Promise.reject(new Error('Rating must be a number between 1 and 5.'));
+    }
+    return fetchApi(`/reviews/item/${itemId}`, { // ID in URL path
         method: 'POST',
-        body: JSON.stringify(payload), // ID also in body
-    }, true);
+        body: JSON.stringify(payload), // Send payload with single rating
+    }, true); // Requires authentication
 }
 
 /**
- * Fetches the available rating categories.
- * @returns {Promise<Array<object>>} - Array of category objects { id: number, name: string, description: string|null }
- */
-export async function getRatingCategories() {
-    // Assuming you have an endpoint like /rating-categories/
-    // Adjust the endpoint if necessary
-    return fetchApi('/rating-categories/', { method: 'GET' });
-}
-
-/**
- * Lists approved reviews for a specific exchange.
- * @param {string|number} exchangeId - The ID of the exchange.
+ * Lists approved reviews for a specific item (e.g., exchange, book).
+ * @param {string|number} itemId - The ID of the item.
  * @param {object} params - Pagination and filtering parameters (e.g., { skip: 0, limit: 10, sort_by: 'created_at', direction: 'desc' })
  * @returns {Promise<object>} - The paginated response with review items.
  */
-export async function listExchangeReviews(exchangeId, params = { skip: 0, limit: 10 }) {
+export async function listItemReviews(itemId, params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
-    return fetchApi(`/reviews/exchange/${exchangeId}?${query}`, { method: 'GET' }); // Public endpoint for approved reviews
+    return fetchApi(`/reviews/item/${itemId}?${query}`, { method: 'GET' }); // Public endpoint for approved reviews
 }
 
 /**
@@ -288,46 +278,24 @@ export async function adminListPendingReviews(params = { skip: 0, limit: 10 }) {
  */
 export async function adminListReviews(params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
-    // Correct endpoint from admin_router in router.py
-    return fetchApi(`/admin/reviews/?${query}`, { method: 'GET' }, true); // Requires admin auth
-}
-
-/**
- * Fetches the content of a static page by its slug.
- * @param {string} slug - The slug of the static page (e.g., 'about', 'faq').
- * @returns {Promise<object>} - The static page object { id, title, content, slug, ... }.
- */
-export async function fetchStaticPage(slug) {
-    // Assuming the static page endpoint is at the root level of the API
-    // Adjust the path if your FastAPI app includes the static_pages router under a prefix like '/pages/'
-    return fetchApi(`/${slug}`, { method: 'GET' }); // No auth needed for public pages
+    return fetchApi(`/reviews/admin/reviews/?${query}`, { method: 'GET' }, true); // Requires admin auth
 }
 
 /**
  * Updates the status and/or moderator notes of a review (admin function).
- * Aligns with backend PATCH /admin/reviews/{review_id}/moderate
+ * Aligns with backend PUT /api/v1/reviews/admin/reviews/{review_id}/status
  * @param {string|number} reviewId - The ID of the review to update.
  * @param {object} moderationPayload - The update payload { moderation_status: string, moderator_notes?: string }.
  * @returns {Promise<object>} - The updated review object.
  */
 export async function adminModerateReview(reviewId, moderationPayload) {
-    // Ensure moderation_status is one of the expected values by the backend
-    if (!['approved', 'rejected'].includes(moderationPayload.moderation_status)) {
-        return Promise.reject(new Error("Invalid moderation status provided. Must be 'approved' or 'rejected'."));
+    if (moderationPayload.moderation_status && !['pending', 'approved', 'rejected'].includes(moderationPayload.moderation_status)) {
+        return Promise.reject(new Error("Invalid moderation status provided. Must be 'pending', 'approved' or 'rejected'."));
     }
-    return fetchApi(`/admin/reviews/${reviewId}/moderate`, { // Corrected endpoint
-        method: 'PATCH', // Corrected method
+    return fetchApi(`/reviews/admin/reviews/${reviewId}/status`, {
+        method: 'PUT', // Corrected method to PUT
         body: JSON.stringify(moderationPayload),
     }, true); // Requires admin auth
-}
-
-// --- Keep the old function name for now if other parts rely on it, but point it to the new one ---
-// Or refactor admin.js to use adminModerateReview directly
-/** @deprecated Use adminModerateReview instead */
-export async function adminUpdateReviewStatus(reviewId, statusUpdate) {
-    console.warn("adminUpdateReviewStatus is deprecated. Use adminModerateReview.");
-    // Map the old payload structure if necessary, assuming statusUpdate contains { moderation_status, moderator_notes }
-    return adminModerateReview(reviewId, statusUpdate);
 }
 
 // --- News API Functions ---
@@ -339,7 +307,6 @@ export async function adminUpdateReviewStatus(reviewId, statusUpdate) {
  */
 export async function listNews(params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
-    // Assuming news is public, no auth needed
     return fetchApi(`/news/?${query}`, { method: 'GET' });
 }
 
@@ -349,8 +316,51 @@ export async function listNews(params = { skip: 0, limit: 10 }) {
  * @returns {Promise<object>} - The news item object.
  */
 export async function getNewsItem(newsId) {
-    // Assuming news is public, no auth needed
     return fetchApi(`/news/${newsId}`, { method: 'GET' });
+}
+
+// --- Book API Functions ---
+
+/**
+ * Fetches a list of books.
+ * @param {object} params - Filtering, sorting, and pagination parameters (e.g., { skip: 0, limit: 10, name, topic_id, field, direction })
+ * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
+ */
+export async function listBooks(params = { skip: 0, limit: 10 }) {
+    const cleanedParams = Object.entries(params).reduce((acc, [key, value]) => {
+        if (value !== null && value !== undefined && value !== '') {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
+    const query = new URLSearchParams(cleanedParams).toString();
+    return fetchApi(`/books/?${query}`, { method: 'GET' });
+}
+
+/**
+ * Fetches a paginated, filtered, and sorted list of books.
+ * @param {object} params - Filtering, sorting, and pagination parameters (e.g., { skip, limit, name, topic_id, field, direction })
+ * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
+ */
+export async function fetchBooks(params = { skip: 0, limit: 10 }) {
+    return listBooks(params);
+}
+
+/**
+ * Fetches details for a specific book by its slug.
+ * @param {string} slug - The slug of the book.
+ * @returns {Promise<object>} - The book details object.
+ */
+export async function getBookDetails(slug) {
+    return fetchApi(`/books/${slug}`, { method: 'GET' });
+}
+
+/**
+ * Fetches a list of all book topics.
+ * @returns {Promise<Array<object>>} - Array of topic objects { id: number, name: string }
+ */
+export async function fetchBookTopics() {
+    return fetchApi('/books/topics/', { method: 'GET' });
 }
 
 // --- Guide API Functions ---
@@ -361,7 +371,6 @@ export async function getNewsItem(newsId) {
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
 export async function listGuides(params = { skip: 0, limit: 10 }) {
-    // Clean up empty parameters
     const cleanedParams = Object.entries(params).reduce((acc, [key, value]) => {
         if (value !== null && value !== undefined && value !== '') {
             acc[key] = value;
@@ -369,7 +378,6 @@ export async function listGuides(params = { skip: 0, limit: 10 }) {
         return acc;
     }, {});
     const query = new URLSearchParams(cleanedParams).toString();
-    // Assuming guides are public, no auth needed.
     return fetchApi(`/guides/?${query}`, { method: 'GET' });
 }
 
@@ -379,7 +387,6 @@ export async function listGuides(params = { skip: 0, limit: 10 }) {
  * @returns {Promise<object>} - The guide item object.
  */
 export async function getGuideItem(guideId) {
-    // Assuming guides are public, no auth needed
     return fetchApi(`/guides/${guideId}`, { method: 'GET' });
 }
 
@@ -388,7 +395,6 @@ export async function getGuideItem(guideId) {
  * @returns {Promise<Array<object>>} - Array of country objects { id: number, name: string, code: string }
  */
 export async function fetchCountries() {
-    // Assuming a public endpoint /countries/ exists
     return fetchApi('/common/countries/', { method: 'GET' });
 }
 
@@ -397,7 +403,6 @@ export async function fetchCountries() {
  * @returns {Promise<Array<object>>} - Array of fiat currency objects { id: number, name: string, code: string, symbol: string }
  */
 export async function fetchFiatCurrencies() {
-    // Assuming a public endpoint /fiat-currencies/ exists
     return fetchApi('/common/fiat_currencies/', { method: 'GET' });
 }
 
@@ -411,7 +416,6 @@ export function addLogoutHandler(logoutButton, redirectUrl) {
         event.preventDefault();
         try {
             await fetchApi('/auth/logout', { method: 'POST' }, true); // Requires auth
-            // Optionally clear local storage or cookies here
             window.location.href = redirectUrl || '/'; // Redirect to home or specified URL
         } catch (error) {
             console.error('Logout failed:', error);

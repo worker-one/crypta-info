@@ -1,9 +1,11 @@
 # app/core/database.py
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy import text
 from typing import AsyncGenerator
 
 from .config import settings
 from ..models.base import Base
+from ..models.common import Country
 
 # Create async engine instance
 engine = create_async_engine(settings.DATABASE_URL, pool_pre_ping=True, echo=False) # Set echo=True for debugging SQL
@@ -15,29 +17,43 @@ AsyncSessionFactory = async_sessionmaker(
     class_=AsyncSession
 )
 
-#!/usr/bin/env python
-"""
-Script to initialize the countries table with ISO 3166-1 alpha-2 country codes.
-"""
+# Dependency to get DB session
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionFactory() as session:
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 
-import os
-import sys
-import csv
-from pathlib import Path
+# Init database schema via Base.metadata.create_all
+async def init_db() -> None:
+    try:
+        async with engine.begin() as conn:
+            # This will create all tables defined in the Base's subclasses
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+        raise
+    finally:
+        await engine.dispose()
+        
+# Drop all tables
+async def drop_db() -> None:
+    try:
+        async with engine.begin() as conn:
+            # This will drop all tables defined in the Base's subclasses
+            await conn.run_sync(Base.metadata.drop_all)
+    except Exception as e:
+        print(f"Error dropping database: {e}")
+        raise
+    finally:
+        await engine.dispose()
 
-# Add the parent directory to sys.path to import app modules
-current_path = Path(__file__).parent
-parent_path = current_path.parent
-sys.path.append(str(parent_path))
-
-from ..models.base import Base
-from ..models.common import Country
-
-
-async def init_countries():
-    """Initialize the countries table with ISO 3166-1 alpha-2 country codes."""
-    # Dictionary of countries with their ISO 3166-1 alpha-2 codes
-    countries = [
+# Country initialization data
+COUNTRIES_DATA =     countries = [
         {"name": "Afghanistan", "code_iso_alpha2": "AF"},
         {"name": "Albania", "code_iso_alpha2": "AL"},
         {"name": "Algeria", "code_iso_alpha2": "DZ"},
@@ -235,16 +251,17 @@ async def init_countries():
         {"name": "Zambia", "code_iso_alpha2": "ZM"},
         {"name": "Zimbabwe", "code_iso_alpha2": "ZW"},
     ]
+async def init_countries():
+    """Initialize the countries table with ISO 3166-1 alpha-2 country codes."""
     async with AsyncSessionFactory() as db:
         try:
             # Check if data already exists
-            from sqlalchemy import text
             result = await db.execute(text("SELECT COUNT(*) FROM countries"))
             existing_count = result.scalar()
             
             if existing_count == 0:
-                print(f"Initializing countries table with {len(countries)} countries")
-                for country_data in countries:
+                print(f"Initializing countries table with {len(COUNTRIES_DATA)} countries")
+                for country_data in COUNTRIES_DATA:
                     country = Country(**country_data)
                     db.add(country)
                 
@@ -256,27 +273,3 @@ async def init_countries():
         except Exception as e:
             await db.rollback()
             print(f"Error initializing countries table: {e}")
-
-
-# Dependency to get DB session
-async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionFactory() as session:
-        try:
-            yield session
-        except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
-
-# Init database schema via Base.metadata.create_all
-async def init_db() -> None:
-    try:
-        async with engine.begin() as conn:
-            # This will create all tables defined in the Base's subclasses
-            await conn.run_sync(Base.metadata.create_all)
-    except Exception as e:
-        print(f"Error initializing database: {e}")
-        raise
-    finally:
-        await engine.dispose()

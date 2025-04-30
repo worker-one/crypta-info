@@ -18,6 +18,25 @@ async def serve_index():
         return FileResponse(index_path)
     raise HTTPException(status_code=404, detail="index.html not found")
 
+
+# Route for the root path "/" to serve index.html
+@app.get("/exchanges")
+async def serve_index():
+    index_path = os.path.join(FRONTEND_DIR, "exchanges/index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    raise HTTPException(status_code=404, detail="exchanges/index.html not found")
+
+# Route for the root path "/" to serve index.html
+@app.get("/books")
+async def serve_index():
+    index_path = os.path.join(FRONTEND_DIR, "books/index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    raise HTTPException(status_code=404, detail="books/index.html not found")
+
+
+
 # Route to serve specific HTML pages like /faq, /about, etc.
 @app.get("/{page_slug}")
 async def serve_page(page_slug: str):

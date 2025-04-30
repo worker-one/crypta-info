@@ -28,15 +28,6 @@ class ExchangeSocialLinkRead(BaseModel):
     class Config:
         from_attributes = True
 
-# --- Exchange Category Rating ---
-class ExchangeCategoryRatingRead(BaseModel):
-    category: RatingCategoryRead
-    average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    review_count: int
-
-    class Config:
-        from_attributes = True
-
 
 # --- Exchange Schemas ---
 class ExchangeBase(BaseModel):
@@ -115,7 +106,6 @@ class ExchangeRead(ExchangeBase):
     supported_fiat_currencies: List[FiatCurrencyRead] = []
     licenses: List[LicenseRead] = []
     social_links: List[ExchangeSocialLinkRead] = []
-    category_ratings: List[ExchangeCategoryRatingRead] = [] # Aggregated ratings
 
     class Config:
         from_attributes = True

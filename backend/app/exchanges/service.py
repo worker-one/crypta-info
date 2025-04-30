@@ -22,8 +22,7 @@ class ExchangeService:
             selectinload(exchange_models.Exchange.languages),
             selectinload(exchange_models.Exchange.supported_fiat_currencies),
             selectinload(exchange_models.Exchange.licenses).selectinload(exchange_models.License.jurisdiction_country),
-            selectinload(exchange_models.Exchange.social_links),
-            selectinload(exchange_models.Exchange.category_ratings).selectinload(exchange_models.ExchangeCategoryRating.category),
+            selectinload(exchange_models.Exchange.social_links)
         ).filter(exchange_models.Exchange.slug == slug)
         result = await db.execute(query)
         return result.scalar_one_or_none()

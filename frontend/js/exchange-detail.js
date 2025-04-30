@@ -1,6 +1,6 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, getRatingCategories, listExchangeReviews, voteOnReview } from './api.js';
-import { updateHeaderNav, displayErrorMessage } from './ui.js';
+import { getExchangeDetails, listItemReviews, voteOnReview } from './api.js';
+import { updateHeaderNav } from './ui.js';
 import { isLoggedIn, handleLogout } from './auth.js';
 
 // --- Global variable to store fetched reviews ---
@@ -23,10 +23,9 @@ const updateSortButtonCounts = () => {
     let negativeCount = 0;
 
     currentReviews.forEach(review => {
-        const avgRating = calculateAverageRating(review);
-        if (avgRating >= 4) {
+        if (review.rating >= 4) {
             positiveCount++;
-        } else if (avgRating > 0) { // Count reviews with a rating < 4 but > 0 as negative
+        } else if (review.rating > 0) { // Count reviews with a rating < 4 but > 0 as negative
             negativeCount++;
         }
         // Reviews with avgRating 0 (or N/A) are not counted in either category
@@ -93,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     // Set the "Add Review" link dynamically
     if (addReviewLink) {
-        addReviewLink.href = `/exchange/reviews.html?slug=${slug}#add-review-section`; // Point to reviews page, potentially anchor to form
+        addReviewLink.href = `./reviews.html?slug=${slug}#add-review-section`; // Point to reviews page, potentially anchor to form
         console.log(`Set Add Review link to: ${addReviewLink.href}`);
     }
     if (overviewTabLink) {
@@ -142,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             <div class="stats-overview">
             <div class="stat-item">
-                <div class="value">${exchange.overall_average_rating ? parseFloat(exchange.overall_average_rating).toFixed(1) + ' ★' : 'N/A'}</div>
+                <div class="value">${exchange.overall_average_rating ? parseFloat(exchange.overall_average_rating ).toFixed(1) + ' ★' : 'N/A'}</div>
                 <div class="label">Overall Rating</div>
             </div>
             <div class="stat-item">
@@ -150,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="label">Total Reviews</div>
             </div>
             <div class="stat-item">
-                <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}</div>
+                <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}B</div>
                 <div class="label">24h Volume</div>
             </div>
             <div class="stat-item">
@@ -247,14 +246,14 @@ const renderReviewsList = (reviews) => {
         reviews.forEach(review => {
             const reviewElement = document.createElement('div');
             reviewElement.classList.add('review-item');
-            const averageRating = calculateAverageRating(review);
+            const averageRating = review.rating
 
             reviewElement.innerHTML = `
                 <div class="review-header">
                     <span class="review-author">${review.user.nickname}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
-                <div class="review-rating">Overall Rating: ${averageRating > 0 ? averageRating.toFixed(1) + ' ★' : 'N/A'}</div>
+                <div class="review-rating">Rating: ${averageRating > 0 ? averageRating.toFixed(1) + ' ★' : 'N/A'}</div>
                 <div class="review-content">
                     <p>${review.comment}</p>
                 </div>
@@ -290,7 +289,7 @@ async function loadExchangeReviews(exchangeId) {
 
     try {
         console.log('Calling API to list exchange reviews...');
-        const response = await listExchangeReviews(exchangeId, { limit: 100, sort_by: 'created_at', direction: 'desc' });
+        const response = await listItemReviews(exchangeId, { limit: 100, sort_by: 'created_at', direction: 'desc' });
         console.log('Reviews response received:', response);
 
         reviewsLoadingElement.classList.add('hidden');

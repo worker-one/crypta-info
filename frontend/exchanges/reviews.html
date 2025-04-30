@@ -6,6 +6,7 @@
     <title>Exchange Reviews - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles -->
+    <link rel="stylesheet" href="../css/star-rating.css"> <!-- Added star rating CSS -->
     <style>
         /* Add any specific styles for reviews if needed */
         #reviews-list .review-item { /* Example style */
@@ -33,10 +34,10 @@
                 </div>
             </a>
             <nav id="main-nav">
-                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
-                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
-                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
-                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
+                <a href="register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a>
+                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a>
                 <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
             </nav>
         </div>
@@ -78,9 +79,21 @@
                     <div id="add-review-section" class="hidden"> <!-- Initially hidden, shown for logged-in users -->
                         <h3>Add Your Review</h3>
                         <form id="review-form">
-                            <!-- Container for dynamically loaded rating categories -->
-                            <div id="review-ratings-container">
-                                <!-- Rating categories will be loaded here by JS -->
+                            <!-- Container for the single rating input -->
+                            <div id="review-rating-input-container" class="form-group">
+                                <label>Your Rating:</label>
+                                <div class="star-rating single-rating" data-rating-group="overall">
+                                    <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
+                                    <label for="star-overall-5"></label>
+                                    <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
+                                    <label for="star-overall-4"></label>
+                                    <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
+                                    <label for="star-overall-3"></label>
+                                    <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
+                                    <label for="star-overall-2"></label>
+                                    <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
+                                    <label for="star-overall-1"></label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="review-text">Your Review:</label>
@@ -93,7 +106,7 @@
                     </div>
                     <!-- Login Prompt -->
                     <div id="login-prompt-review" class="message info-message hidden">
-                        You need to <a href="../login.html">sign in</a> to add your review.
+                        You need to <a href="login.html">sign in</a> to add your review.
                     </div>
 
                 </div>

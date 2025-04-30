@@ -14,6 +14,7 @@
 @import url('pages/auth.css');
 @import url('pages/admin.css');
 @import url('pages/exchange-detail.css');
+@import url('pages/book-detail.css');
 @import url('pages/profile.css');
 
 /* Utility Classes (can also be in base.css) */

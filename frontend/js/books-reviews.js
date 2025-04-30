@@ -1,25 +1,22 @@
-import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } from './api.js'; // Removed getRatingCategories
+import { getBookDetails, submitItemReview, listItemReviews, voteOnReview } from './api.js'; // Use book-related API functions
 import { updateHeaderNav, displayErrorMessage, clearErrorMessage } from './ui.js';
 import { handleLogout, isLoggedIn, getAccessToken } from './auth.js';
 
-// --- DOM Elements ---
-const reviewsListContainer = document.getElementById('reviews-list');
-const reviewsLoadingIndicator = document.getElementById('reviews-loading');
-const reviewsErrorContainer = document.getElementById('reviews-error');
-const addReviewSection = document.getElementById('add-review-section');
-const reviewForm = document.getElementById('review-form');
-const reviewRatingInputContainer = document.getElementById('review-rating-input-container'); // Renamed/repurposed from review-ratings-container
-const reviewSubmitError = document.getElementById('review-submit-error');
-const reviewSubmitSuccess = document.getElementById('review-submit-success');
-const loginPrompt = document.getElementById('login-prompt-review');
-
-const exchangeNameHeading = document.getElementById('exchange-name-heading');
-const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
-const pageErrorContainer = document.getElementById('page-error'); // General page error
-const pageLoadingIndicator = document.getElementById('page-loading'); // General page loading
-const reviewSectionContainer = document.getElementById('review-section'); // Main content container
-const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Added
-const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Added
+// --- DOM Elements (Declare with let, assign inside DOMContentLoaded) ---
+let reviewsListContainer;
+let reviewsLoadingIndicator;
+let reviewsErrorContainer;
+let addReviewSection;
+let reviewForm;
+let reviewRatingInputContainer;
+let reviewSubmitError;
+let reviewSubmitSuccess;
+let loginPrompt;
+let bookNameHeading;
+let bookLinkBreadcrumb;
+let pageErrorContainer;
+let pageLoadingIndicator;
+let reviewSectionContainer;
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -29,29 +26,27 @@ const showElement = (el) => el?.classList.remove('hidden');
 const hideElement = (el) => el?.classList.add('hidden');
 
 /**
- * Updates breadcrumbs and heading.
- * @param {string} exchangeName - The name of the exchange.
- * @param {string} exchangeSlug - The slug of the exchange.
+ * Updates breadcrumbs and heading for books.
+ * @param {string} bookName - The name of the book.
+ * @param {string} bookId - The ID of the book.
  */
-function updatePageUI(exchangeName, exchangeSlug) {
-    const overviewPageUrl = `overview.html?slug=${exchangeSlug}`;
-    if (exchangeNameHeading) exchangeNameHeading.textContent = `${exchangeName} Reviews`;
-    if (exchangeLinkBreadcrumb) {
-        exchangeLinkBreadcrumb.textContent = exchangeName;
-        exchangeLinkBreadcrumb.href = overviewPageUrl;
+export function updatePageUI(bookName, bookId) { // Added export
+    const overviewPageUrl = `overview.html?id=${bookId}`; // Use ID
+    if (bookNameHeading) bookNameHeading.textContent = `${bookName} Reviews`;
+    if (bookLinkBreadcrumb) {
+        bookLinkBreadcrumb.textContent = bookName;
+        bookLinkBreadcrumb.href = overviewPageUrl;
     }
-    document.title = `${exchangeName} Reviews - Crypta.Info`;
+    document.title = `${bookName} Reviews - Crypta.Info`;
 
+    // Update tab links for books
     const overviewTabLink = document.getElementById('tab-overview');
-    const newsTabLink = document.getElementById('tab-news');
-    const guideTabLink = document.getElementById('tab-guide');
     const reviewsTabLink = document.getElementById('tab-reviews');
 
-    if (overviewTabLink) overviewTabLink.href = `overview.html?slug=${exchangeSlug}`;
-    if (newsTabLink) newsTabLink.href = `news.html?slug=${exchangeSlug}`;
-    if (guideTabLink) guideTabLink.href = `guide.html?slug=${exchangeSlug}`;
+    if (overviewTabLink) overviewTabLink.href = `overview.html?id=${bookId}`; // Use ID
     if (reviewsTabLink) {
         reviewsTabLink.classList.add('active');
+        reviewsTabLink.href = '#'; // Current page
     }
 }
 
@@ -59,9 +54,9 @@ function updatePageUI(exchangeName, exchangeSlug) {
  * Updates the text content of sorting buttons to include review counts.
  * Counts based on the single 'rating' property.
  */
-const updateSortButtonCounts = () => {
-    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
-    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
+export const updateSortButtonCounts = () => { // Added export
+    const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Use book-specific ID if different
+    const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Use book-specific ID if different
 
     if (!sortPositiveBtn || !sortNegativeBtn) {
         console.warn("Sorting buttons not found during count update.");
@@ -72,7 +67,7 @@ const updateSortButtonCounts = () => {
     let negativeCount = 0;
 
     currentReviews.forEach(review => {
-        const rating = review.rating;
+        const rating = review.rating; // Assuming 'rating' field exists for book reviews
         if (rating >= 4) {
             positiveCount++;
         } else if (rating > 0 && rating < 4) {
@@ -85,12 +80,11 @@ const updateSortButtonCounts = () => {
 };
 
 /**
- * Renders a list of reviews into the DOM.
+ * Renders a list of book reviews into the DOM.
  * Displays the single 'rating' property.
- * Assumes the API returns 'rating' instead of 'ratings'.
  * @param {Array<object>} reviews - The array of review objects to render.
  */
-const renderReviewsList = (reviews) => {
+export const renderReviewsList = (reviews) => { // Added export
     if (!reviewsListContainer) return;
     reviewsListContainer.innerHTML = '';
 
@@ -98,7 +92,7 @@ const renderReviewsList = (reviews) => {
         reviews.forEach(review => {
             const reviewElement = document.createElement('div');
             reviewElement.classList.add('review-item');
-            const ratingValue = review.rating;
+            const ratingValue = review.rating; // Assuming 'rating' field
 
             reviewElement.innerHTML = `
                 <div class="review-header">
@@ -117,27 +111,28 @@ const renderReviewsList = (reviews) => {
             `;
             reviewsListContainer.appendChild(reviewElement);
         });
-        setupVoteButtons();
+        setupVoteButtons(); // Setup voting after rendering
     } else {
         reviewsListContainer.innerHTML = '<p>No reviews match the criteria or none available.</p>';
     }
 };
 
 /**
- * Loads and displays reviews for a given exchange ID.
- * @param {number} exchangeId - The ID of the exchange.
+ * Loads and displays reviews for a given book ID.
+ * @param {string} bookId - The ID of the book.
  */
-const loadReviews = async (exchangeId) => {
+export const loadReviews = async (bookId) => { // Already exported
     if (!reviewsListContainer || !reviewsLoadingIndicator || !reviewsErrorContainer) return;
 
     showElement(reviewsLoadingIndicator);
     hideElement(reviewsErrorContainer);
     reviewsListContainer.innerHTML = '';
     currentReviews = [];
-    updateSortButtonCounts();
+    updateSortButtonCounts(); // Reset counts
 
     try {
-        const reviewsData = await listItemReviews(exchangeId, { limit: 100, sort_by: 'created_at', direction: 'desc' });
+        // Assuming listItemReviews can take a bookId and type, or use a specific book review function
+        const reviewsData = await listItemReviews(bookId, { limit: 100, sort_by: 'created_at', direction: 'desc' }, 'book'); // Added type 'book'
         hideElement(reviewsLoadingIndicator);
 
         if (reviewsData && reviewsData.items) {
@@ -147,12 +142,12 @@ const loadReviews = async (exchangeId) => {
             currentReviews = [];
             reviewsListContainer.innerHTML = '<p>No reviews yet. Be the first to add one!</p>';
         }
-        updateSortButtonCounts();
+        updateSortButtonCounts(); // Update counts after loading
     } catch (error) {
-        console.error('Failed to load reviews:', error);
+        console.error('Failed to load book reviews:', error);
         hideElement(reviewsLoadingIndicator);
         currentReviews = [];
-        updateSortButtonCounts();
+        updateSortButtonCounts(); // Reset counts on error
         reviewsListContainer.innerHTML = '';
         displayErrorMessage('reviews-error', `Failed to load reviews. ${error.message}`);
         showElement(reviewsErrorContainer);
@@ -160,13 +155,12 @@ const loadReviews = async (exchangeId) => {
 };
 
 /**
- * Handles the submission of the review form.
- * Reads the single rating value.
+ * Handles the submission of the book review form.
  * @param {Event} event - The form submission event.
- * @param {number} exchangeId - The ID of the exchange being reviewed.
+ * @param {string} bookId - The ID of the book being reviewed.
  */
-const handleReviewSubmit = async (event, exchangeId) => {
-    console.log('handleReviewSubmit called for exchangeId:', exchangeId);
+export const handleReviewSubmit = async (event, bookId) => { // Added export
+    console.log('handleReviewSubmit called for bookId:', bookId);
     event.preventDefault();
     if (!reviewForm) {
         console.error('Review form element not found in handleReviewSubmit.');
@@ -228,14 +222,15 @@ const handleReviewSubmit = async (event, exchangeId) => {
     console.log('Review data prepared:', reviewData);
 
     try {
-        console.log('Attempting to submit review via API...');
-        await submitItemReview(exchangeId, reviewData);
-        console.log('Review submission successful (API call).');
+        console.log('Attempting to submit book review via API...');
+        // Assuming submitItemReview takes ID and type
+        await submitItemReview(bookId, reviewData, 'book'); // Added type 'book'
+        console.log('Book review submission successful (API call).');
         showElement(reviewSubmitSuccess);
         reviewSubmitSuccess.textContent = 'Review submitted successfully! It is pending moderation.';
         reviewForm.reset();
     } catch (error) {
-        console.error('Failed to submit review (API error):', error);
+        console.error('Failed to submit book review (API error):', error);
         displayErrorMessage('review-submit-error', `Failed to submit review: ${error.message}`);
         showElement(reviewSubmitError);
     } finally {
@@ -246,13 +241,15 @@ const handleReviewSubmit = async (event, exchangeId) => {
 };
 
 /**
- * Sets up event listeners for vote buttons.
+ * Sets up event listeners for vote buttons on book reviews.
  */
-function setupVoteButtons() {
+export function setupVoteButtons() { // Added export
     const voteButtons = document.querySelectorAll('.vote-btn');
+    // Clear existing listeners before adding new ones
     voteButtons.forEach(button => {
         button.replaceWith(button.cloneNode(true));
     });
+    // Add new listeners
     document.querySelectorAll('.vote-btn').forEach(button => {
         button.addEventListener('click', async (event) => {
             const reviewId = event.target.dataset.reviewId;
@@ -270,6 +267,7 @@ function setupVoteButtons() {
             feedbackElement.classList.remove('error');
 
             try {
+                // Assuming voteOnReview works for any review ID
                 const updatedReview = await voteOnReview(reviewId, isUseful);
 
                 const usefulBtn = footer.querySelector(`.vote-btn.useful`);
@@ -292,12 +290,12 @@ function setupVoteButtons() {
 }
 
 /**
- * Sets up event listeners for sorting buttons.
+ * Sets up event listeners for sorting buttons for book reviews.
  * Sorts based on the single 'rating' property.
  */
-function setupSortingButtons() {
-    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
-    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
+export function setupSortingButtons() { // Added export
+    const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Use book-specific ID if different
+    const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Use book-specific ID if different
 
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
@@ -322,18 +320,49 @@ function setupSortingButtons() {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
+    // --- Assign DOM Elements ---
+    // Assign reviewForm first to check if we are on the correct page
+    reviewForm = document.getElementById('review-form');
+
+    // If reviewForm doesn't exist, we are likely not on the dedicated reviews page.
+    // Exit early to prevent errors when trying to access other review-page-specific elements.
+    // Functions exported from this module might still be used by other pages (like overview).
+    if (!reviewForm) {
+        console.log('Review form not found. Assuming not on dedicated reviews page. Exiting reviews page initialization.');
+        return;
+    }
+
+    // Continue assigning other elements only if reviewForm exists
+    reviewsListContainer = document.getElementById('reviews-list');
+    reviewsLoadingIndicator = document.getElementById('reviews-loading');
+    reviewsErrorContainer = document.getElementById('reviews-error');
+    addReviewSection = document.getElementById('add-review-section');
+    reviewRatingInputContainer = document.getElementById('review-rating-input-container');
+    reviewSubmitError = document.getElementById('review-submit-error');
+    reviewSubmitSuccess = document.getElementById('review-submit-success');
+    loginPrompt = document.getElementById('login-prompt-review');
+    bookNameHeading = document.getElementById('book-name-heading');
+    bookLinkBreadcrumb = document.getElementById('book-link-breadcrumb');
+    pageErrorContainer = document.getElementById('page-error');
+    pageLoadingIndicator = document.getElementById('page-loading');
+    reviewSectionContainer = document.getElementById('review-section');
+    // --- End Assign DOM Elements ---
+
+    console.log('Initializing dedicated book reviews page...'); // Log that full init is proceeding
+
     updateHeaderNav();
 
     const logoutBtn = document.getElementById('nav-logout-btn');
     logoutBtn?.addEventListener('click', (event) => {
         event.preventDefault();
-        console.log("Logout button clicked on reviews page");
+        console.log("Logout button clicked on book reviews page");
         handleLogout();
     });
 
+    // Dynamically add sort buttons if container exists but buttons don't
     const sortControlsContainer = document.getElementById('review-sort-controls-container');
     if (sortControlsContainer && !document.getElementById('sort-reviews-positive')) {
-        console.log('Dynamically adding sort controls...');
+        console.log('Dynamically adding sort controls for books...');
         sortControlsContainer.innerHTML = `
             <div class="review-sort-controls" style="margin-bottom: 15px;">
                 <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
@@ -345,10 +374,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
+    const bookId = urlParams.get('id'); // Use 'id' for books
 
-    if (!slug) {
-        displayErrorMessage('page-error', 'Cannot load page: Exchange identifier (slug) is missing.');
+    if (!bookId) {
+        displayErrorMessage('page-error', 'Cannot load page: Book identifier (ID) is missing.');
         showElement(pageErrorContainer);
         hideElement(pageLoadingIndicator);
         hideElement(reviewSectionContainer);
@@ -359,30 +388,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         showElement(pageLoadingIndicator);
         hideElement(pageErrorContainer);
 
-        const exchange = await getExchangeDetails(slug);
+        // Fetch book details to get name and confirm ID exists
+        const book = await getBookDetails(bookId);
         hideElement(pageLoadingIndicator);
 
-        if (!exchange || !exchange.id) {
-            throw new Error(`Exchange with slug "${slug}" not found.`);
+        if (!book || !book.id) {
+            throw new Error(`Book with ID "${bookId}" not found.`);
         }
 
-        const exchangeId = exchange.id;
-        updatePageUI(exchange.name, slug);
+        updatePageUI(book.name, bookId); // Update heading, breadcrumb, tabs
 
         showElement(reviewSectionContainer);
 
-        await loadReviews(exchangeId);
-        setupSortingButtons();
+        await loadReviews(bookId); // Load reviews for this book ID
+        setupSortingButtons(); // Setup sorting after loading
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);
             showElement(addReviewSection);
             console.log('Checking if review form exists before adding listener:', reviewForm);
-            reviewForm?.addEventListener('submit', (event) => handleReviewSubmit(event, exchangeId));
-            if (!reviewForm) {
-                console.error('Review form element not found when trying to add submit listener.');
-            } else {
+            // The check 'if (reviewForm)' is now redundant here because we exit early if it's null,
+            // but keeping it doesn't hurt.
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', (event) => handleReviewSubmit(event, bookId));
                 console.log('Submit event listener added to review form.');
+            } else {
+                // This path should theoretically not be reached anymore due to the early exit.
+                console.error('Review form element not found when trying to add submit listener (unexpected).');
+                displayErrorMessage('review-submit-error', 'Could not find the review form element.');
+                showElement(reviewSubmitError);
             }
         } else {
             hideElement(addReviewSection);
@@ -390,11 +424,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
     } catch (error) {
-        console.error('Failed to initialize exchange reviews page:', error);
+        console.error('Failed to initialize book reviews page:', error);
         hideElement(pageLoadingIndicator);
-        displayErrorMessage('page-error', `Error loading exchange data: ${error.message}`);
+        displayErrorMessage('page-error', `Error loading book data: ${error.message}`);
         showElement(pageErrorContainer);
         hideElement(reviewSectionContainer);
-        if (exchangeNameHeading) exchangeNameHeading.textContent = 'Error Loading Exchange';
+        if (bookNameHeading) bookNameHeading.textContent = 'Error Loading Book';
     }
 });

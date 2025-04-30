@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Crypta.Info</title>
-    <link rel="stylesheet" href="css/layout.css?v=1.0">
-    <link rel="stylesheet" href="css/main.css?v=1.0">
+    <link rel="stylesheet" href="./css/layout.css?v=1.0">
+    <link rel="stylesheet" href="./css/main.css?v=1.0">
 </head>
 <body>
     <!-- Header Section -->
@@ -13,7 +13,7 @@
         <div class="container">
             <!-- Logo Title (left) -->
             <a href="/" class="logo">
-                <img src="assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <img src="./assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
                 <div>
                     <span class="logo-text">Crypta.Info</span>
                 </div>
@@ -21,113 +21,30 @@
 
             <!-- Sign Up and Sign In (Now directly in container) -->
             <nav id="main-nav">
-                <a href="register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
-                <a href="login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
-                <a href="profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
-                <a href="admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
+                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
                 <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button> <!-- Added Logout Button -->
             </nav>
 
         </div>
     </header>
 
-    <main>
-        <!-- Introductory Text Box -->
+    <!-- Site Navigation - Moved Below Header -->
+    <div class="site-nav-container"> <!-- Added container for alignment -->
         <div class="container">
-            <div class="intro-text-box" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
-                <p>Площадок, позволяющих работать с цифровыми активами, сотни. Это одна из самых конкурентных ниш в финтехе. Новичку, который начинает торговать криптовалютами, сложно разобраться в рынке и сразу выбрать нужную платформу. Ему легко заблудиться в массе проплаченных обзоров и заказных отзывов, которыми наполнен интернет.</p>
-            </div>
+            <nav class="site-nav">
+                <a href="/exchanges" class="nav-link active">Exchanges</a> <!-- Example: Add 'active' class dynamically -->
+                <a href="/books" class="nav-link">Books</a>
+            </nav>
         </div>
+    </div>
 
-        <!-- Exchange List Section -->
-        <section id="exchange-list-section" class="exchange-list-section">
-            <div class="container">
-                <!-- Filters Section -->
-                <div id="exchange-filters" class="exchange-filters-container">
-                    <!-- Search Bar -->
-                    <div class="header-search-container" style="width:100%;">
-                        <form id="search-filter-form" style="display:flex; width:100%;">
-                            <input type="search" id="search-input" placeholder="Search exchanges..." style="flex:1; min-width:0;">
-                            <button type="submit" class="btn btn-primary btn-sm" style="margin-left:8px;">Search</button>
-                        </form>
-                    </div>
-                    
-                    <form id="filter-form" class="filter-form">
-                        <div class="form-group">
-                            <label for="filter-country-registration">Registration Country</label>
-                            <select id="filter-country-registration" name="country_id">
-                                <option value="">Any Country</option>
-                                <!-- Options populated by JS -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filter-kyc-type">KYC Type</label>
-                            <select id="filter-kyc-type" name="kyc_type">
-                                <option value="">Any KYC</option>
-                                <!-- Options populated by JS -->
-                            </select>
-                        </div>
-                         <div class="form-group">
-                            <label for="filter-fiat-currency">Supports Fiat</label>
-                            <select id="filter-fiat-currency" name="supports_fiat_id">
-                                <option value="">Any Fiat</option>
-                                <!-- Options populated by JS -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filter-has-p2p">P2P Available</label>
-                            <select id="filter-has-p2p" name="has_p2p">
-                                <option value="">Any</option>
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </select>
-                        </div>
-                        <div class="form-group filter-buttons">
-                            <button type="button" id="apply-filters-btn" class="btn btn-secondary btn-sm">Apply</button>
-                            <button type="button" id="reset-filters-btn" class="btn btn-outline-secondary btn-sm">Reset</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Table container stays outside inner container to be full width -->
-                <div id="exchange-table-container">
-                    <p id="loading-exchanges">Loading exchanges...</p>
-                    <div id="exchange-list-error" class="error-message"></div>
-                    <div class="card-view-toggle">
-                        <button id="toggle-view-btn" class="btn btn-sm btn-secondary hidden">
-                            <span class="table-view-text hidden">Table View</span>
-                            <span class="card-view-text">Switch to Card View</span>
-                        </button>
-                    </div>
-                    
-                    <!-- Table View -->
-                    <table class="data-table exchange-table" id="exchange-table">
-                        <thead>
-                            <tr>
-                                <th>#</th> <!-- Added row number header -->
-                                <th>Logo</th>
-                                <th class="sortable" data-sort-key="name">Name</th>
-                                <th class="sortable" data-sort-key="overall_average_rating">Rating</th>
-                                <th class="sortable" data-sort-key="total_review_count">Reviews</th>
-                                <th class="sortable" data-sort-key="trading_volume_24h">24h Volume</th>
-                                <th>Info</th>
-                                <th><!-- Action column header removed/emptied --></th>
-                            </tr>
-                        </thead>
-                        <tbody id="exchange-list-body">
-                            <!-- Table rows loaded here -->
-                        </tbody>
-                    </table>
-                    
-                    <!-- Card View -->
-                    <div id="exchange-card-container" class="exchange-card-list hidden">
-                        <!-- Card items will be loaded here -->
-                    </div>
-                </div>
-                <!-- Pagination could go inside .container or outside depending on desired width -->
-            </div>
-        </section>
-
+    <main>
+        <div class="container"> <!-- Ensure main content also uses container -->
+            <!-- Main content goes here -->
+        </div>
     </main>
 
     <!-- Footer Section -->
@@ -145,6 +62,6 @@
        </div>
    </footer>
 
-    <script type="module" src="js/main.js?v=1.0"></script>
+    <script type="module" src="./js/exchanges-main.js?v=1.0"></script>
 </body>
 </html>

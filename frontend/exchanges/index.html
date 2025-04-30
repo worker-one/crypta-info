@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchanges - Crypta.Info</title>
+    <link rel="stylesheet" href="../css/layout.css?v=1.0">
+    <link rel="stylesheet" href="../css/main.css?v=1.0">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <!-- Logo Title (left) -->
+            <a href="/" class="logo">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <div>
+                    <span class="logo-text">Crypta.Info</span>
+                </div>
+            </a>
+
+            <!-- Sign Up and Sign In (Now directly in container) -->
+            <nav id="main-nav">
+                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a>
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button> <!-- Added Logout Button -->
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- Site Navigation - Added Below Header -->
+    <div class="site-nav-container">
+        <div class="container">
+            <nav class="site-nav">
+                <a href="/exchanges" class="nav-link active">Exchanges</a> <!-- Set active class -->
+                <a href="/books" class="nav-link">Books</a>
+            </nav>
+        </div>
+    </div>
+
+    <main>
+
+
+        <!-- Exchange List Section -->
+        <section id="exchange-list-section" class="exchange-list-section">
+            <div class="container" style="margin-top: 1px; margin-bottom: 0.5rem;">
+                <div class="intro-text-box" style="margin: 5px 0; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+                    <p>Площадок, позволяющих работать с цифровыми активами, сотни. Это одна из самых конкурентных ниш в финтехе. Новичку, который начинает торговать криптовалютами, сложно разобраться в рынке и сразу выбрать нужную платформу. Ему легко заблудиться в массе проплаченных обзоров и заказных отзывов, которыми наполнен интернет.</p>
+                </div>
+
+                <!-- Filters Section -->
+                <div id="exchange-filters" class="exchange-filters-container" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <!-- Search Bar -->
+                    <div class="header-search-container" style="width:100%; margin-bottom: 0.5rem;">
+                        <form id="search-filter-form" style="display:flex; width:100%;">
+                            <input type="search" id="search-input" placeholder="Search exchanges..." style="flex:1; min-width:0;">
+                            <button type="submit" class="btn btn-primary btn-sm" style="margin-left:8px;">Search</button>
+                        </form>
+                    </div>
+                    
+                    <form id="filter-form" class="filter-form">
+                        <div class="form-group">
+                            <label for="filter-country-registration">Registration Country</label>
+                            <select id="filter-country-registration" name="country_id">
+                                <option value="">Any Country</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-kyc-type">KYC Type</label>
+                            <select id="filter-kyc-type" name="kyc_type">
+                                <option value="">Any KYC</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="filter-fiat-currency">Supports Fiat</label>
+                            <select id="filter-fiat-currency" name="supports_fiat_id">
+                                <option value="">Any Fiat</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-has-p2p">P2P Available</label>
+                            <select id="filter-has-p2p" name="has_p2p">
+                                <option value="">Any</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group filter-buttons">
+                            <button type="button" id="apply-filters-btn" class="btn btn-secondary btn-sm">Apply</button>
+                            <button type="button" id="reset-filters-btn" class="btn btn-outline-secondary btn-sm">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Table container stays outside inner container to be full width -->
+                <div id="exchange-table-container">
+                    <p id="loading-exchanges">Loading exchanges...</p>
+                    <div id="exchange-list-error" class="error-message"></div>
+                    <div class="card-view-toggle">
+                        <button id="toggle-view-btn" class="btn btn-sm btn-secondary hidden">
+                            <span class="table-view-text hidden">Table View</span>
+                            <span class="card-view-text">Switch to Card View</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Table View -->
+                    <table class="data-table exchange-table" id="exchange-table">
+                        <thead>
+                            <tr>
+                                <th>#</th> <!-- Added row number header -->
+                                <th>Logo</th>
+                                <th class="sortable" data-sort-key="name">Name</th>
+                                <th class="sortable" data-sort-key="rating">Rating</th>
+                                <th class="sortable" data-sort-key="total_review_count">Reviews</th>
+                                <th class="sortable" data-sort-key="trading_volume_24h">24h Volume</th>
+                                <th>Info</th>
+                                <th><!-- Action column header removed/emptied --></th>
+                            </tr>
+                        </thead>
+                        <tbody id="exchange-list-body">
+                            <!-- Table rows loaded here -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Card View -->
+                    <div id="exchange-card-container" class="exchange-card-list hidden">
+                        <!-- Card items will be loaded here -->
+                    </div>
+                </div>
+                <!-- Pagination could go inside .container or outside depending on desired width -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="main-footer">
+        <div class="container">
+           <p>© 2025 Crypta.Info. All rights reserved.</p> <!-- Updated copyright text -->
+           <nav>
+               <!-- Update these links to point to the new .html files -->
+               <a href="/privacy">Privacy Policy</a> |
+               <a href="/terms">Terms of Service</a> |
+               <a href="/about">About Us</a> |
+               <a href="/faq">FAQ</a> |
+               <a href="/contacts">Contacts</a>
+           </nav>
+       </div>
+   </footer>
+
+    <script type="module" src="../js/exchanges-main.js"></script>
+</body>
+</html>
