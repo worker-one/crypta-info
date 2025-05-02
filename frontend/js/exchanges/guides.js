@@ -1,6 +1,7 @@
-import { getExchangeDetails, listGuides, getGuideItem } from './api.js'; // Import getGuideItem
-import { renderGuideCard, renderGuideDetail, displayErrorMessage, clearErrorMessage, updateHeaderNav } from './ui.js'; // Import renderGuideDetail
-import { handleLogout } from './auth.js'; // Import handleLogout
+import { getExchangeDetails, listGuides, getGuideItem } from '../api.js'; // Import getGuideItem
+import { renderGuideCard, renderGuideDetail, displayErrorMessage, clearErrorMessage } from '../renderUtils.js'; // Import renderGuideDetail
+import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
+import { handleLogout } from '../auth.js'; // Import handleLogout
 
 // --- DOM Elements ---
 const guideListContainer = document.getElementById('guide-list');

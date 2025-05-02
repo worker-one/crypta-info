@@ -2,7 +2,7 @@ import { isLoggedIn, getUserProfileData, checkAndCacheUserProfile, handleLogout 
 // Import the new API function
 import { listMyReviews } from './api.js';
 // Assuming ui.js has displayErrorMessage/clearErrorMessage that handle the 'hidden' class
-import { displayErrorMessage, clearErrorMessage } from './ui.js';
+import { displayErrorMessage, clearErrorMessage } from './renderUtils.js';
 
 // Helper to show/hide elements using the 'hidden' class
 const showElement = (element) => element?.classList.remove('hidden');
@@ -42,7 +42,7 @@ function displayUserReviews(reviews) {
         // Use Bootstrap card structure
         reviewElement.innerHTML = `
             <div class="card-body">
-                <h5 class="card-title">Review for: ${review.exchange?.name || 'Unknown Exchange'}</h5>
+                <h5 class="card-title">Review for: ${review.item?.name || 'Unknown Item'}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">Submitted: ${reviewDate}</h6>
                 <p class="card-text comment-preview">${review.comment.substring(0, 150)}${review.comment.length > 150 ? '...' : ''}</p>
                 <p class="card-text mb-1"><strong>Status:</strong> <span class="status-${review.moderation_status}">${review.moderation_status}</span></p>

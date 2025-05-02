@@ -1,15 +1,13 @@
 // Main Application Logic for Books Page
-import { handleLogout, checkAndCacheUserProfile } from './auth.js';
+import { handleLogout, checkAndCacheUserProfile } from '../auth.js';
 import {
-    updateHeaderNav,
     renderBookList, // New function needed in ui.js
     renderBookCard, // New function needed in ui.js
     renderPaginationControls, // New function needed in ui.js
-    displayErrorMessage,
-    clearErrorMessage,
-    // initTableViewToggle // Assuming similar responsive behavior, maybe reuse or adapt
-} from './ui.js';
-import { fetchBooks, fetchBookTopics } from './api.js'; // Assuming these exist
+    displayErrorMessage
+} from '../renderUtils.js'; // Assuming this file exists for rendering
+import { fetchBooks, fetchBookTopics } from '../api.js'; // Assuming these exist
+import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggle function
 
 // --- Global State ---
 let currentSortKey = 'overall_average_rating'; // Default sort for books
@@ -31,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("On books index page");
 
     // Initialize view toggle (if needed, adapt from exchanges)
-    // initTableViewToggle(); // Reuse or adapt if card/table toggle is desired
+    initTableViewToggle(); // Initialize the view toggle logic
 
     // Populate filter dropdowns
     populateBookFilterOptions();

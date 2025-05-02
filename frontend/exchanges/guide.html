@@ -127,7 +127,7 @@
     <script type="module" src="../js/auth.js"></script>
     <script type="module" src="../js/ui.js"></script>
     <!-- Page-specific JS -->
-    <script type="module" src="../js/exchange-guide.js"></script> <!-- Link the new JS file -->
+    <script type="module" src="../js/exchanges/guides.js"></script> <!-- Link the new JS file -->
 
     <!-- Inline script for basic setup (can be moved to exchange-guide.js) -->
     <script>
@@ -172,10 +172,7 @@
                 if (overviewTabLink) overviewTabLink.href = '#';
                 if (newsTabLink) newsTabLink.href = '#';
             }
-             // Update header nav based on login status
-             // Ensure ui.js is loaded as a module if using imports directly here
-             // Or call it from exchange-guide.js
-             // import { updateHeaderNav } from '../js/ui.js'; updateHeaderNav();
+
         });
     </script>
 </body>

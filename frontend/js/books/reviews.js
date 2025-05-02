@@ -1,6 +1,7 @@
-import { getBookDetails, submitItemReview, listItemReviews, voteOnReview } from './api.js'; // Use book-related API functions
-import { updateHeaderNav, displayErrorMessage, clearErrorMessage } from './ui.js';
-import { handleLogout, isLoggedIn, getAccessToken } from './auth.js';
+import { getBookDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Use book-related API functions
+import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
+import { updateHeaderNav } from '../header.js'; // Import from header.js
+import { handleLogout, isLoggedIn, getAccessToken } from '../auth.js';
 
 // --- DOM Elements (Declare with let, assign inside DOMContentLoaded) ---
 let reviewsListContainer;

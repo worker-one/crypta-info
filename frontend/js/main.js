@@ -1,6 +1,6 @@
 // Main Application Logic for Login/Register Pages
 import { handleLogin, handleRegister } from './auth.js';
-import { displayErrorMessage } from './ui.js'; // Import only necessary UI functions
+import { displayErrorMessage } from './renderUtils.js'; // Import only necessary UI functions
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed - main.js");

@@ -70,6 +70,15 @@ async function fetchApi(endpoint, options = {}, requiresAuth = false) {
 // --- Specific API Functions ---
 
 /**
+ * Fetches the content of a static page by its slug.
+ * @param {string} slug - The slug of the static page (e.g., 'about', 'faq').
+ * @returns {Promise<object>} - The static page data { title: string, content: string, slug: string }.
+ */
+export async function fetchStaticPage(slug) {
+    return fetchApi(`/${slug}`, { method: 'GET' }); // Public endpoint
+}
+
+/**
  * Fetches a list of exchanges (basic version).
  * Supports filtering and sorting.
  * @param {object} params - Parameters like { skip, limit, name, country_id, kyc_type, has_p2p, supports_fiat_id, field, direction }

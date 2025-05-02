@@ -1,5 +1,6 @@
 import { loginUser, getUserProfile, registerUser } from './api.js'; // Add registerUser import
-import { updateHeaderNav, displayErrorMessage, clearErrorMessage, displaySuccessMessage } from './ui.js'; // Import UI functions
+import { updateHeaderNav } from './header.js'; // Import from header.js
+import { displayErrorMessage, clearErrorMessage, displaySuccessMessage } from './renderUtils.js'; // Import from renderUtils.js
 
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';

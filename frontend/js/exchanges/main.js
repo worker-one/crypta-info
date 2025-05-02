@@ -1,7 +1,9 @@
 // Main Application Logic and Initialization for Homepage/Exchanges
-import { handleLogout, checkAndCacheUserProfile } from './auth.js';
-import { updateHeaderNav, renderExchangeList, displayErrorMessage, clearErrorMessage, initTableViewToggle } from './ui.js';
-import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from './api.js';
+import { handleLogout, checkAndCacheUserProfile } from '../auth.js';
+import { renderExchangeList, displayErrorMessage } from '../renderUtils.js';
+import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from '../api.js';
+import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggle function
+
 
 // --- Global State for Sorting ---
 let currentSortKey = 'overall_average_rating'; // Default sort

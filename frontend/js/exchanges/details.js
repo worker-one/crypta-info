@@ -1,7 +1,7 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, listItemReviews, voteOnReview } from './api.js';
-import { updateHeaderNav } from './ui.js';
-import { isLoggedIn, handleLogout } from './auth.js';
+import { getExchangeDetails, listItemReviews, voteOnReview } from '../api.js';
+import { updateHeaderNav } from '../header.js'; // Import from new header module
+import { isLoggedIn, handleLogout } from '../auth.js';
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Exchange detail page initializing...');
     // Update navigation based on login status
     console.log('Updating header navigation...');
-    updateHeaderNav();
+    updateHeaderNav(); // This function is now imported from header.js
 
     // Add logout listener
     const logoutBtn = document.getElementById('nav-logout-btn');
@@ -208,10 +208,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Showing review section...');
         reviewSection.classList.remove('hidden');
 
-        // Load exchange reviews and set up sorting
+        // Load exchange reviews and set up sorting/voting
         console.log(`Loading reviews for exchange ID: ${exchange.id}`);
         await loadExchangeReviews(exchange.id);
         setupSortingButtons();
+        setupReviewVoting(); // Renamed from setupVoteButtons and uses delegation
 
     } catch (error) {
         console.error("Error fetching exchange details:", error);
@@ -265,7 +266,6 @@ const renderReviewsList = (reviews) => {
             `;
             reviewsList.appendChild(reviewElement);
         });
-        setupVoteButtons(); // Re-attach event listeners after rendering
     } else {
         reviewsList.innerHTML = '<p>No reviews match the criteria or none available.</p>';
     }
@@ -320,58 +320,72 @@ async function loadExchangeReviews(exchangeId) {
     }
 }
 
-function setupVoteButtons() {
-    console.log('Setting up vote button event handlers');
-    const voteButtons = document.querySelectorAll('.vote-btn');
-    console.log(`Found ${voteButtons.length} vote buttons`);
-    
-    voteButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const reviewId = event.target.dataset.reviewId;
-            const isUseful = event.target.dataset.vote === 'true';
-            console.log(`Vote button clicked for review ${reviewId}, isUseful: ${isUseful}`);
-            
-            if (!isLoggedIn()) {
-                console.log('User not logged in, showing alert');
-                alert('Please log in to vote on reviews.');
-                return;
-            }
-            
-            const feedbackElement = document.querySelector(`.vote-feedback[data-review-id="${reviewId}"]`);
-            console.log('Disabling vote buttons during processing...');
-            event.target.closest('.review-footer').querySelectorAll('.vote-btn').forEach(btn => btn.disabled = true);
-            feedbackElement.textContent = 'Voting...';
+/**
+ * Handles clicks within the reviews list, specifically for vote buttons.
+ * Uses event delegation.
+ * @param {Event} event - The click event object.
+ */
+async function handleReviewVoteClick(event) {
+    const button = event.target.closest('.vote-btn'); // Find the closest vote button
+    if (!button) return; // Exit if the click wasn't on a vote button or its child
 
-            try {
-                console.log(`Submitting vote for review ${reviewId}`);
-                const updatedReview = await voteOnReview(reviewId, isUseful);
-                console.log('Vote successful, updated review:', updatedReview);
-                
-                const usefulBtn = document.querySelector(`.vote-btn.useful[data-review-id="${reviewId}"]`);
-                const notUsefulBtn = document.querySelector(`.vote-btn.not-useful[data-review-id="${reviewId}"]`);
-                usefulBtn.textContent = `👍 (${updatedReview.useful_votes_count})`;
-                notUsefulBtn.textContent = `👎 (${updatedReview.not_useful_votes_count})`;
-                feedbackElement.textContent = 'Voted!';
-                console.log('Vote UI updated with new counts');
-                
-                setTimeout(() => {
-                    console.log('Clearing vote feedback message');
-                    feedbackElement.textContent = '';
-                }, 2000);
-            } catch (error) {
-                console.error(`Vote failed for review ${reviewId}:`, error);
-                feedbackElement.textContent = `Error: ${error.message}`;
-                setTimeout(() => {
-                    console.log('Clearing error message');
-                    feedbackElement.textContent = '';
-                }, 3000);
-            } finally {
-                console.log('Re-enabling vote buttons');
-                event.target.closest('.review-footer').querySelectorAll('.vote-btn').forEach(btn => btn.disabled = false);
-            }
-        });
-    });
-    console.log('Vote button setup complete');
+    const reviewId = button.dataset.reviewId;
+    const isUseful = button.dataset.vote === 'true';
+    console.log(`Vote button clicked (delegated) for review ${reviewId}, isUseful: ${isUseful}`);
+
+    if (!isLoggedIn()) {
+        console.log('User not logged in, showing alert');
+        alert('Please log in to vote on reviews.');
+        return;
+    }
+
+    const reviewItem = button.closest('.review-item');
+    const feedbackElement = reviewItem.querySelector(`.vote-feedback[data-review-id="${reviewId}"]`);
+    const voteButtons = reviewItem.querySelectorAll('.vote-btn');
+
+    console.log('Disabling vote buttons during processing...');
+    voteButtons.forEach(btn => btn.disabled = true);
+    feedbackElement.textContent = 'Voting...';
+
+    try {
+        console.log(`Submitting vote for review ${reviewId}`);
+        const updatedReview = await voteOnReview(reviewId, isUseful);
+        console.log('Vote successful, updated review:', updatedReview);
+
+        const usefulBtn = reviewItem.querySelector(`.vote-btn.useful[data-review-id="${reviewId}"]`);
+        const notUsefulBtn = reviewItem.querySelector(`.vote-btn.not-useful[data-review-id="${reviewId}"]`);
+        usefulBtn.textContent = `👍 (${updatedReview.useful_votes_count})`;
+        notUsefulBtn.textContent = `👎 (${updatedReview.not_useful_votes_count})`;
+        feedbackElement.textContent = 'Voted!';
+        console.log('Vote UI updated with new counts');
+
+        setTimeout(() => {
+            console.log('Clearing vote feedback message');
+            feedbackElement.textContent = '';
+        }, 2000);
+    } catch (error) {
+        console.error(`Vote failed for review ${reviewId}:`, error);
+        feedbackElement.textContent = `Error: ${error.message}`;
+        setTimeout(() => {
+            console.log('Clearing error message');
+            feedbackElement.textContent = '';
+        }, 3000);
+    } finally {
+        console.log('Re-enabling vote buttons');
+        voteButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+/**
+ * Sets up the event listener for review voting using event delegation.
+ */
+function setupReviewVoting() {
+    if (!reviewsList) return;
+    console.log('Setting up review voting listener on reviewsList container');
+    // Remove previous listeners if any (though ideally called once)
+    reviewsList.removeEventListener('click', handleReviewVoteClick);
+    // Add single listener to the container
+    reviewsList.addEventListener('click', handleReviewVoteClick);
 }
 
 /**

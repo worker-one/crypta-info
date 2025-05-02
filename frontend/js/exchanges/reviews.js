@@ -1,6 +1,7 @@
-import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } from './api.js'; // Removed getRatingCategories
-import { updateHeaderNav, displayErrorMessage, clearErrorMessage } from './ui.js';
-import { handleLogout, isLoggedIn, getAccessToken } from './auth.js';
+import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Removed getRatingCategories
+import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
+import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
+import { handleLogout, isLoggedIn, getAccessToken } from '../auth.js';
 
 // --- DOM Elements ---
 const reviewsListContainer = document.getElementById('reviews-list');

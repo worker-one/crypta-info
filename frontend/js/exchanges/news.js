@@ -1,6 +1,6 @@
-import { listNews, getNewsItem } from './api.js'; // Import getNewsItem
-import { renderNewsCard, renderNewsDetail, displayErrorMessage, clearErrorMessage } from './ui.js'; // Import renderNewsDetail
-import { handleLogout, checkAndCacheUserProfile } from './auth.js'; // Import handleLogout and checkAndCacheUserProfile
+import { listNews, getNewsItem } from '../api.js'; // Import getNewsItem
+import { renderNewsCard, renderNewsDetail, displayErrorMessage, clearErrorMessage } from '../renderUtils.js'; // Import renderNewsDetail
+import { handleLogout, checkAndCacheUserProfile } from '../auth.js'; // Import handleLogout and checkAndCacheUserProfile
 
 // --- DOM Elements ---
 const newsListContainer = document.getElementById('news-list');

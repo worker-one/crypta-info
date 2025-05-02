@@ -1,7 +1,7 @@
 // filepath: /home/verner/crypta-info/frontend/js/static-page.js
 import { fetchStaticPage } from './api.js';
 import { checkAndCacheUserProfile } from './auth.js'; // To update header nav
-import { displayErrorMessage, clearErrorMessage } from './ui.js'; // Assuming ui.js has these
+import { displayErrorMessage, clearErrorMessage } from './renderUtils.js'; // Assuming ui.js has these
 
 // Helper to show/hide elements using the 'hidden' class
 const showElement = (element) => element?.classList.remove('hidden');

@@ -1,5 +1,6 @@
 /* Basic Card Styles - Material Design */
-.exchange-card {
+.exchange-card,
+.book-card { /* Apply base styles to both */
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -16,15 +17,17 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.exchange-card:hover {
+.exchange-card:hover,
+.book-card:hover { /* Apply hover styles to both */
     /* Material Design Elevation 4 (hover state) */
     box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),
                 0px 4px 5px 0px rgba(0,0,0,0.14),
                 0px 1px 10px 0px rgba(0,0,0,0.12);
 }
 
-/* Card Header/Logo Area */
-.exchange-card .logo {
+/* Card Header Area */
+.exchange-card .card-header, /* Renamed .logo to .card-header for consistency */
+.book-card .card-header {
     display: flex;
     align-items: center;
     padding-bottom: 16px;
@@ -32,7 +35,8 @@
     border-bottom: 1px solid #f0f0f0; /* Lighter separator */
 }
 
-.exchange-card .logo img {
+/* Exchange Logo Specific */
+.exchange-card .card-header img {
     width: 40px;
     height: 40px;
     border-radius: 50%; /* Circular logos - Material standard */
@@ -42,7 +46,20 @@
     padding: 4px; /* Small padding inside circle */
 }
 
-.exchange-card h3 {
+/* Book Cover Specific */
+.book-card .card-header img.card-cover-image {
+    width: 50px; /* Slightly wider for book covers */
+    height: 75px; /* Taller for book covers */
+    object-fit: cover; /* Cover maintains aspect ratio */
+    margin-right: 16px;
+    background-color: #f5f5f5;
+    border-radius: 2px; /* Slight rounding for book covers */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+
+.exchange-card .card-header h3, /* Use .card-header */
+.book-card .card-header h3 { /* Use .card-header */
     margin: 0;
     color: rgba(0, 0, 0, 0.87); /* Material primary text (87% opacity) */
     font-size: 1.1rem;
@@ -52,120 +69,168 @@
 }
 
 /* Card Content Area */
-.exchange-card .card-content {
+.exchange-card .card-body, /* Renamed .card-content to .card-body */
+.book-card .card-body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Consistent spacing between elements */
+    gap: 10px; /* Adjusted spacing between elements */
 }
 
-.exchange-card .rating,
-.exchange-card .volume,
-.exchange-card .info {
+/* Info Rows */
+.exchange-card .card-info-row,
+.book-card .card-info-row {
     display: flex;
     align-items: baseline;
-    color: rgba(0, 0, 0, 0.6); /* Material secondary text (60% opacity) */
     font-size: 0.875rem; /* Material body 2 */
     line-height: 1.43;
     letter-spacing: 0.01071em;
 }
 
-.exchange-card .rating::before,
-.exchange-card .volume::before,
-.exchange-card .info::before {
-    content: attr(data-label);
-    flex: 0 0 90px;
+.exchange-card .card-info-label,
+.book-card .card-info-label {
+    flex: 0 0 90px; /* Fixed width for labels */
     font-weight: 500;
     color: rgba(0, 0, 0, 0.6); /* Material secondary text */
+    padding-right: 8px;
 }
 
-.exchange-card .rating {
+.exchange-card .card-info-value,
+.book-card .card-info-value {
+    flex: 1; /* Value takes remaining space */
+    color: rgba(0, 0, 0, 0.87); /* Material primary text */
+    word-break: break-word; /* Prevent long values overflowing */
+}
+
+/* Specific Value Styling */
+.exchange-card .card-rating,
+.book-card .card-rating {
     color: #ffc107; /* Amber for ratings */
     font-weight: 500;
+    display: flex; /* Align star and text */
+    align-items: center;
 }
 
-.exchange-card .rating span::before {
-    content: "★ ";
-    margin-right: 4px;
+.book-card .card-rating .review-count {
+    margin-left: 6px;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.6); /* Secondary text color */
+    font-weight: 400;
 }
 
-.exchange-card .info {
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
-/* Card Actions Area */
-.exchange-card .details-link {
+/* Card Footer/Actions Area */
+.exchange-card .card-footer, /* Renamed .details-link to .card-footer */
+.book-card .card-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; /* Align actions to the right */
     padding-top: 16px;
-    margin-top: 16px;
+    margin-top: auto; /* Push footer to bottom */
     border-top: 1px solid #f0f0f0;
 }
 
-.exchange-card .details-link .btn {
-    padding: 8px 16px;
+.exchange-card .card-action, /* Added wrapper for action buttons */
+.book-card .card-action {
+    /* Container for buttons if needed */
+}
+
+.exchange-card .card-footer .btn,
+.book-card .card-footer .btn {
+    padding: 6px 12px; /* Slightly smaller padding */
     border-radius: 4px;
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.813rem; /* Smaller font size */
     letter-spacing: 0.02857em;
     text-transform: uppercase;
     min-width: 64px;
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none; /* Ensure links look like buttons */
+    display: inline-block; /* Ensure proper layout */
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
 }
 
-/* Optional accent button style */
-.exchange-card .details-link .btn-primary {
+/* Primary Button Style */
+.exchange-card .card-footer .btn-primary,
+.book-card .card-footer .btn-primary {
     background-color: #007bff;
     color: white;
-    border: none;
+    border-color: #007bff;
     box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),
                 0px 2px 2px 0px rgba(0,0,0,0.14),
                 0px 1px 5px 0px rgba(0,0,0,0.12);
 }
 
-.exchange-card .details-link .btn-primary:hover {
+.exchange-card .card-footer .btn-primary:hover,
+.book-card .card-footer .btn-primary:hover {
     background-color: #0069d9;
+    border-color: #0062cc;
     box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),
                 0px 4px 5px 0px rgba(0,0,0,0.14),
                 0px 1px 10px 0px rgba(0,0,0,0.12);
 }
 
+/* Secondary Button Style */
+.exchange-card .card-footer .btn-secondary,
+.book-card .card-footer .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+.exchange-card .card-footer .btn-secondary:hover,
+.book-card .card-footer .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
-    .exchange-card {
+    .exchange-card,
+    .book-card {
         padding: 12px;
     }
-    
-    .exchange-card .rating,
-    .exchange-card .volume,
-    .exchange-card .info {
-        flex-direction: column;
-        align-items: flex-start;
-        padding-bottom: 8px;
+
+    .exchange-card .card-header,
+    .book-card .card-header {
+        padding-bottom: 12px;
+        margin-bottom: 12px;
     }
-    
-    .exchange-card .rating::before,
-    .exchange-card .volume::before,
-    .exchange-card .info::before {
-        flex-basis: auto;
-        margin-bottom: 4px;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
+
+    .exchange-card .card-header img,
+    .book-card .card-header img.card-cover-image {
+        margin-right: 12px;
     }
-    
-    .exchange-card .details-link {
+
+    .exchange-card .card-body,
+    .book-card .card-body {
+        gap: 8px;
+    }
+
+    .exchange-card .card-info-row,
+    .book-card .card-info-row {
+        /* Keep flex-direction row, but adjust label width if needed */
+        font-size: 0.8rem;
+    }
+
+    .exchange-card .card-info-label,
+    .book-card .card-info-label {
+        flex-basis: 70px; /* Slightly smaller label width */
+        padding-right: 6px;
+    }
+
+    .exchange-card .card-footer,
+    .book-card .card-footer {
         padding-top: 12px;
-        margin-top: 12px;
     }
-    
-    .exchange-card .details-link .btn {
-        padding: 6px 12px;
-        font-size: 0.813rem;
+
+    .exchange-card .card-footer .btn,
+    .book-card .card-footer .btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
     }
 }
