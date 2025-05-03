@@ -8,7 +8,6 @@ from decimal import Decimal
 from app.core.database import get_async_db
 from app.exchanges import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse
-from app.models.exchange import KYCTypeEnum
 
 router = APIRouter(
     prefix="/exchanges",
@@ -43,7 +42,7 @@ async def list_exchanges(
     name: Optional[str] = Query(None, description="Search by exchange name (partial match)"),
     country_id: Optional[int] = Query(None, description="Filter by registration or availability country ID"),
     has_license_in_country_id: Optional[int] = Query(None, description="Filter by country ID where the exchange holds a license"),
-    kyc_type: Optional[KYCTypeEnum] = Query(None, description="Filter by KYC type"),
+    has_kyc: Optional[bool] = Query(None, description="Filter by KYC type"),
     min_maker_fee: Optional[Decimal] = Query(None, description="Minimum maker fee threshold"),
     max_maker_fee: Optional[Decimal] = Query(None, description="Maximum maker fee threshold"),
     min_taker_fee: Optional[Decimal] = Query(None, description="Minimum taker fee threshold"),
@@ -64,7 +63,7 @@ async def list_exchanges(
         name=name,
         country_id=country_id,
         has_license_in_country_id=has_license_in_country_id,
-        kyc_type=kyc_type,
+        has_kyc=has_kyc,
         min_maker_fee=min_maker_fee,
         max_maker_fee=max_maker_fee,
         min_taker_fee=min_taker_fee,

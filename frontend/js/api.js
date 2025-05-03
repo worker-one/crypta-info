@@ -81,7 +81,7 @@ export async function fetchStaticPage(slug) {
 /**
  * Fetches a list of exchanges (basic version).
  * Supports filtering and sorting.
- * @param {object} params - Parameters like { skip, limit, name, country_id, kyc_type, has_p2p, supports_fiat_id, field, direction }
+ * @param {object} params - Parameters like { skip, limit, name, country_id, has_kyc, has_p2p, supports_fiat_id, field, direction }
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
 export async function fetchExchanges(params = { skip: 0, limit: 10 }) {

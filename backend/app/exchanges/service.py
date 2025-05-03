@@ -49,8 +49,8 @@ class ExchangeService:
         filter_conditions = []
         if filters.name:
             filter_conditions.append(exchange_models.Exchange.name.ilike(f"%{filters.name}%"))
-        if filters.kyc_type:
-            filter_conditions.append(exchange_models.Exchange.kyc_type == filters.kyc_type)
+        if filters.has_kyc:
+            filter_conditions.append(exchange_models.Exchange.has_kyc == filters.has_kyc)
         if filters.has_p2p is not None:
             filter_conditions.append(exchange_models.Exchange.has_p2p == filters.has_p2p)
 

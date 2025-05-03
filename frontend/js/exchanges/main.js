@@ -1,13 +1,16 @@
 // Main Application Logic and Initialization for Homepage/Exchanges
 import { handleLogout, checkAndCacheUserProfile } from '../auth.js';
-import { renderExchangeList, displayErrorMessage } from '../renderUtils.js';
+import { displayErrorMessage } from '../renderUtils.js';
 import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from '../api.js';
 import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggle function
-
 
 // --- Global State for Sorting ---
 let currentSortKey = 'overall_average_rating'; // Default sort
 let currentSortDirection = 'desc'; // Default direction
+
+// Define the API base URL directly here for the website link construction.
+// TODO: Move BASE_URL_API to a config.js file and import it
+const BASE_URL_API = 'http://localhost:8000/api/v1';
 
 // --- Initialization ---
 
@@ -115,7 +118,7 @@ async function populateFilterOptions() {
 
     // Populate KYC Type (manual based on enum)
     if (kycSelect) {
-        const kycTypes = ['none', 'optional', 'mandatory'];
+        const kycTypes = ['any', 'false', 'true'];
         kycTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type;
@@ -209,7 +212,7 @@ function applyFilters() {
 
     if (searchTerm) params.name = searchTerm;
     if (countryId) params.country_id = countryId;
-    if (kycType) params.kyc_type = kycType;
+    if (kycType) params.has_kyc = kycType;
     // Add has_p2p only if a specific value ("true" or "false") is selected
     if (hasP2pValue === 'true' || hasP2pValue === 'false') {
         params.has_p2p = hasP2pValue === 'true'; // Convert string "true" to boolean true
@@ -241,7 +244,7 @@ async function loadHomepageExchanges(params = {}) {
 
     // Show loading, clear previous state
     if (loadingIndicator) loadingIndicator.style.display = 'block';
-    if (tbody) tbody.innerHTML = '';
+    if (tbody) tbody.innerHTML = ''; // Clear previous table rows
     if (cardContainer) cardContainer.innerHTML = '';
     if (errorContainer) errorContainer.classList.remove('visible');
 
@@ -264,22 +267,141 @@ async function loadHomepageExchanges(params = {}) {
         const data = await fetchExchanges(queryParams);
         console.log("Exchanges received:", data);
 
-        if (data && data.items) {
-            // Render table view
-            renderExchangeList(data.items, tbodyId, loadingIndicatorId, errorContainerId);
+        if (data && data.items && tbody) {
+            // --- Manually render table rows ---
+            if (data.items.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                // Adjust colspan based on the final number of columns (9)
+                cell.colSpan = 9; // Updated colspan
+                cell.textContent = 'No exchanges found matching your criteria.';
+                cell.style.textAlign = 'center';
+            } else {
+                data.items.forEach((exchange, index) => {
+                    const row = tbody.insertRow();
+                    row.className = 'clickable-row'; // Keep row clickable
+                    row.dataset.slug = exchange.slug; // Add slug for navigation
 
-            // Render card view
+                    // Format data for display
+                    const ratingValue = parseFloat(exchange.overall_average_rating);
+                    const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+                    const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
+                    const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
+                    const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined,
+                        { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
+                    const p2pIcon = exchange.has_p2p ? '✅' : '❌';
+                    const kycIcon = exchange.has_kyc ? '✅' : '❌';
+
+                    // Populate cells according to the new header structure and center content
+                    let cell;
+
+                    // # Cell
+                    cell = row.insertCell();
+                    cell.textContent = index + 1;
+                    cell.style.textAlign = 'center';
+                    cell.style.verticalAlign = 'middle';
+
+                    // Logo Cell
+                    const logoCell = row.insertCell();
+                    const img = document.createElement('img');
+                    img.src = exchange.logo_url || 'assets/images/logo-placeholder.png';
+                    img.alt = `${exchange.name} Logo`;
+                    img.className = 'exchange-logo-small'; // Add a class for potential styling
+                    img.style.height = '20px'; // Example inline style
+                    img.style.width = 'auto';
+                    img.style.display = 'block'; // Needed for centering block element
+                    img.style.margin = '0 auto'; // Center image horizontally
+                    logoCell.appendChild(img);
+                    logoCell.style.verticalAlign = 'middle'; // Vertical align cell content
+
+                    // Name Cell
+                    cell = row.insertCell();
+                    cell.textContent = exchange.name;
+                    cell.style.textAlign = 'center';
+                    cell.style.verticalAlign = 'middle';
+
+                    // Rating Cell
+                    cell = row.insertCell();
+                    cell.textContent = formattedRating;
+                    cell.style.textAlign = 'center';
+                    cell.style.verticalAlign = 'middle';
+
+                    // Reviews Cell (Updated with link)
+                    const reviewsTd = row.insertCell();
+                    reviewsTd.className = 'reviews-cell'; // Add class if needed for styling
+                    reviewsTd.style.textAlign = 'center';
+                    reviewsTd.style.verticalAlign = 'middle';
+                    // Wrap the count in a link
+                    const reviewsLink = document.createElement('a');
+                    reviewsLink.href = `exchanges/reviews.html?slug=${exchange.slug}`;
+                    reviewsLink.textContent = reviewCount;
+                    reviewsLink.classList.add('reviews-link'); // Add class to identify the link
+                    // Prevent row click when clicking the link itself
+                    reviewsLink.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                    });
+                    reviewsTd.appendChild(reviewsLink); // Append link to td
+
+                    // Volume Cell
+                    cell = row.insertCell();
+                    cell.textContent = formattedVolume;
+                    cell.style.textAlign = 'center';
+                    cell.style.verticalAlign = 'middle';
+
+                    // P2P Cell
+                    cell = row.insertCell();
+                    cell.innerHTML = p2pIcon;
+                    cell.style.textAlign = 'center';
+                    cell.style.verticalAlign = 'middle';
+
+                    // KYC Cell
+                    cell = row.insertCell();
+                    cell.innerHTML = kycIcon;
+                    cell.style.textAlign = 'center';
+                    cell.style.verticalAlign = 'middle';
+
+                    // Website Button Cell
+                    const websiteTd = row.insertCell();
+                    websiteTd.className = 'action-cell'; // Use similar class if needed
+                    websiteTd.style.textAlign = 'center'; // Center the button within the cell
+                    websiteTd.style.verticalAlign = 'middle';
+
+                    const websiteBtn = document.createElement('a');
+                    websiteBtn.href = `${BASE_URL_API}/exchanges/go/${exchange.slug}`; // Construct the redirect URL
+                    websiteBtn.textContent = 'Сайт';
+                    websiteBtn.target = '_blank'; // Open in new tab
+                    // websiteBtn.rel = 'noopener noreferrer'; // Good practice, but might interfere with simple redirects
+                    websiteBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'website-link'); // Style as button
+
+                    // Prevent row click when clicking the button
+                    websiteBtn.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                    });
+                    websiteTd.appendChild(websiteBtn);
+                });
+            }
+            // --- End manual table row rendering ---
+
+            // Render card view (remains unchanged)
             renderCardView(data.items, cardContainerId);
 
-            // Ensure sort indicators are correct after load (might be redundant but safe)
+            // Ensure sort indicators are correct after load
             updateSortIndicators();
 
             if (loadingIndicator) loadingIndicator.style.display = 'none';
         } else {
-            renderExchangeList([], tbodyId, loadingIndicatorId, errorContainerId);
-            renderCardView([], cardContainerId);
+            // Handle case where data or tbody is missing, or items array is empty
+             if (tbody) { // Check if tbody exists before trying to insert
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 9; // Match new column count
+                cell.textContent = 'Could not load exchange data or no exchanges found.';
+                cell.style.textAlign = 'center';
+            }
+            renderCardView([], cardContainerId); // Render empty card view
             if (loadingIndicator) loadingIndicator.style.display = 'none';
             if (!errorContainer?.classList.contains('visible')) {
+                // Display error only if one wasn't already shown by the catch block
                 displayErrorMessage(errorContainerId, 'Could not load exchange data.');
             }
         }
@@ -288,7 +410,7 @@ async function loadHomepageExchanges(params = {}) {
         console.error("Failed to load exchanges:", error);
         if (loadingIndicator) loadingIndicator.style.display = 'none';
         displayErrorMessage(errorContainerId, `Error loading exchanges: ${error.message}`);
-        if (tbody) tbody.innerHTML = '';
+        if (tbody) tbody.innerHTML = ''; // Clear tbody on error
         if (cardContainer) cardContainer.innerHTML = '';
     }
 }
@@ -301,25 +423,25 @@ async function loadHomepageExchanges(params = {}) {
 function renderCardView(exchanges, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     container.innerHTML = '';
-    
+
     if (exchanges && exchanges.length > 0) {
         exchanges.forEach(exchange => {
             const card = document.createElement('div');
             card.className = 'exchange-card';
-            
+
             // Format data for display
             const ratingValue = parseFloat(exchange.overall_average_rating );
             const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
             const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
             const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
-            const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined, 
+            const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined,
                 { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
-            const year = exchange.year_founded || '??';
-            const country = exchange.registration_country?.name || 'Unknown';
-            const website_url = exchange.website_url || 'N/A';
-            
+            // Format booleans for card view as well (optional, but consistent)
+            const p2pText = exchange.has_p2p ? 'Yes' : 'No'; // Using text for card view might be better
+            const kycText = exchange.has_kyc ? 'Required' : 'Not Required'; // Example text
+
             card.innerHTML = `
                 <div class="card-header">
                     <img src="${exchange.logo_url || 'assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo" class="card-logo">
@@ -327,36 +449,50 @@ function renderCardView(exchanges, containerId) {
                 </div>
                 <div class="card-body">
                     <div class="card-info-row">
-                        <div class="card-info-label">Rating:</div>
-                        <div class="card-info-value card-rating">${formattedRating}</div>
+                        <span class="card-info-label">Рейтинг:</span> <!-- Translated -->
+                        <span class="card-info-value card-rating">${formattedRating}</span>
                     </div>
                     <div class="card-info-row">
-                        <div class="card-info-label">Reviews:</div>
-                        <div class="card-info-value">${reviewCount}</div>
+                        <span class="card-info-label">Отзывы:</span> <!-- Translated -->
+                        <span class="card-info-value">${reviewCount}</span>
                     </div>
                     <div class="card-info-row">
-                        <div class="card-info-label">24h Volume:</div>
-                        <div class="card-info-value">${formattedVolume}</div>
+                        <span class="card-info-label">Объем (24ч):</span> <!-- Translated -->
+                        <span class="card-info-value">${formattedVolume}</span>
+                    </div>
+                    <div class="card-info-row">
+                        <span class="card-info-label">P2P:</span>
+                        <span class="card-info-value">${p2pText}</span> <!-- Added P2P -->
+                    </div>
+                     <div class="card-info-row">
+                        <span class="card-info-label">KYC:</span>
+                        <span class="card-info-value">${kycText}</span> <!-- Added KYC -->
                     </div>
                     <div class="card-info-row">
                         <div class="card-info-label">Info:</div>
-                        <div class="card-info-value">Est: ${year}, ${website_url}</div>
+                        <div class="card-info-value">${exchange.website_url}</div>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div class="card-action">
-                        <a href="exchanges/overview.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Details</a>
-                    </div>
+                    <a href="exchanges/overview.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Подробнее</a> <!-- Translated -->
                 </div>
             `;
-            
+            // Add click listener to the card itself for navigation
+            card.addEventListener('click', (e) => {
+                 // Prevent navigation if the click was on the button itself
+                if (!e.target.closest('a')) {
+                    window.location.href = `exchanges/overview.html?slug=${exchange.slug}`;
+                }
+            });
+
+
             container.appendChild(card);
         });
     } else {
         // Display no results message
         const noResults = document.createElement('div');
         noResults.className = 'no-results-message';
-        noResults.textContent = 'No exchanges found matching your criteria.';
+        noResults.textContent = 'Биржи, соответствующие вашим критериям, не найдены.'; // Translated
         container.appendChild(noResults);
     }
 }

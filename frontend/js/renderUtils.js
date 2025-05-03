@@ -283,7 +283,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             // Create Website button/link
             const websiteBtn = document.createElement('a');
             websiteBtn.href = `${BASE_URL_API}/exchanges/go/${exchange.slug}`;
-            websiteBtn.textContent = 'Website';
+            websiteBtn.textContent = 'Сайт';
             websiteBtn.target = '_blank'; // Open in new tab
             // websiteBtn.rel = 'noopener noreferrer'; // Security best practice
             websiteBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'website-link'); // Style as button

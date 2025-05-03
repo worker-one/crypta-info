@@ -162,8 +162,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="detail-card">
                 <h3>Basic Information</h3>
                 <p><strong>Registration Country:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
-                <p><strong>Website:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
-                <p><strong>KYC Type:</strong> ${exchange.kyc_type || 'N/A'}</p>
+                <p><strong>Сайт:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
+                <p><strong>KYC:</strong> ${exchange.has_kyc || 'N/A'}</p>
                 <p>
                 <strong>P2P Available:</strong>
                 ${exchange.has_p2p ? '<span class="available">Yes</span>' : '<span class="unavailable">No</span>'}

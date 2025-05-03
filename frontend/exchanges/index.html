@@ -61,26 +61,23 @@
                         </form>
                     </div>
                     
-                    <form id="filter-form" class="filter-form">
+                    <!-- <form id="filter-form" class="filter-form">
                         <div class="form-group">
                             <label for="filter-country-registration">Registration Country</label>
                             <select id="filter-country-registration" name="country_id">
                                 <option value="">Any Country</option>
-                                <!-- Options populated by JS -->
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="filter-kyc-type">KYC Type</label>
-                            <select id="filter-kyc-type" name="kyc_type">
+                            <select id="filter-kyc-type" name="has_kyc">
                                 <option value="">Any KYC</option>
-                                <!-- Options populated by JS -->
                             </select>
                         </div>
                          <div class="form-group">
                             <label for="filter-fiat-currency">Supports Fiat</label>
                             <select id="filter-fiat-currency" name="supports_fiat_id">
                                 <option value="">Any Fiat</option>
-                                <!-- Options populated by JS -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -95,7 +92,8 @@
                             <button type="button" id="apply-filters-btn" class="btn btn-secondary btn-sm">Apply</button>
                             <button type="button" id="reset-filters-btn" class="btn btn-outline-secondary btn-sm">Reset</button>
                         </div>
-                    </form>
+                    </form> -->
+                    
                 </div>
 
                 <!-- Table container stays outside inner container to be full width -->
@@ -114,17 +112,18 @@
                         <thead>
                             <tr>
                                 <th>#</th> <!-- Added row number header -->
-                                <th>Logo</th>
-                                <th class="sortable" data-sort-key="name">Name</th>
-                                <th class="sortable" data-sort-key="rating">Rating</th>
-                                <th class="sortable" data-sort-key="total_review_count">Reviews</th>
-                                <th class="sortable" data-sort-key="trading_volume_24h">24h Volume</th>
-                                <th>Info</th>
-                                <th><!-- Action column header removed/emptied --></th>
+                                <th></th> <!-- Logo column name removed -->
+                                <th class="sortable" data-sort-key="name">Биржа</th> <!-- Translated -->
+                                <th class="sortable" data-sort-key="rating">Рейтинг</th> <!-- Translated -->
+                                <th class="sortable" data-sort-key="total_review_count">Отзывы</th> <!-- Translated -->
+                                <th class="sortable" data-sort-key="trading_volume_24h">Объем (24ч)</th> <!-- Translated -->
+                                <th>P2P</th> <!-- Changed from Info -->
+                                <th>KYC</th> <!-- Added KYC column -->
+                                <th> </th> <!-- Added Website column header -->
                             </tr>
                         </thead>
                         <tbody id="exchange-list-body">
-                            <!-- Table rows loaded here -->
+                            <!-- Table rows loaded here by main.js -->
                         </tbody>
                     </table>
                     

@@ -10,10 +10,8 @@ from app.models.user import User
 from app.schemas.common import Message, PaginationParams, PaginatedResponse
 
 # Import services and schemas from other modules
-from app.auth import service as auth_service
 from app.auth import schemas as auth_schemas
 from app.exchanges import schemas, service as exchange_service
-from app.models.exchange import KYCTypeEnum
 from app.dependencies import get_current_admin_user
 from app.reviews import service as review_service
 from app.reviews import schemas as review_schemas

@@ -5,7 +5,6 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from app.schemas.common import CountryRead, LanguageRead, FiatCurrencyRead, RatingCategoryRead
-from app.models.exchange import KYCTypeEnum # Import Enum
 
 # --- License Schemas ---
 class LicenseRead(BaseModel):
@@ -38,7 +37,7 @@ class ExchangeBase(BaseModel):
     logo_url: Optional[str] = None
     website_url: Optional[str] = None
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
-    kyc_type: KYCTypeEnum = KYCTypeEnum.mandatory
+    has_kyc: bool = False
     has_p2p: bool = False
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
     maker_fee_min: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
@@ -65,7 +64,7 @@ class ExchangeUpdate(ExchangeBase):
     slug: Optional[str] = Field(None, min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$")
     description: Optional[str] = None
     overview: Optional[str] = None
-    kyc_type: Optional[KYCTypeEnum] = None
+    has_kyc: Optional[bool] = None
     has_p2p: Optional[bool] = None
      # Allow updating related IDs - service needs to handle this
     available_in_country_ids: Optional[List[int]] = None
@@ -84,7 +83,8 @@ class ExchangeReadBrief(BaseModel):
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
     year_founded: Optional[int] = None
     registration_country: Optional[CountryRead] = None # Only basic info
-
+    has_kyc: bool = False
+    has_p2p: bool = False
     class Config:
         from_attributes = True
 
@@ -115,7 +115,7 @@ class ExchangeFilterParams(BaseModel):
     name: Optional[str] = None
     country_id: Optional[int] = None # Filter by registration or availability
     has_license_in_country_id: Optional[int] = None
-    kyc_type: Optional[KYCTypeEnum] = None
+    has_kyc: Optional[bool] = None
     min_maker_fee: Optional[Decimal] = None
     max_maker_fee: Optional[Decimal] = None
     min_taker_fee: Optional[Decimal] = None

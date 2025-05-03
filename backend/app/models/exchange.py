@@ -12,12 +12,6 @@ from sqlalchemy.sql import func
 from .base import Base
 from .item import Item, ItemTypeEnum # Import Item and the Enum
 
-# --- Enums ---
-class KYCTypeEnum(enum.Enum):
-    mandatory = 'mandatory'
-    optional = 'optional'
-    none = 'none'
-
 # --- Association Tables (Many-to-Many) ---
 # These remain the same as they are specific to Exchanges
 exchange_languages_table = Table('exchange_languages', Base.metadata,
@@ -58,7 +52,7 @@ class Exchange(Item):
     year_founded = Column(SmallInteger)
     registration_country_id = Column(Integer, ForeignKey('countries.id', ondelete='SET NULL'))
     headquarters_country_id = Column(Integer, ForeignKey('countries.id', ondelete='SET NULL'), nullable=True)
-    kyc_type = Column(SQLAlchemyEnum(KYCTypeEnum, name='kyc_type_enum'), nullable=False, default=KYCTypeEnum.mandatory)
+    has_kyc = Column(Boolean, nullable=False, default=False)
     has_p2p = Column(Boolean, nullable=False, default=False)
     trading_volume_24h = Column(Numeric(20, 2), index=True)
     maker_fee_min = Column(Numeric(8, 5))
