@@ -206,7 +206,7 @@ export async function getItemDetails(itemId) {
 /**
  * Submits a review for a specific item (e.g., exchange, book).
  * @param {string|number} itemId - The ID of the item being reviewed.
- * @param {object} reviewData - The review data { comment: string, rating: number }.
+ * @param {object} reviewData - The review data { comment: string, rating: number, guest_name?: string }.
  * @returns {Promise<object>} - The submitted review object (or confirmation).
  */
 export async function submitItemReview(itemId, reviewData) {
@@ -216,14 +216,26 @@ export async function submitItemReview(itemId, reviewData) {
         rating: reviewData.rating, // Send single rating
         item_id: parseInt(itemId, 10)
     };
+
+    if (reviewData.guest_name) {
+        payload.guest_name = reviewData.guest_name;
+    }
+
     // Validate rating is a number between 1 and 5 if needed here
     if (typeof payload.rating !== 'number' || payload.rating < 1 || payload.rating > 5) {
         return Promise.reject(new Error('Rating must be a number between 1 and 5.'));
     }
+
+    // If guest_name is provided, it's an unauthenticated request.
+    // Otherwise, it's an authenticated request (if a token exists).
+    const token = getAccessToken();
+    const requiresAuth = !payload.guest_name && !!token;
+
+
     return fetchApi(`/reviews/item/${itemId}`, { // ID in URL path
         method: 'POST',
-        body: JSON.stringify(payload), // Send payload with single rating
-    }, true); // Requires authentication
+        body: JSON.stringify(payload), // Send payload
+    }, requiresAuth);
 }
 
 /**

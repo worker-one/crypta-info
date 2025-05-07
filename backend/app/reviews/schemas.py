@@ -13,6 +13,7 @@ class ItemReviewCreate(BaseModel):
     item_id: int # Renamed from exchange_id
     rating: int = Field(..., ge=1, le=5) # Single rating value
     comment: str = Field(..., min_length=3, max_length=5000)
+    guest_name: Optional[str] = Field(None, min_length=1, max_length=100, description="Name of the guest reviewer, if not logged in.")
 
 # --- Screenshot Schemas ---
 class ReviewScreenshotRead(BaseModel):
@@ -43,9 +44,10 @@ class ReviewRead(ReviewBase):
     useful_votes_count: int
     not_useful_votes_count: int
     item_id: int # Add item_id for context
+    guest_name: Optional[str] = None # Add guest_name
 
     # Nested data
-    user: UserRead # Show public user info
+    user: Optional[UserRead] = None # Show public user info, now optional
     item: Optional[ItemReadBrief] = None # Show brief item info (polymorphic)
     screenshots: List[ReviewScreenshotRead] = []
     # tags: List[TagRead] = [] # Add tag schema if implemented

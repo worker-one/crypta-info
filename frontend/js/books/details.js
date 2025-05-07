@@ -189,7 +189,7 @@ function renderBookDetails(book, container) {
 
         <div class="details">
             <div class="detail-card">
-                <h3>Basic Information</h3>
+                <h3>Общая информация</h3>
                 <p><strong>Publisher:</strong> ${book.publisher || 'N/A'}</p>
                 <p><strong>ISBN:</strong> ${book.isbn || book.number || 'N/A'}</p>
                 <p><strong>Pages:</strong> ${book.pages || 'N/A'}</p>
@@ -296,7 +296,7 @@ const renderReviewsList = (reviews) => {
 
             reviewElement.innerHTML = `
                 <div class="review-header">
-                    <span class="review-author">${review.user?.nickname || 'Anonymous'}</span>
+                    <span class="review-author">${review.user?.nickname || review.guest_name}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
                 <div class="review-rating">Rating: ${ratingDisplay}</div>

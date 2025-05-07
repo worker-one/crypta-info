@@ -18,6 +18,8 @@ let bookLinkBreadcrumb;
 let pageErrorContainer;
 let pageLoadingIndicator;
 let reviewSectionContainer;
+let guestNameGroup; // Added for guest name input
+let guestNameInput; // Added for guest name input
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -94,10 +96,12 @@ export const renderReviewsList = (reviews) => { // Added export
             const reviewElement = document.createElement('div');
             reviewElement.classList.add('review-item');
             const ratingValue = review.rating; // Assuming 'rating' field
+            
+            const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
 
             reviewElement.innerHTML = `
                 <div class="review-header">
-                    <span class="review-author">${review.user.nickname}</span>
+                    <span class="review-author">${authorName}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
                 <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
@@ -171,11 +175,6 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
 
     const authToken = getAccessToken();
     console.log('Auth token present:', !!authToken);
-    if (!authToken) {
-        displayErrorMessage('review-submit-error', 'You must be logged in to submit a review.');
-        showElement(reviewSubmitError);
-        return;
-    }
 
     clearErrorMessage('review-submit-error');
     hideElement(reviewSubmitError);
@@ -191,6 +190,7 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
 
     const commentText = document.getElementById('review-text').value;
     let ratingValue = null;
+    let guestNameValue = null;
 
     const selectedRatingInput = reviewRatingInputContainer?.querySelector('.single-rating input[type="radio"]:checked');
 
@@ -199,6 +199,17 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
         console.log('Rating selected:', ratingValue);
     } else {
         console.log('No rating selected.');
+    }
+
+    if (!authToken) {
+        guestNameValue = guestNameInput?.value.trim();
+        if (!guestNameValue) {
+            displayErrorMessage('review-submit-error', 'Please provide your name as a guest.');
+            showElement(reviewSubmitError);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Review';
+            return;
+        }
     }
 
     if (!commentText || commentText.trim().length < 3) {
@@ -220,6 +231,10 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
         comment: commentText.trim(),
         rating: ratingValue,
     };
+
+    if (!authToken && guestNameValue) {
+        reviewData.guest_name = guestNameValue;
+    }
     console.log('Review data prepared:', reviewData);
 
     try {
@@ -337,16 +352,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     reviewsListContainer = document.getElementById('reviews-list');
     reviewsLoadingIndicator = document.getElementById('reviews-loading');
     reviewsErrorContainer = document.getElementById('reviews-error');
-    addReviewSection = document.getElementById('add-review-section');
+    addReviewSection = document.getElementById('add-review-section'); // Should always be found if reviewForm is
     reviewRatingInputContainer = document.getElementById('review-rating-input-container');
     reviewSubmitError = document.getElementById('review-submit-error');
     reviewSubmitSuccess = document.getElementById('review-submit-success');
-    loginPrompt = document.getElementById('login-prompt-review');
+    loginPrompt = document.getElementById('login-prompt-review'); // For hiding it
     bookNameHeading = document.getElementById('book-name-heading');
     bookLinkBreadcrumb = document.getElementById('book-link-breadcrumb');
     pageErrorContainer = document.getElementById('page-error');
     pageLoadingIndicator = document.getElementById('page-loading');
     reviewSectionContainer = document.getElementById('review-section');
+    guestNameGroup = document.getElementById('guest-name-group'); // Assign guest name group
+    guestNameInput = document.getElementById('guest-name'); // Assign guest name input
     // --- End Assign DOM Elements ---
 
     console.log('Initializing dedicated book reviews page...'); // Log that full init is proceeding
@@ -400,14 +417,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         updatePageUI(book.name, bookId); // Update heading, breadcrumb, tabs
 
         showElement(reviewSectionContainer);
+        showElement(addReviewSection); // Ensure add review section is visible
 
         await loadReviews(bookId); // Load reviews for this book ID
         setupSortingButtons(); // Setup sorting after loading
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);
-            showElement(addReviewSection);
-            console.log('Checking if review form exists before adding listener:', reviewForm);
+            hideElement(guestNameGroup); // Hide guest name field if logged in
             // The check 'if (reviewForm)' is now redundant here because we exit early if it's null,
             // but keeping it doesn't hurt.
             if (reviewForm) {
@@ -420,8 +437,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showElement(reviewSubmitError);
             }
         } else {
-            hideElement(addReviewSection);
-            showElement(loginPrompt);
+            showElement(guestNameGroup); // Show guest name field if not logged in
+            hideElement(loginPrompt); // Hide "login to review" prompt as guests can review
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', (event) => handleReviewSubmit(event, bookId));
+                console.log('Submit event listener added to review form for guest.');
+            } else {
+                console.error('Review form element not found when trying to add submit listener for guest (unexpected).');
+            }
         }
 
     } catch (error) {

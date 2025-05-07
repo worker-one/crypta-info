@@ -21,6 +21,56 @@
             padding-top: 1.5rem;
             border-top: 1px solid #eee;
         }
+
+        /* Styles for Rating Histogram */
+        .reviews-histogram-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .stat-item__stars {
+            display: flex;
+            margin-right: 10px;
+            width: 100px; /* Adjust as needed */
+        }
+        .stat-item__star {
+            width: 16px; /* Size of a star */
+            height: 16px;
+            background-color: #f39c12; /* Filled star color */
+            margin-right: 2px;
+            /* Basic star shape using clip-path, or use an SVG/font icon */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .stat-item__star--empty {
+            background-color: #ddd; /* Empty star color */
+        }
+        .stat-item__progress {
+            flex-grow: 1;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-right: 10px;
+            overflow: hidden; /* Ensures progress bar stays within bounds */
+        }
+        .stat-item__progress-bar {
+            height: 100%;
+            background-color: #f39c12; /* Progress bar color */
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+        .stat-item__percents {
+            width: 50px; /* Adjust as needed */
+            text-align: right;
+            font-size: 0.9em;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -60,13 +110,17 @@
                 </nav>
 
                 <h1 id="exchange-name-heading">Exchange Reviews</h1> <!-- JS will populate this -->
-
                 <!-- Reviews Section -->
                 <div id="review-section">
                     <div id="reviews-container">
                         <div id="reviews-loading" class="loading-message">Loading reviews...</div>
                         <div id="reviews-error" class="error-message"></div>
                         <!-- Add container for sort buttons -->
+                        
+                        <!-- Histogram Container -->
+                        <div id="reviews-histogram-container" class="reviews-histogram-container">
+                            <!-- Histogram will be loaded here by JS -->
+                        </div>
                         <div id="review-sort-controls-container">
                             <!-- Sorting buttons will be dynamically added here by JS if not present -->
                             <!-- Or you can add them directly here if preferred -->
@@ -76,7 +130,7 @@
                         </div>
                     </div>
 
-                    <div id="add-review-section" class="hidden"> <!-- Initially hidden, shown for logged-in users -->
+                    <div id="add-review-section"> <!-- Always shown, guest_name field toggled by JS -->
                         <h3>Add Your Review</h3>
                         <form id="review-form">
                             <!-- Container for the single rating input -->
@@ -99,12 +153,16 @@
                                 <label for="review-text">Your Review:</label>
                                 <textarea id="review-text" name="review-text" rows="5" required></textarea>
                             </div>
+                            <div id="guest-name-input-container" class="form-group hidden"> <!-- Hidden by default -->
+                                <label for="guest-name">Your Name (as Guest):</label>
+                                <input type="text" id="guest-name" name="guest-name" class="form-control">
+                            </div>
                             <button type="submit" class="btn btn-primary">Submit Review</button>
                             <div id="review-submit-error" class="error-message"></div>
                             <div id="review-submit-success" class="success-message"></div>
                         </form>
                     </div>
-                    <!-- Login Prompt -->
+                    <!-- Login Prompt - Now hidden as guests can also review -->
                     <div id="login-prompt-review" class="message info-message hidden">
                         You need to <a href="login.html">sign in</a> to add your review.
                     </div>

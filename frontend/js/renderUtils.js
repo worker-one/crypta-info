@@ -204,33 +204,34 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
 
             // --- Create Table Cells (td) ---
 
-            // 0. Number Cell (NEW)
+            // 0. Number Cell
             const numberTd = document.createElement('td');
-            numberTd.className = 'number-cell'; // Add class for potential styling
-            numberTd.setAttribute('data-label', '#'); // Label for card view
-            numberTd.textContent = index + 1; // Display 1-based index
-            tr.appendChild(numberTd); // Add it first
+            numberTd.className = 'number-cell';
+            numberTd.setAttribute('data-label', '#');
+            numberTd.textContent = index + 1;
+            tr.appendChild(numberTd);
 
-            // 1. Logo Cell
-            const logoTd = document.createElement('td');
-            logoTd.className = 'logo-cell';
-            logoTd.setAttribute('data-label', 'Exchange');
+            // 1. Logo & Name Cell (Combined)
+            const nameTd = document.createElement('td');
+            nameTd.className = 'name-cell'; // Keep class, adjust content
+            nameTd.setAttribute('data-label', 'Exchange'); // Use combined label
+            // Create and append logo
             const logoImg = document.createElement('img');
             logoImg.src = exchange.logo_url || '../assets/images/logo-placeholder.png';
             logoImg.alt = `${exchange.name} Logo`;
-            logoImg.loading = 'lazy'; // Lazy load logos
-            logoTd.appendChild(logoImg);
-
-            tr.appendChild(logoTd);
-
-            // 2. Name Cell
-            const nameTd = document.createElement('td');
-            nameTd.className = 'name-cell';
-            nameTd.setAttribute('data-label', 'Name');
-            nameTd.textContent = exchange.name;
+            logoImg.loading = 'lazy';
+            logoImg.style.height = '20px'; // Consistent styling
+            logoImg.style.width = 'auto';
+            logoImg.style.marginRight = '4px'; // Reduced space
+            logoImg.style.verticalAlign = 'middle';
+            nameTd.appendChild(logoImg);
+            // Create and append name text
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = exchange.name;
+            nameTd.appendChild(nameSpan);
             tr.appendChild(nameTd);
 
-            // 3. Rating Cell
+            // 2. Rating Cell
             const ratingTd = document.createElement('td');
             ratingTd.className = 'rating-cell';
             ratingTd.setAttribute('data-label', 'Rating');
@@ -241,7 +242,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             ratingTd.appendChild(ratingSpan);
             tr.appendChild(ratingTd);
 
-            // 4. Reviews Cell
+            // 3. Reviews Cell
             const reviewsTd = document.createElement('td');
             reviewsTd.className = 'reviews-cell';
             reviewsTd.setAttribute('data-label', 'Reviews');
@@ -258,7 +259,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             reviewsTd.appendChild(reviewsLink);
             tr.appendChild(reviewsTd);
 
-            // 5. Volume Cell
+            // 4. Volume Cell
             const volumeTd = document.createElement('td');
             volumeTd.className = 'volume-cell';
             volumeTd.setAttribute('data-label', 'Volume');
@@ -266,16 +267,27 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             volumeTd.textContent = volumeValue ? '$' + volumeValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
             tr.appendChild(volumeTd);
 
-            // 6. Info Cell
-            const infoTd = document.createElement('td');
-            infoTd.className = 'info-cell';
-            infoTd.setAttribute('data-label', 'Info');
-            const year = exchange.year_founded || '??';
-            const country = exchange.registration_country?.name || 'Unknown';
-            infoTd.textContent = `Est: ${year}, ${country}`; // Simplified info
-            tr.appendChild(infoTd);
+            // 5. P2P Cell
+            const p2pTd = document.createElement('td');
+            p2pTd.className = 'p2p-cell'; // Add specific class
+            p2pTd.setAttribute('data-label', 'P2P');
+            p2pTd.innerHTML = exchange.has_p2p ?
+                '<img src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" alt="Yes" width="25" height="25" style="vertical-align: middle;">' :
+                '<img src="https://img.icons8.com/?size=100&id=8112&format=png&color=FA5252" alt="No" width="25" height="25" style="vertical-align: middle;">';
+            p2pTd.style.textAlign = 'center';
+            tr.appendChild(p2pTd);
 
-            // 7. Action Cell (Now contains the Website button)
+            // 6. KYC Cell
+            const kycTd = document.createElement('td');
+            kycTd.className = 'kyc-cell'; // Add specific class
+            kycTd.setAttribute('data-label', 'KYC');
+            kycTd.innerHTML = exchange.has_kyc ?
+                '<img src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" alt="Yes" width="25" height="25" style="vertical-align: middle;">' :
+                '<img src="https://img.icons8.com/?size=100&id=8112&format=png&color=FA5252" alt="No" width="25" height="25" style="vertical-align: middle;">';
+            kycTd.style.textAlign = 'center';
+            tr.appendChild(kycTd);
+
+            // 7. Action Cell
             const actionTd = document.createElement('td');
             actionTd.className = 'action-cell';
             actionTd.setAttribute('data-label', 'Action'); // Keep label for card view consistency
@@ -303,7 +315,7 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
         // Display a "no results" message within the table structure
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        const columnCount = tbody.previousElementSibling?.rows?.[0]?.cells?.length || 8; // Updated column count to 8
+        const columnCount = tbody.previousElementSibling?.rows?.[0]?.cells?.length || 7; // Updated column count to 7
         td.colSpan = columnCount; // Span across all columns
         td.textContent = 'No exchanges found matching your criteria.';
         td.style.textAlign = 'center';

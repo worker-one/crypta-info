@@ -13,6 +13,8 @@ const reviewRatingInputContainer = document.getElementById('review-rating-input-
 const reviewSubmitError = document.getElementById('review-submit-error');
 const reviewSubmitSuccess = document.getElementById('review-submit-success');
 const loginPrompt = document.getElementById('login-prompt-review');
+const guestNameInputContainer = document.getElementById('guest-name-input-container');
+const guestNameInput = document.getElementById('guest-name');
 
 const exchangeNameHeading = document.getElementById('exchange-name-heading');
 const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
@@ -21,6 +23,7 @@ const pageLoadingIndicator = document.getElementById('page-loading'); // General
 const reviewSectionContainer = document.getElementById('review-section'); // Main content container
 const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Added
 const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Added
+const reviewsHistogramContainer = document.getElementById('reviews-histogram-container'); // Added
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -86,6 +89,77 @@ const updateSortButtonCounts = () => {
 };
 
 /**
+ * Renders a rating histogram based on the current reviews.
+ * @param {Array<object>} reviews - The array of review objects.
+ */
+const renderRatingHistogram = (reviews) => {
+    if (!reviewsHistogramContainer) {
+        console.warn("Histogram container not found.");
+        return;
+    }
+    reviewsHistogramContainer.innerHTML = ''; // Clear previous histogram
+
+    if (!reviews || reviews.length === 0) {
+        // reviewsHistogramContainer.innerHTML = '<p>No rating data available to display histogram.</p>';
+        return;
+    }
+
+    const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let totalReviewsWithRating = 0;
+
+    reviews.forEach(review => {
+        if (review.rating >= 1 && review.rating <= 5) {
+            ratingCounts[review.rating]++;
+            totalReviewsWithRating++;
+        }
+    });
+
+    if (totalReviewsWithRating === 0) {
+        reviewsHistogramContainer.innerHTML = '<p>No valid ratings found to display histogram.</p>';
+        return;
+    }
+
+    const statContainer = document.createElement('div');
+    statContainer.className = 'stat';
+
+    for (let i = 5; i >= 1; i--) {
+        const count = ratingCounts[i];
+        const percentage = totalReviewsWithRating > 0 ? (count / totalReviewsWithRating) * 100 : 0;
+
+        const statItem = document.createElement('div');
+        statItem.className = 'stat-item';
+
+        const starsDiv = document.createElement('div');
+        starsDiv.className = 'stat-item__stars';
+        for (let j = 0; j < 5; j++) {
+            const star = document.createElement('div');
+            star.className = 'stat-item__star';
+            if (j >= i) {
+                star.classList.add('stat-item__star--empty');
+            }
+            starsDiv.appendChild(star);
+        }
+
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'stat-item__progress';
+        const progressBar = document.createElement('div');
+        progressBar.className = 'stat-item__progress-bar';
+        progressBar.style.width = `${percentage.toFixed(0)}%`; // Use toFixed(0) for whole numbers
+        progressDiv.appendChild(progressBar);
+
+        const percentsDiv = document.createElement('div');
+        percentsDiv.className = 'stat-item__percents';
+        percentsDiv.textContent = `${percentage.toFixed(0)}%`;
+
+        statItem.appendChild(starsDiv);
+        statItem.appendChild(progressDiv);
+        statItem.appendChild(percentsDiv);
+        statContainer.appendChild(statItem);
+    }
+    reviewsHistogramContainer.appendChild(statContainer);
+};
+
+/**
  * Renders a list of reviews into the DOM.
  * Displays the single 'rating' property.
  * Assumes the API returns 'rating' instead of 'ratings'.
@@ -103,7 +177,7 @@ const renderReviewsList = (reviews) => {
 
             reviewElement.innerHTML = `
                 <div class="review-header">
-                    <span class="review-author">${review.user.nickname}</span>
+                    <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
                 <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
@@ -133,6 +207,7 @@ const loadReviews = async (exchangeId) => {
 
     showElement(reviewsLoadingIndicator);
     hideElement(reviewsErrorContainer);
+    if (reviewsHistogramContainer) reviewsHistogramContainer.innerHTML = ''; // Clear histogram
     reviewsListContainer.innerHTML = '';
     currentReviews = [];
     updateSortButtonCounts();
@@ -144,9 +219,11 @@ const loadReviews = async (exchangeId) => {
         if (reviewsData && reviewsData.items) {
             currentReviews = reviewsData.items;
             renderReviewsList(currentReviews);
+            renderRatingHistogram(currentReviews); // Add this call
         } else {
             currentReviews = [];
             reviewsListContainer.innerHTML = '<p>No reviews yet. Be the first to add one!</p>';
+            renderRatingHistogram([]); // Render empty/message for histogram
         }
         updateSortButtonCounts();
     } catch (error) {
@@ -154,6 +231,7 @@ const loadReviews = async (exchangeId) => {
         hideElement(reviewsLoadingIndicator);
         currentReviews = [];
         updateSortButtonCounts();
+        renderRatingHistogram([]); // Render empty/message for histogram
         reviewsListContainer.innerHTML = '';
         displayErrorMessage('reviews-error', `Failed to load reviews. ${error.message}`);
         showElement(reviewsErrorContainer);
@@ -174,14 +252,6 @@ const handleReviewSubmit = async (event, exchangeId) => {
         return;
     }
     console.log('Review form found:', reviewForm);
-
-    const authToken = getAccessToken();
-    console.log('Auth token present:', !!authToken);
-    if (!authToken) {
-        displayErrorMessage('review-submit-error', 'You must be logged in to submit a review.');
-        showElement(reviewSubmitError);
-        return;
-    }
 
     clearErrorMessage('review-submit-error');
     hideElement(reviewSubmitError);
@@ -226,6 +296,27 @@ const handleReviewSubmit = async (event, exchangeId) => {
         comment: commentText.trim(),
         rating: ratingValue,
     };
+
+    if (!isLoggedIn()) {
+        const guestName = guestNameInput.value.trim();
+        if (!guestName) {
+            displayErrorMessage('review-submit-error', 'Please provide your name as a guest.');
+            showElement(reviewSubmitError);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Review';
+            guestNameInput.focus();
+            return;
+        }
+        if (guestName.length > 100) {
+            displayErrorMessage('review-submit-error', 'Guest name cannot exceed 100 characters.');
+            showElement(reviewSubmitError);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Review';
+            guestNameInput.focus();
+            return;
+        }
+        reviewData.guest_name = guestName;
+    }
     console.log('Review data prepared:', reviewData);
 
     try {
@@ -305,6 +396,7 @@ function setupSortingButtons() {
             console.log('Sort Positive clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => (b.rating || 0) - (a.rating || 0));
             renderReviewsList(sortedReviews);
+            // Histogram is based on all reviews, so it doesn't need re-rendering on sort
         });
     } else {
         console.warn('Sort Positive button not found during setup');
@@ -315,6 +407,7 @@ function setupSortingButtons() {
             console.log('Sort Negative clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => (a.rating || 0) - (b.rating || 0));
             renderReviewsList(sortedReviews);
+            // Histogram is based on all reviews, so it doesn't need re-rendering on sort
         });
     } else {
         console.warn('Sort Negative button not found during setup');
@@ -356,6 +449,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Always show the review form section, hide login prompt
+    showElement(addReviewSection);
+    hideElement(loginPrompt);
+
     try {
         showElement(pageLoadingIndicator);
         hideElement(pageErrorContainer);
@@ -375,19 +472,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadReviews(exchangeId);
         setupSortingButtons();
 
+        // Configure form based on login state
         if (isLoggedIn()) {
-            hideElement(loginPrompt);
-            showElement(addReviewSection);
-            console.log('Checking if review form exists before adding listener:', reviewForm);
-            reviewForm?.addEventListener('submit', (event) => handleReviewSubmit(event, exchangeId));
-            if (!reviewForm) {
-                console.error('Review form element not found when trying to add submit listener.');
-            } else {
-                console.log('Submit event listener added to review form.');
-            }
+            hideElement(guestNameInputContainer);
+            guestNameInput.required = false;
         } else {
-            hideElement(addReviewSection);
-            showElement(loginPrompt);
+            showElement(guestNameInputContainer);
+            guestNameInput.required = true;
+        }
+        
+        console.log('Checking if review form exists before adding listener:', reviewForm);
+        reviewForm?.addEventListener('submit', (event) => handleReviewSubmit(event, exchangeId));
+        if (!reviewForm) {
+            console.error('Review form element not found when trying to add submit listener.');
+        } else {
+            console.log('Submit event listener added to review form.');
         }
 
     } catch (error) {

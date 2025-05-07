@@ -7,7 +7,7 @@ from typing import Optional
 from app.core.database import get_async_db
 from app.reviews import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse, Message
-from app.dependencies import get_current_active_user, get_current_admin_user
+from app.dependencies import get_current_active_user, get_current_admin_user, get_optional_current_active_user  # Assuming get_optional_current_active_user exists
 from app.models.user import User
 from app.models.review import ModerationStatusEnum
 from app.reviews.schemas import ItemReviewCreate, ReviewAdminUpdatePayload, ReviewFilterParams, ReviewSortBy
@@ -123,24 +123,54 @@ async def create_review_for_item(
     item_id: int,
     review_in: ItemReviewCreate = Body(...),
     db: AsyncSession = Depends(get_async_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: Optional[User] = Depends(get_optional_current_active_user),  # User is now optional
 ):
-    """Create a new review for a specific item. Requires authentication."""
+    """
+    Create a new review for a specific item.
+    - If 'guest_name' is provided in the payload, the user must NOT be authenticated.
+    - If 'guest_name' is NOT provided, the user MUST be authenticated.
+    """
     if review_in.item_id != item_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Item ID in path does not match item ID in request body."
         )
 
+    user_id_for_service: Optional[int] = None
+
+    if review_in.guest_name:
+        # Guest review
+        if current_user:
+            # Authenticated user trying to submit as guest
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Authenticated users cannot submit reviews with guest_name. Please omit guest_name."
+            )
+        # user_id_for_service remains None, service layer will use review_in.guest_name
+    else:
+        # Authenticated user review (guest_name is not provided)
+        if not current_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication is required to submit a review without providing guest_name."
+            )
+        user_id_for_service = current_user.id
+
     try:
         created_review = await service.review_service.create_review(
-            db=db, review_in=review_in, user_id=current_user.id
+            db=db, review_in=review_in, user_id=user_id_for_service
         )
         return created_review
     except HTTPException as e:
         raise e
+    except IntegrityError as e:
+        print(f"Database integrity error while creating review: {e}")  # Log for debugging
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This review cannot be created, possibly due to a duplicate entry or data conflict."
+        )
     except Exception as e:
-        print(f"Unexpected error creating review: {e}")
+        print(f"Unexpected error creating review: {e}")  # Log for debugging
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred while creating the review.")
 
 

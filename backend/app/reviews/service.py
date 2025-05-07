@@ -148,18 +148,37 @@ class ReviewService:
         self,
         db: AsyncSession,
         review_in: ItemReviewCreate,
-        user_id: int
+        user_id: Optional[int] # Changed to Optional[int]
     ) -> Review:
         """Creates a new review for an item. Does NOT update item stats here."""
         item = await db.get(Item, review_in.item_id)
         if not item:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
+        # Validation for user_id and guest_name
+        if user_id and review_in.guest_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot submit review as both a logged-in user and a guest. Do not provide guest_name if authenticated."
+            )
+        if not user_id and not review_in.guest_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A review must be associated with a user or a guest_name must be provided."
+            )
+        if not user_id and review_in.guest_name and not review_in.guest_name.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Guest name cannot be empty or whitespace."
+            )
+
+
         db_review = Review(
             comment=review_in.comment,
             rating=review_in.rating, # Store the single rating
             item_id=review_in.item_id,
             user_id=user_id,
+            guest_name=review_in.guest_name if not user_id else None,
             moderation_status=ModerationStatusEnum.pending
         )
         db.add(db_review)

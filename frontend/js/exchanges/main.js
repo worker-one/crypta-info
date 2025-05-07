@@ -272,8 +272,8 @@ async function loadHomepageExchanges(params = {}) {
             if (data.items.length === 0) {
                 const row = tbody.insertRow();
                 const cell = row.insertCell();
-                // Adjust colspan based on the final number of columns (9)
-                cell.colSpan = 9; // Updated colspan
+                // Adjust colspan based on the final number of columns (8)
+                cell.colSpan = 8; // Updated colspan
                 cell.textContent = 'No exchanges found matching your criteria.';
                 cell.style.textAlign = 'center';
             } else {
@@ -289,8 +289,12 @@ async function loadHomepageExchanges(params = {}) {
                     const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
                     const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined,
                         { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
-                    const p2pIcon = exchange.has_p2p ? '✅' : '❌';
-                    const kycIcon = exchange.has_kyc ? '✅' : '❌';
+                    const p2pIcon = exchange.has_p2p ? 
+                        '<div style="text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
+                        '<div style="text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
+                    const kycIcon = exchange.has_kyc ? 
+                        '<div style="text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
+                        '<div style="text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
 
                     // Populate cells according to the new header structure and center content
                     let cell;
@@ -301,24 +305,32 @@ async function loadHomepageExchanges(params = {}) {
                     cell.style.textAlign = 'center';
                     cell.style.verticalAlign = 'middle';
 
-                    // Logo Cell
-                    const logoCell = row.insertCell();
+                    // Logo & Name Cell (Combined)
+                    const nameCell = row.insertCell();
+                    nameCell.style.display = 'flex'; // Use flex layout
+                    nameCell.style.alignItems = 'center'; // Align items vertically
+                    nameCell.style.justifyContent = 'flex-start'; // Start alignment
+                    nameCell.style.padding = '16px'; // Add some padding
+                    
+                    // Create image element
                     const img = document.createElement('img');
                     img.src = exchange.logo_url || 'assets/images/logo-placeholder.png';
                     img.alt = `${exchange.name} Logo`;
-                    img.className = 'exchange-logo-small'; // Add a class for potential styling
-                    img.style.height = '20px'; // Example inline style
-                    img.style.width = 'auto';
-                    img.style.display = 'block'; // Needed for centering block element
-                    img.style.margin = '0 auto'; // Center image horizontally
-                    logoCell.appendChild(img);
-                    logoCell.style.verticalAlign = 'middle'; // Vertical align cell content
-
-                    // Name Cell
-                    cell = row.insertCell();
-                    cell.textContent = exchange.name;
-                    cell.style.textAlign = 'center';
-                    cell.style.verticalAlign = 'middle';
+                    img.className = 'exchange-logo-small';
+                    img.style.height = '40px';
+                    img.style.width = '40px';
+                    img.style.marginRight = '8px'; // Space between logo and name
+                    img.style.flexShrink = '0'; // Prevent logo from shrinking
+                    img.style.position = 'relative'; // Add position relative
+                    img.style.top = '4px'; // Move down by 4 pixels
+                    
+                    // Create span for name
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = exchange.name;
+                    
+                    // Append image and name to the cell
+                    nameCell.appendChild(img);
+                    nameCell.appendChild(nameSpan);
 
                     // Rating Cell
                     cell = row.insertCell();
@@ -394,7 +406,7 @@ async function loadHomepageExchanges(params = {}) {
              if (tbody) { // Check if tbody exists before trying to insert
                 const row = tbody.insertRow();
                 const cell = row.insertCell();
-                cell.colSpan = 9; // Match new column count
+                cell.colSpan = 8; // Match new column count
                 cell.textContent = 'Could not load exchange data or no exchanges found.';
                 cell.style.textAlign = 'center';
             }

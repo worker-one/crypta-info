@@ -1,7 +1,7 @@
 <!-- Add this link in the <head> section of your HTML -->
 <link rel="stylesheet" href="css/star-rating.css">
 
-<section id="add-review-section" class="add-review-section hidden">
+<section id="add-review-section" class="add-review-section"> <!-- Removed hidden class -->
     <h2>Add Your Review</h2>
     <form id="review-form">
         <!-- Container for the single rating input -->
@@ -21,6 +21,11 @@
             </div>
         </div>
 
+        <div class="form-group hidden" id="guest-name-group"> <!-- Added guest name input, initially hidden -->
+            <label for="guest-name">Your Name (Guest):</label>
+            <input type="text" id="guest-name" name="guest-name" class="form-control">
+        </div>
+
         <div class="form-group">
             <label for="review-text">Your Review:</label>
             <textarea id="review-text" name="review-text" rows="4" required minlength="3"></textarea>
@@ -30,6 +35,10 @@
         <button type="submit" class="btn btn-primary">Submit Review</button>
     </form>
 </section>
+
+<div id="login-prompt-review" class="message info-message hidden"> <!-- This will be kept hidden by JS if guest reviews are enabled -->
+    You need to <a href="login.html">sign in</a> to add your review.
+</div>
 
 <div id="review-sort-controls-container">
     <!-- Sorting buttons will be dynamically added here by JS if not present -->

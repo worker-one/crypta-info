@@ -39,6 +39,11 @@ class ExchangeBase(BaseModel):
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
     has_kyc: bool = False
     has_p2p: bool = False
+    has_copy_trading: bool = False
+    has_staking: bool = False
+    has_futures: bool = False
+    has_spot_trading: bool = False
+    has_demo_trading: bool = False
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
     maker_fee_min: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
     maker_fee_max: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
@@ -66,6 +71,11 @@ class ExchangeUpdate(ExchangeBase):
     overview: Optional[str] = None
     has_kyc: Optional[bool] = None
     has_p2p: Optional[bool] = None
+    has_copy_trading: Optional[bool] = None
+    has_staking: Optional[bool] = None
+    has_futures: Optional[bool] = None
+    has_spot_trading: Optional[bool] = None
+    has_demo_trading: Optional[bool] = None
      # Allow updating related IDs - service needs to handle this
     available_in_country_ids: Optional[List[int]] = None
     language_ids: Optional[List[int]] = None
@@ -85,6 +95,11 @@ class ExchangeReadBrief(BaseModel):
     registration_country: Optional[CountryRead] = None # Only basic info
     has_kyc: bool = False
     has_p2p: bool = False
+    has_copy_trading: bool = False
+    has_staking: bool = False
+    has_futures: bool = False
+    has_spot_trading: bool = False
+    has_demo_trading: bool = False
     class Config:
         from_attributes = True
 
@@ -125,6 +140,11 @@ class ExchangeFilterParams(BaseModel):
     min_total_review_count: Optional[int] = None
     max_total_review_count: Optional[int] = None
     has_p2p: Optional[bool] = None
+    has_copy_trading: Optional[bool] = None
+    has_staking: Optional[bool] = None
+    has_futures: Optional[bool] = None
+    has_spot_trading: Optional[bool] = None
+    has_demo_trading: Optional[bool] = None
 
 class ExchangeSortBy(BaseModel):
     field: Literal['name', 'overall_average_rating', 'trading_volume_24h', 'total_review_count'] = 'overall_average_rating'

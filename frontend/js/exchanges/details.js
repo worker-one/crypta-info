@@ -5,6 +5,7 @@ import { isLoggedIn, handleLogout } from '../auth.js';
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
+let reviewsTabLink; // Declare reviewsTabLink in module scope
 
 // --- DOM Elements (Moved review elements here) ---
 const reviewsList = document.getElementById('reviews-list');
@@ -63,9 +64,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overviewContent = document.getElementById('overview-content'); // Container for overview tab
     const newsTabLink = document.getElementById('tab-news');
     const guideTabLink = document.getElementById('tab-guide');
-    const reviewsTabLink = document.getElementById('tab-reviews');
+    reviewsTabLink = document.getElementById('tab-reviews'); // Assign to module-scoped variable
     const overviewTabLink = document.getElementById('tab-overview'); // Added overview tab link
     const addReviewLink = document.getElementById('add-review-link'); // Get the add review link
+    const websiteTabLink = document.getElementById('tab-website'); // Get the new website tab link
     console.log('DOM elements retrieved');
 
     if (!slug) { // If 'slug' is not found in the URL
@@ -104,6 +106,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(`Fetching exchange details for slug: ${slug}`);
         const exchange = await getExchangeDetails(slug);
         console.log("Exchange details received:", exchange);
+
+        // Show/hide website tab link
+        if (exchange.website_url) {
+            if (websiteTabLink) {
+                websiteTabLink.href = exchange.website_url;
+                websiteTabLink.classList.remove('hidden');
+            }
+        }
         
         // Hide loading, show content
         console.log('Updating UI visibility...');
@@ -160,42 +170,49 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             <div class="details">
             <div class="detail-card">
-                <h3>Basic Information</h3>
-                <p><strong>Registration Country:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
-                <p><strong>Сайт:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
-                <p><strong>KYC:</strong> ${exchange.has_kyc || 'N/A'}</p>
-                <p>
-                <strong>P2P Available:</strong>
-                ${exchange.has_p2p ? '<span class="available">Yes</span>' : '<span class="unavailable">No</span>'}
+                <h3>Общая информация</h3>
+                <p><strong>Юрисдикция:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>KYC/Верификация:</strong>
+                <img src="${exchange.has_kyc ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_kyc ? 'Yes' : 'No'}" width="25" height="25">
                 </p>
+                <p><strong>Сайт:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
             </div>
             
             <div class="detail-card">
-                <h3>Fee Structure</h3>
+                <h3>Сервисы</h3>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>Копитрейдинг:</strong>
+                <img src="${exchange.has_copy_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_copy_trading ? 'Yes' : 'No'}" width="25" height="25">
+                </p>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>P2P Обмен:</strong>
+                <img src="${exchange.has_p2p ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_p2p ? 'Yes' : 'No'}" width="25" height="25">
+                </p>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>Стейкинг:</strong>
+                <img src="${exchange.has_staking ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_staking ? 'Yes' : 'No'}" width="25" height="25">
+                </p>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>Фьючерсы:</strong>
+                <img src="${exchange.has_futures ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_futures ? 'Yes' : 'No'}" width="25" height="25">
+                </p>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>Спотовая торговля:</strong>
+                <img src="${exchange.has_spot_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_spot_trading ? 'Yes' : 'No'}" width="25" height="25">
+                </p>
+                <p style="display: flex; align-items: center; justify-content: space-between;">
+                <strong>Демо трейдинг:</strong>
+                <img src="${exchange.has_demo_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_demo_trading ? 'Yes' : 'No'}" width="25" height="25">
+                </p>
+            </div>
+
+            <div class="detail-card">
+                <h3>Комиссии, бонусы</h3>
                 <p><strong>Maker Fee:</strong> ${exchange.maker_fee ? parseFloat(exchange.maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
                 <p><strong>Taker Fee:</strong> ${exchange.taker_fee ? parseFloat(exchange.taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
                 <p><strong>Withdrawal Fee:</strong> ${exchange.withdrawal_fee ? exchange.withdrawal_fee : 'Varies by cryptocurrency'}</p>
                 <p><strong>Deposit Methods:</strong> ${exchange.deposit_methods || 'Information not available'}</p>
-            </div>
-            
-            ${exchange.license_details && exchange.license_details.length > 0 ? `
-                <div class="detail-card">
-                <h3>Regulatory Information</h3>
-                ${renderListWithMore(
-                    exchange.license_details,
-                    license => `<li><strong>${license.country.name}:</strong> ${license.license_number}</li>`,
-                    'licenses'
-                )}
-                </div>
-            ` : ''}
-            
-            <div class="detail-card">
-                <h3>Supported Fiats</h3>
-                ${renderListWithMore(
-                exchange.supported_fiat_currencies,
-                fiat => `<li>${fiat.code_iso_4217}</li>`,
-                'fiats'
-                )}
             </div>
             
             </div>
@@ -249,9 +266,11 @@ const renderReviewsList = (reviews) => {
             reviewElement.classList.add('review-item');
             const averageRating = review.rating
 
+            const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
+            
             reviewElement.innerHTML = `
                 <div class="review-header">
-                    <span class="review-author">${review.user.nickname}</span>
+                    <span class="review-author">${authorName}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
                 <div class="review-rating">Rating: ${averageRating > 0 ? averageRating.toFixed(1) + ' ★' : 'N/A'}</div>
@@ -274,6 +293,10 @@ const renderReviewsList = (reviews) => {
 async function loadExchangeReviews(exchangeId) {
     console.log(`Loading reviews for exchange ID: ${exchangeId}`);
     const paginationElement = document.getElementById('reviews-pagination');
+
+    if (reviewsTabLink) {
+        reviewsTabLink.textContent = 'Reviews (...)'; // Indicate loading
+    }
 
     if (!reviewsList || !reviewsLoadingElement || !reviewsErrorElement) {
         console.error('Required DOM elements for reviews not found');
@@ -302,6 +325,10 @@ async function loadExchangeReviews(exchangeId) {
         currentReviews = response.items;
         updateSortButtonCounts(); // Update counts after fetching
 
+        if (reviewsTabLink) {
+            reviewsTabLink.textContent = `Reviews (${currentReviews.length})`;
+        }
+
         if (currentReviews.length === 0) {
             console.log('No reviews found for this exchange');
             reviewsList.innerHTML = '<p>No reviews found for this exchange yet.</p>';
@@ -317,6 +344,9 @@ async function loadExchangeReviews(exchangeId) {
         reviewsErrorElement.classList.add('visible');
         currentReviews = [];
         updateSortButtonCounts(); // Update counts on error (to 0)
+        if (reviewsTabLink) {
+            reviewsTabLink.textContent = 'Reviews (0)';
+        }
     }
 }
 

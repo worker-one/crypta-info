@@ -16,6 +16,7 @@ from app.auth.security import decode_token
 from app.auth.service import auth_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False) # For optional authentication
 
 # Add the missing type field to the TokenPayload model
 class TokenPayload(BaseModel):
@@ -58,6 +59,45 @@ async def get_current_user(
     user = await auth_service.get_user_by_id(db=db, user_id=user_id)
     if user is None:
         raise credentials_exception
+    return user
+
+async def get_optional_current_active_user(
+    token: Optional[str] = Depends(oauth2_scheme_optional), # Use the optional scheme
+    db: AsyncSession = Depends(get_async_db)
+) -> Optional[User]:
+    if not token:
+        return None  # No token provided
+
+    try:
+        payload = decode_token(token)
+        if payload is None:
+            return None # Invalid token structure
+
+        # Validate that this is an access token
+        if payload.get("type") != "access":
+            return None # Not an access token
+
+        user_id_str: Optional[str] = payload.get("sub")
+        if user_id_str is None:
+            return None # No user ID in token
+
+        # Validate token hasn't expired
+        token_exp: Optional[int] = payload.get("exp")
+        if token_exp is None or datetime.fromtimestamp(token_exp, tz=timezone.utc) < datetime.now(timezone.utc):
+            return None # Token expired
+
+        user_id = int(user_id_str)
+    except (JWTError, ValueError):
+        return None # Token decoding or parsing error
+
+    user = await auth_service.get_user_by_id(db=db, user_id=user_id)
+    if user is None:
+        return None # User not found
+
+    # Optional: Check if user is active, similar to get_current_active_user
+    # if not user.is_active:
+    #     return None # Inactive user
+
     return user
 
 async def get_current_active_user(

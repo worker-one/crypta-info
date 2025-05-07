@@ -26,8 +26,11 @@ class Review(Base):
     __tablename__ = 'reviews'
     id = Column(Integer, primary_key=True)
 
-    # Foreign key to User remains the same
-    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    # Foreign key to User, now nullable
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
+    
+    # New field for guest name
+    guest_name = Column(String(100), nullable=True)
 
     # *** CHANGE: Link to the generic 'items' table instead of 'exchanges' ***
     item_id = Column(Integer, ForeignKey('items.id', ondelete='CASCADE'), nullable=False, index=True)
@@ -58,6 +61,8 @@ class Review(Base):
         # *** CHANGE: Update index to use item_id ***
         Index('idx_reviews_item_status_date', 'item_id', 'moderation_status', 'created_at'),
         # Index('idx_reviews_user', 'user_id'), # Already indexed via ForeignKey/user_id column def
+        CheckConstraint("NOT (user_id IS NOT NULL AND guest_name IS NOT NULL)", name="cc_review_author_exclusive"),
+        CheckConstraint("user_id IS NOT NULL OR (guest_name IS NOT NULL AND guest_name != '')", name="cc_review_author_required"),
     )
 
 # --- Other Review-related models (ReviewRating, ReviewScreenshot, ReviewUsefulnessVote) ---

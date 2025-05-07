@@ -127,7 +127,7 @@ select {
 /* Add more base styles like typography, variables, etc. */
 :root {
     --primary-color: #007bff;
-    --secondary-color: #6c757d;
+    --secondary-color: #767c80;
     --success-color: #28a745;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
