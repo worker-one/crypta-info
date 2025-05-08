@@ -54,17 +54,6 @@ class ExchangeService:
         if filters.has_p2p is not None:
             filter_conditions.append(exchange_models.Exchange.has_p2p == filters.has_p2p)
 
-        # Fee filtering (example)
-        if filters.min_maker_fee is not None:
-            filter_conditions.append(exchange_models.Exchange.maker_fee_max >= filters.min_maker_fee) # Check max is >= min requested
-        if filters.max_maker_fee is not None:
-            filter_conditions.append(exchange_models.Exchange.maker_fee_min <= filters.max_maker_fee) # Check min is <= max requested
-        # Add similar for taker fees
-        if filters.min_taker_fee is not None:
-            filter_conditions.append(exchange_models.Exchange.taker_fee_max >= filters.min_taker_fee)
-        if filters.max_taker_fee is not None:
-            filter_conditions.append(exchange_models.Exchange.taker_fee_min <= filters.max_taker_fee)
-
         # Review count filtering
         if filters.min_total_review_count is not None:
             filter_conditions.append(exchange_models.Exchange.total_review_count >= filters.min_total_review_count)

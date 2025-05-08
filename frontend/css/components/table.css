@@ -71,6 +71,7 @@
      opacity: 0.3;
      border: none; /* Remove triangle borders */
      font-size: 0.8em;
+     vertical-align: middle;
 }
 
 .data-table th.sorted-asc::after,

@@ -290,11 +290,11 @@ async function loadHomepageExchanges(params = {}) {
                     const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined,
                         { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
                     const p2pIcon = exchange.has_p2p ? 
-                        '<div style="text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
-                        '<div style="text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
+                        '<div style="display: inline-block; text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
+                        '<div style="display: inline-block; text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
                     const kycIcon = exchange.has_kyc ? 
-                        '<div style="text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
-                        '<div style="text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
+                        '<div style="display: inline-block; text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
+                        '<div style="display: inline-block; text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
 
                     // Populate cells according to the new header structure and center content
                     let cell;

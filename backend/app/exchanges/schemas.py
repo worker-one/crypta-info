@@ -3,8 +3,16 @@ from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List, Literal
 from datetime import date, datetime
 from decimal import Decimal
+import enum  # Required for KycTypeEnum
 
 from app.schemas.common import CountryRead, LanguageRead, FiatCurrencyRead, RatingCategoryRead
+
+# Define KycTypeEnum for Pydantic, matching the model's enum
+class KycTypeEnum(str, enum.Enum):
+    NONE = "none"
+    BASIC = "basic"
+    ADVANCED = "advanced"
+    VERIFIED_PLUS = "verified_plus"
 
 # --- License Schemas ---
 class LicenseRead(BaseModel):
@@ -31,27 +39,34 @@ class ExchangeSocialLinkRead(BaseModel):
 # --- Exchange Schemas ---
 class ExchangeBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=255)
-    slug: str = Field(..., min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$") # Basic slug pattern
+    slug: str = Field(..., min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$")  # Basic slug pattern
     description: Optional[str] = None
     overview: Optional[str] = None
     logo_url: Optional[str] = None
     website_url: Optional[str] = None
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
-    has_kyc: bool = False
+
+    has_kyc: Optional[bool] = False
     has_p2p: bool = False
-    has_copy_trading: bool = False
-    has_staking: bool = False
-    has_futures: bool = False
-    has_spot_trading: bool = False
-    has_demo_trading: bool = False
+    has_copy_trading: Optional[bool] = False
+    has_staking: Optional[bool] = False
+    has_futures: Optional[bool] = False
+    has_spot_trading: Optional[bool] = False
+    has_demo_trading: Optional[bool] = False
+
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
-    maker_fee_min: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
-    maker_fee_max: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
-    taker_fee_min: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
-    taker_fee_max: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+
+    spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+
     fee_structure_summary: Optional[str] = None
     security_details: Optional[str] = None
     kyc_aml_policy: Optional[str] = None
+
+    liquidity_score: Optional[Decimal] = Field(None, ge=0, max_digits=5, decimal_places=2)
+    newbie_friendliness_score: Optional[Decimal] = Field(None, ge=0, max_digits=3, decimal_places=2)
 
     # Foreign Key IDs for creation/update - validation might be needed in service
     registration_country_id: Optional[int] = None
@@ -76,7 +91,11 @@ class ExchangeUpdate(ExchangeBase):
     has_futures: Optional[bool] = None
     has_spot_trading: Optional[bool] = None
     has_demo_trading: Optional[bool] = None
-     # Allow updating related IDs - service needs to handle this
+    spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    # Allow updating related IDs - service needs to handle this
     available_in_country_ids: Optional[List[int]] = None
     language_ids: Optional[List[int]] = None
     supported_fiat_currency_ids: Optional[List[int]] = None
@@ -92,14 +111,21 @@ class ExchangeReadBrief(BaseModel):
     total_review_count: int
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
     year_founded: Optional[int] = None
-    registration_country: Optional[CountryRead] = None # Only basic info
-    has_kyc: bool = False
-    has_p2p: bool = False
-    has_copy_trading: bool = False
-    has_staking: bool = False
-    has_futures: bool = False
-    has_spot_trading: bool = False
-    has_demo_trading: bool = False
+    registration_country: Optional[CountryRead] = None  # Only basic info
+
+    has_kyc: bool
+    has_p2p: bool
+    has_copy_trading: bool
+    has_staking: bool
+    has_futures: bool
+    has_spot_trading: bool
+    has_demo_trading: bool
+
+    spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+
     class Config:
         from_attributes = True
 
@@ -108,8 +134,6 @@ class ExchangeRead(ExchangeBase):
     id: int
     overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
     total_review_count: int
-    liquidity_score: Optional[Decimal] = Field(None, max_digits=5, decimal_places=2)
-    newbie_friendliness_score: Optional[Decimal] = Field(None, max_digits=3, decimal_places=2)
     created_at: datetime
     updated_at: datetime
 
@@ -128,13 +152,17 @@ class ExchangeRead(ExchangeBase):
 # --- Filtering and Sorting ---
 class ExchangeFilterParams(BaseModel):
     name: Optional[str] = None
-    country_id: Optional[int] = None # Filter by registration or availability
+    country_id: Optional[int] = None  # Filter by registration or availability
     has_license_in_country_id: Optional[int] = None
     has_kyc: Optional[bool] = None
-    min_maker_fee: Optional[Decimal] = None
-    max_maker_fee: Optional[Decimal] = None
-    min_taker_fee: Optional[Decimal] = None
-    max_taker_fee: Optional[Decimal] = None
+    min_spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    max_spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    min_futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    max_futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    min_spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    max_spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    min_futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    max_futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
     supports_fiat_id: Optional[int] = None
     supports_language_id: Optional[int] = None
     min_total_review_count: Optional[int] = None

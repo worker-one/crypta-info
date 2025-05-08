@@ -15,6 +15,31 @@ const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
 
 /**
+ * Renders a star rating display.
+ * @param {string|number} ratingString - The rating value (e.g., "4.5" or 4.5).
+ * @param {number} maxStars - The maximum number of stars to display (default 5).
+ * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
+ */
+function renderStarRating(ratingString, maxStars = 5) {
+    const rating = parseFloat(ratingString);
+    if (isNaN(rating) || rating < 0) {
+        return 'N/A'; // Return N/A if rating is not a valid number
+    }
+
+    let starsHtml = '';
+    const simpleRoundedRating = Math.round(rating);
+    for (let i = 1; i <= maxStars; i++) {
+        if (i <= simpleRoundedRating) {
+            starsHtml += '★'; // Filled star
+        } else {
+            starsHtml += '☆'; // Empty star
+        }
+    }
+
+    return `${rating.toFixed(1)} ${starsHtml} <span class="numerical-rating"></span>`;
+}
+
+/**
  * Updates the text content of sorting buttons to include review counts.
  */
 const updateSortButtonCounts = () => {
@@ -142,82 +167,97 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         detailContainer.innerHTML = `
-            <div class="logo">
+            <div class="stats-overview">
+
+            
+            <div class="stat-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+            <div class="header-with-logo" style="display: flex; align-items: center; margin-bottom: 0px;">
+            <div class="logo" style="margin-right: 15px;">
             <img src="${exchange.logo_url || '../assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo">
             </div>
-            <h1>${exchange.name}</h1>
-            
+            <h1 style="margin: 0;">${exchange.name}</h1>
+            </div>
+
+            <div class="stat-item">
+            <a href="/reviews.html?slug=${exchange.slug}" style="text-decoration: none; color: inherit;">
+            <div class="value">${renderStarRating(exchange.overall_average_rating)}</div>
+            <div class="label">${exchange.total_review_count} голосов</div>
+            </a>
+            </div>
+            <div class="stat-item">
+            <a href="/exchanges/reviews.html?slug=${exchange.slug}" style="text-decoration: none; color: inherit;">
+            <div class="value">${exchange.total_review_count || '0'}</div>
+            <div class="label">Total Reviews</div>
+            </a>
+            </div>
+            <div class="stat-item">
+            <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}B</div>
+            <div class="label">24h Volume</div>
+            </div>
+            <div class="stat-item">
+            <div class="value">${exchange.year_founded || 'N/A'}</div>
+            <div class="label">Year Founded</div>
+            </div>
+            </div>
+            </div>
+
             <p class="description">${exchange.overview || 'No overview available for this exchange.'}</p>
-            
-            <div class="stats-overview">
-            <div class="stat-item">
-                <div class="value">${exchange.overall_average_rating ? parseFloat(exchange.overall_average_rating ).toFixed(1) + ' ★' : 'N/A'}</div>
-                <div class="label">Overall Rating</div>
-            </div>
-            <div class="stat-item">
-                <div class="value">${exchange.total_review_count || '0'}</div>
-                <div class="label">Total Reviews</div>
-            </div>
-            <div class="stat-item">
-                <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}B</div>
-                <div class="label">24h Volume</div>
-            </div>
-            <div class="stat-item">
-                <div class="value">${exchange.year_founded || 'N/A'}</div>
-                <div class="label">Year Founded</div>
-            </div>
-            </div>
             
             <div class="details">
             <div class="detail-card">
-                <h3>Общая информация</h3>
-                <p><strong>Юрисдикция:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>KYC/Верификация:</strong>
-                <img src="${exchange.has_kyc ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_kyc ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
-                <p><strong>Сайт:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
+            <h3>Общая информация</h3>
+            <p><strong>Юрисдикция:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>KYC/Верификация:</strong>
+            <img src="${exchange.has_kyc ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_kyc ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
+            <p><strong>Сайт:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
             </div>
             
             <div class="detail-card">
-                <h3>Сервисы</h3>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>Копитрейдинг:</strong>
-                <img src="${exchange.has_copy_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_copy_trading ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>P2P Обмен:</strong>
-                <img src="${exchange.has_p2p ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_p2p ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>Стейкинг:</strong>
-                <img src="${exchange.has_staking ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_staking ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>Фьючерсы:</strong>
-                <img src="${exchange.has_futures ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_futures ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>Спотовая торговля:</strong>
-                <img src="${exchange.has_spot_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_spot_trading ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
-                <p style="display: flex; align-items: center; justify-content: space-between;">
-                <strong>Демо трейдинг:</strong>
-                <img src="${exchange.has_demo_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_demo_trading ? 'Yes' : 'No'}" width="25" height="25">
-                </p>
+            <h3>Сервисы</h3>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>Копитрейдинг:</strong>
+            <img src="${exchange.has_copy_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_copy_trading ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>P2P Обмен:</strong>
+            <img src="${exchange.has_p2p ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_p2p ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>Стейкинг:</strong>
+            <img src="${exchange.has_staking ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_staking ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>Фьючерсы:</strong>
+            <img src="${exchange.has_futures ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_futures ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>Спотовая торговля:</strong>
+            <img src="${exchange.has_spot_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_spot_trading ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
+            <p style="display: flex; align-items: center; justify-content: space-between;">
+            <strong>Демо трейдинг:</strong>
+            <img src="${exchange.has_demo_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_demo_trading ? 'Yes' : 'No'}" width="25" height="25">
+            </p>
             </div>
 
             <div class="detail-card">
-                <h3>Комиссии, бонусы</h3>
-                <p><strong>Maker Fee:</strong> ${exchange.maker_fee ? parseFloat(exchange.maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-                <p><strong>Taker Fee:</strong> ${exchange.taker_fee ? parseFloat(exchange.taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-                <p><strong>Withdrawal Fee:</strong> ${exchange.withdrawal_fee ? exchange.withdrawal_fee : 'Varies by cryptocurrency'}</p>
-                <p><strong>Deposit Methods:</strong> ${exchange.deposit_methods || 'Information not available'}</p>
+            <h3>Комиссии, бонусы</h3>
+            <p><strong>Spot Maker Fee:</strong> ${exchange.spot_maker_fee ? parseFloat(exchange.spot_maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+            <p><strong>Spot Taker Fee:</strong> ${exchange.spot_taker_fee ? parseFloat(exchange.spot_taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+            <p><strong>Futures Maker Fee:</strong> ${exchange.futures_maker_fee ? parseFloat(exchange.futures_maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+            <p><strong>Futures Taker Fee:</strong> ${exchange.futures_taker_fee ? parseFloat(exchange.futures_taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+            <div class="bonus-button-container" style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+            <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer" class="bonus-button" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; font-size: 18px; border-radius: 4px; transition: background-color 0.3s;">Получить бонус</a>
+            </div>
             </div>
             
             </div>
             <br>
             <p class="description">${exchange.description || 'No description available for this exchange.'}</p>
+            
+            
         `;
         console.log('Exchange detail HTML built and inserted into DOM');
 
