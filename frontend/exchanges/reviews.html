@@ -121,6 +121,40 @@
                         <div id="reviews-histogram-container" class="reviews-histogram-container">
                             <!-- Histogram will be loaded here by JS -->
                         </div>
+
+                        <div id="add-review-section"> <!-- Always shown, guest_name field toggled by JS -->
+                            <h3>Add Your Review</h3>
+                            <form id="review-form">
+                                <!-- Container for the single rating input -->
+                                <div id="review-rating-input-container" class="form-group">
+                                    <label>Your Rating:</label>
+                                    <div class="star-rating single-rating" data-rating-group="overall">
+                                        <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
+                                        <label for="star-overall-5"></label>
+                                        <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
+                                        <label for="star-overall-4"></label>
+                                        <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
+                                        <label for="star-overall-3"></label>
+                                        <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
+                                        <label for="star-overall-2"></label>
+                                        <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
+                                        <label for="star-overall-1"></label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="review-text">Your Review:</label>
+                                    <textarea id="review-text" name="review-text" rows="5" required></textarea>
+                                </div>
+                                <div id="guest-name-input-container" class="form-group hidden"> <!-- Hidden by default -->
+                                    <label for="guest-name">Your Name (as Guest):</label>
+                                    <input type="text" id="guest-name" name="guest-name" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                                <div id="review-submit-error" class="error-message"></div>
+                                <div id="review-submit-success" class="success-message"></div>
+                            </form>
+                        </div>
+                        
                         <div id="review-sort-controls-container">
                             <!-- Sorting buttons will be dynamically added here by JS if not present -->
                             <!-- Or you can add them directly here if preferred -->
@@ -130,38 +164,7 @@
                         </div>
                     </div>
 
-                    <div id="add-review-section"> <!-- Always shown, guest_name field toggled by JS -->
-                        <h3>Add Your Review</h3>
-                        <form id="review-form">
-                            <!-- Container for the single rating input -->
-                            <div id="review-rating-input-container" class="form-group">
-                                <label>Your Rating:</label>
-                                <div class="star-rating single-rating" data-rating-group="overall">
-                                    <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
-                                    <label for="star-overall-5"></label>
-                                    <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
-                                    <label for="star-overall-4"></label>
-                                    <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
-                                    <label for="star-overall-3"></label>
-                                    <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
-                                    <label for="star-overall-2"></label>
-                                    <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
-                                    <label for="star-overall-1"></label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="review-text">Your Review:</label>
-                                <textarea id="review-text" name="review-text" rows="5" required></textarea>
-                            </div>
-                            <div id="guest-name-input-container" class="form-group hidden"> <!-- Hidden by default -->
-                                <label for="guest-name">Your Name (as Guest):</label>
-                                <input type="text" id="guest-name" name="guest-name" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit Review</button>
-                            <div id="review-submit-error" class="error-message"></div>
-                            <div id="review-submit-success" class="success-message"></div>
-                        </form>
-                    </div>
+                    
                     <!-- Login Prompt - Now hidden as guests can also review -->
                     <div id="login-prompt-review" class="message info-message hidden">
                         You need to <a href="login.html">sign in</a> to add your review.
