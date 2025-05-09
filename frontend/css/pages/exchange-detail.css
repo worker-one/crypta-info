@@ -376,7 +376,7 @@
 
 .clickable-star:hover {
     transform: scale(1.2);
-    color: #ffcc00;
+    color: #007bff;
 }
 
 .clickable-star:hover ~ .clickable-star {
