@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sortControlsContainer && !document.getElementById('sort-reviews-positive')) {
         console.log('Dynamically adding sort controls...');
         sortControlsContainer.innerHTML = `
-            <div class="review-sort-controls" style="margin-bottom: 15px;">
+            <div class="review-sort-controls" style="margin-top: 15px; margin-bottom: 15px;">
                 <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
                 <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
             </div>
