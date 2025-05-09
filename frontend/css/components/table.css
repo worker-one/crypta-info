@@ -40,6 +40,7 @@
 .data-table th.sortable {
     cursor: pointer;
     position: relative; /* Needed for absolute positioning of pseudo-elements */
+    padding-right: 24px; /* Add space for the sort indicator */
 }
 
 .data-table th.sortable:hover {
@@ -52,45 +53,40 @@
     display: inline-block;
     width: 0;
     height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
     opacity: 0.3; /* Default dim state */
-    margin-left: 8px;
-    vertical-align: middle;
     position: absolute; /* Position relative to the th */
-    right: 10px; /* Adjust position as needed */
-    top: 50%;
-    transform: translateY(-50%);
+    right: 8px; /* Position from right instead of center */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Perfect vertical centering */
 }
 
-/* Default unsorted indicator (optional, subtle double arrow) */
+/* Default unsorted indicator (subtle double arrow) */
 .data-table th.sortable:not(.sorted-asc):not(.sorted-desc)::after {
-     /* You could add a default icon here, e.g., using background-image or content like '↕' */
-     /* For simplicity, we'll just show arrows when sorted */
-     content: ' \2195'; /* Up-down arrow */
-     opacity: 0.3;
-     border: none; /* Remove triangle borders */
-     font-size: 0.8em;
-     vertical-align: middle;
+    content: '⇵'; /* Up-down arrow character */
+    border: none; /* Remove triangle borders */
+    font-size: 0.75em;
+    opacity: 0.25; /* Very subtle */
+    width: auto;
+    height: auto;
 }
 
 .data-table th.sorted-asc::after,
 .data-table th.sorted-desc::after {
-    opacity: 1; /* Make active indicator fully visible */
+    opacity: 0.75; /* More visible but still subtle */
 }
 
 .data-table th.sorted-asc::after {
-    content: ''; /* Reset content if using text before */
-    border-bottom: 5px solid #495057; /* Arrow pointing up */
+    content: ''; /* Reset content */
+    border-bottom: 4px solid #495057; /* Arrow pointing up */
     border-top: none;
-    transform: translateY(-70%); /* Adjust vertical position for single arrow */
 }
 
 .data-table th.sorted-desc::after {
-    content: ''; /* Reset content if using text before */
-    border-top: 5px solid #495057; /* Arrow pointing down */
+    content: ''; /* Reset content */
+    border-top: 4px solid #495057; /* Arrow pointing down */
     border-bottom: none;
-    transform: translateY(-30%); /* Adjust vertical position for single arrow */
 }
 
 /* Zebra-striping for readability */

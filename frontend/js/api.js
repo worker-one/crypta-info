@@ -2,7 +2,7 @@
 import { getAccessToken } from './auth.js'; // Import the auth function
 
 // Base URL for API, taken from environment variable or fallback to default
-const BASE_API_URL = 'http://localhost:8000/api/v1'
+const BASE_API_URL = 'http://localhost:8300/api/v1'
 
 /**
  * Performs a fetch request to the API.
@@ -81,7 +81,16 @@ export async function fetchStaticPage(slug) {
 /**
  * Fetches a list of exchanges (basic version).
  * Supports filtering and sorting.
- * @param {object} params - Parameters like { skip, limit, name, country_id, has_kyc, has_p2p, supports_fiat_id, field, direction, min_spot_maker_fee, max_spot_maker_fee, min_futures_maker_fee, max_futures_maker_fee, min_spot_taker_fee, max_spot_taker_fee, min_futures_taker_fee, max_futures_taker_fee }
+ * @param {object} params - Parameters like { 
+ *   skip, limit, name, country_id, has_kyc, has_p2p, supports_fiat_id, 
+ *   field, direction, 
+ *   min_spot_maker_fee, max_spot_maker_fee, 
+ *   min_futures_maker_fee, max_futures_maker_fee, 
+ *   min_spot_taker_fee, max_spot_taker_fee, 
+ *   min_futures_taker_fee, max_futures_taker_fee,
+ *   min_total_review_count, max_total_review_count,
+ *   min_total_rating_count, max_total_rating_count
+ * }
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
 export async function fetchExchanges(params = { skip: 0, limit: 10 }) {
@@ -214,6 +223,7 @@ export async function submitItemReview(itemId, reviewData) {
     const payload = {
         comment: reviewData.comment,
         rating: reviewData.rating, // Send single rating
+        moderation_status: reviewData.moderation_status || 'pending', // Default to pending if not provided
         item_id: parseInt(itemId, 10)
     };
 

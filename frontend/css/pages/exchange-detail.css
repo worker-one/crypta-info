@@ -367,3 +367,33 @@
         align-items: flex-start;
     }
 }
+
+/* Add these styles to your existing CSS file */
+
+.clickable-star {
+    cursor: pointer;
+    transition: transform 0.1s, color 0.2s;
+}
+
+.clickable-star:hover {
+    transform: scale(1.2);
+    color: #ffcc00;
+}
+
+.clickable-star:hover ~ .clickable-star {
+    color: inherit;
+}
+
+.rating-feedback {
+    margin-top: 5px;
+    font-size: 0.9em;
+    min-height: 20px;
+}
+
+.rating-feedback.success {
+    color: #4CAF50;
+}
+
+.rating-feedback.error {
+    color: #f44336;
+}

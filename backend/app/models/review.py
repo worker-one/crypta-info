@@ -35,7 +35,7 @@ class Review(Base):
     # *** CHANGE: Link to the generic 'items' table instead of 'exchanges' ***
     item_id = Column(Integer, ForeignKey('items.id', ondelete='CASCADE'), nullable=False, index=True)
 
-    comment = Column(Text, nullable=False)
+    comment = Column(Text, nullable=True)
     rating = Column(SmallInteger, nullable=False)  # 1 to 5 rating
     moderation_status = Column(SQLAlchemyEnum(ModerationStatusEnum, name='moderation_status_enum'), nullable=False, default=ModerationStatusEnum.pending, index=True)
     moderator_notes = Column(Text)

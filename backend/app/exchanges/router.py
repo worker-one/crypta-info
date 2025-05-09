@@ -46,7 +46,10 @@ async def list_exchanges(
     supports_fiat_id: Optional[int] = Query(None, description="Filter by supported fiat currency ID"),
     supports_language_id: Optional[int] = Query(None, description="Filter by supported language ID"),
     has_p2p: Optional[bool] = Query(None, description="Filter by P2P platform availability"),
-    min_total_review_count: Optional[int] = Query(None, description="Minimum total review count"),
+    min_total_review_count: Optional[int] = Query(None, description="Minimum number of reviews with comments"),
+    max_total_review_count: Optional[int] = Query(None, description="Maximum number of reviews with comments"),
+    min_total_rating_count: Optional[int] = Query(None, description="Minimum number of reviews with ratings"),
+    max_total_rating_count: Optional[int] = Query(None, description="Maximum number of reviews with ratings"),
     # Sorting parameters
     sort_by: schemas.ExchangeSortBy = Depends(),
     # Pagination parameters
@@ -64,6 +67,9 @@ async def list_exchanges(
         supports_language_id=supports_language_id,
         has_p2p=has_p2p,
         min_total_review_count=min_total_review_count,
+        max_total_review_count=max_total_review_count,
+        min_total_rating_count=min_total_rating_count,
+        max_total_rating_count=max_total_rating_count,
     )
 
     exchanges, total = await service.exchange_service.list_exchanges(

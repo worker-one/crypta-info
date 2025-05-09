@@ -51,6 +51,8 @@ class Exchange(Item):
     id = Column(Integer, ForeignKey('items.id', ondelete='CASCADE'), primary_key=True)
 
     # --- Common fields are inherited from Item ---
+    # Note: Item class contains total_review_count (reviews with comments)
+    # and total_rating_count (reviews with ratings) fields
 
     # --- Exchange-specific fields ---
     year_founded = Column(SmallInteger)

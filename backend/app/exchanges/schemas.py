@@ -108,7 +108,8 @@ class ExchangeReadBrief(BaseModel):
     slug: str
     logo_url: Optional[HttpUrl] = None
     overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    total_review_count: int
+    total_review_count: int  # Number of reviews with comments
+    total_rating_count: int  # Number of reviews with ratings
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
     year_founded: Optional[int] = None
     registration_country: Optional[CountryRead] = None  # Only basic info
@@ -133,7 +134,8 @@ class ExchangeReadBrief(BaseModel):
 class ExchangeRead(ExchangeBase):
     id: int
     overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    total_review_count: int
+    total_review_count: int  # Number of reviews with comments
+    total_rating_count: int  # Number of reviews with ratings
     created_at: datetime
     updated_at: datetime
 
@@ -167,6 +169,8 @@ class ExchangeFilterParams(BaseModel):
     supports_language_id: Optional[int] = None
     min_total_review_count: Optional[int] = None
     max_total_review_count: Optional[int] = None
+    min_total_rating_count: Optional[int] = None
+    max_total_rating_count: Optional[int] = None
     has_p2p: Optional[bool] = None
     has_copy_trading: Optional[bool] = None
     has_staking: Optional[bool] = None
@@ -175,5 +179,5 @@ class ExchangeFilterParams(BaseModel):
     has_demo_trading: Optional[bool] = None
 
 class ExchangeSortBy(BaseModel):
-    field: Literal['name', 'overall_average_rating', 'trading_volume_24h', 'total_review_count'] = 'overall_average_rating'
+    field: Literal['name', 'overall_average_rating', 'trading_volume_24h', 'total_review_count', 'total_rating_count'] = 'overall_average_rating'
     direction: Literal['asc', 'desc'] = 'desc'

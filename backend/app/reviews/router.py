@@ -10,7 +10,7 @@ from app.schemas.common import PaginationParams, PaginatedResponse, Message
 from app.dependencies import get_current_active_user, get_current_admin_user, get_optional_current_active_user  # Assuming get_optional_current_active_user exists
 from app.models.user import User
 from app.models.review import ModerationStatusEnum
-from app.reviews.schemas import ItemReviewCreate, ReviewAdminUpdatePayload, ReviewFilterParams, ReviewSortBy
+from app.reviews.schemas import ItemReviewCreate, ReviewAdminUpdatePayload
 
 router = APIRouter(
     prefix="/reviews",

@@ -1,18 +1,34 @@
 # app/reviews/schemas.py
 from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional, List, Literal, Any
+from typing import Optional, List, Any, Literal
 from datetime import datetime
 from app.models.review import ModerationStatusEnum
 from app.auth.schemas import UserRead # Use UserRead to show author info
 from app.schemas.common import ItemReadBrief # Import a generic ItemReadBrief
 
-# --- Removed Rating Category and related schemas ---
+# Missing schema classes
+class ReviewFilterParams(BaseModel):
+    moderation_status: Optional[ModerationStatusEnum] = None
+    item_id: Optional[int] = None
+    user_id: Optional[int] = None
+    min_rating: Optional[int] = Field(None, ge=1, le=5)
+    max_rating: Optional[int] = Field(None, ge=1, le=5)
+    has_screenshot: Optional[bool] = None
+
+class ReviewSortBy(BaseModel):
+    field: Literal['created_at', 'usefulness', 'rating'] = 'created_at'
+    direction: Literal['asc', 'desc'] = 'desc'
+
+class ReviewAdminUpdatePayload(BaseModel):
+    moderation_status: Optional[ModerationStatusEnum] = None
+    moderator_notes: Optional[str] = None
 
 # Renamed from ExchangeReviewCreate
 class ItemReviewCreate(BaseModel):
     item_id: int # Renamed from exchange_id
     rating: int = Field(..., ge=1, le=5) # Single rating value
-    comment: str = Field(..., min_length=3, max_length=5000)
+    comment: Optional[str] = Field(None, min_length=3, max_length=5000)
+    moderation_status: Optional[ModerationStatusEnum] = Field(None, description="Set to 'pending' by default.")
     guest_name: Optional[str] = Field(None, min_length=1, max_length=100, description="Name of the guest reviewer, if not logged in.")
 
 # --- Screenshot Schemas ---
@@ -30,7 +46,7 @@ class ReviewUsefulnessVoteCreate(BaseModel):
 
 # --- Review Schemas ---
 class ReviewBase(BaseModel):
-    comment: str = Field(..., min_length=3, max_length=5000)
+    comment: Optional[str] = Field(None, min_length=3, max_length=5000)
     rating: int = Field(..., ge=1, le=5) # Add single rating here
 
 class ReviewCreate(ReviewBase):
@@ -54,23 +70,3 @@ class ReviewRead(ReviewBase):
 
     class Config:
         from_attributes = True
-
-# Schema for Admin/Moderation update payload
-class ReviewAdminUpdatePayload(BaseModel):
-    moderation_status: Optional[ModerationStatusEnum] = None
-    moderator_notes: Optional[str] = Field(None, max_length=1000) # Optional notes field
-
-# --- Filtering and Sorting ---
-class ReviewFilterParams(BaseModel):
-    item_id: Optional[int] = None # Renamed from exchange_id
-    user_id: Optional[int] = None
-    min_rating: Optional[int] = Field(None, ge=1, le=5) # Renamed from min_overall_rating
-    max_rating: Optional[int] = Field(None, ge=1, le=5) # Renamed from max_overall_rating
-    has_screenshot: Optional[bool] = None
-    # Make status optional, default to None (meaning no filter unless specified)
-    moderation_status: Optional[ModerationStatusEnum] = None
-    # tag_id: Optional[int] = None
-
-class ReviewSortBy(BaseModel):
-    field: Literal["created_at", "usefulness", "rating"] = "created_at" # Add 'rating'
-    direction: Literal["asc", "desc"] = "desc"

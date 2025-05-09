@@ -10,7 +10,7 @@ let currentSortDirection = 'desc'; // Default direction
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
-const BASE_URL_API = 'http://localhost:8000/api/v1';
+const BASE_URL_API = 'http://localhost:8200/api/v1';
 
 // --- Initialization ---
 
@@ -462,7 +462,7 @@ function renderCardView(exchanges, containerId) {
                 <div class="card-body">
                     <div class="card-info-row">
                         <span class="card-info-label">Рейтинг:</span> <!-- Translated -->
-                        <span class="card-info-value card-rating">${formattedRating}</span>
+                        <span class="card-info-value card-rating"><strong style="color: gold;">${formattedRating}</strong></span>
                     </div>
                     <div class="card-info-row">
                         <span class="card-info-label">Отзывы:</span> <!-- Translated -->

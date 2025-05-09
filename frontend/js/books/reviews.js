@@ -92,31 +92,37 @@ export const renderReviewsList = (reviews) => { // Added export
     reviewsListContainer.innerHTML = '';
 
     if (reviews && reviews.length > 0) {
-        reviews.forEach(review => {
-            const reviewElement = document.createElement('div');
-            reviewElement.classList.add('review-item');
-            const ratingValue = review.rating; // Assuming 'rating' field
-            
-            const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
+        const reviewsWithComments = reviews.filter(review => review.comment !== null);
+        
+        if (reviewsWithComments.length > 0) {
+            reviewsWithComments.forEach(review => {
+                const reviewElement = document.createElement('div');
+                reviewElement.classList.add('review-item');
+                const ratingValue = review.rating; // Assuming 'rating' field
+                
+                const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
 
-            reviewElement.innerHTML = `
-                <div class="review-header">
-                    <span class="review-author">${authorName}</span>
-                    <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                </div>
-                <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
-                <div class="review-content">
-                    <p>${review.comment}</p>
-                </div>
-                <div class="review-footer">
-                    <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 (${review.useful_votes_count})</button>
-                    <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 (${review.not_useful_votes_count})</button>
-                    <span class="vote-feedback" data-review-id="${review.id}"></span>
-                </div>
-            `;
-            reviewsListContainer.appendChild(reviewElement);
-        });
-        setupVoteButtons(); // Setup voting after rendering
+                reviewElement.innerHTML = `
+                    <div class="review-header">
+                        <span class="review-author">${authorName}</span>
+                        <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
+                    <div class="review-content">
+                        <p>${review.comment}</p>
+                    </div>
+                    <div class="review-footer">
+                        <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 (${review.useful_votes_count})</button>
+                        <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 (${review.not_useful_votes_count})</button>
+                        <span class="vote-feedback" data-review-id="${review.id}"></span>
+                    </div>
+                `;
+                reviewsListContainer.appendChild(reviewElement);
+            });
+            setupVoteButtons(); // Setup voting after rendering
+        } else {
+            reviewsListContainer.innerHTML = '<p>No reviews with comments available.</p>';
+        }
     } else {
         reviewsListContainer.innerHTML = '<p>No reviews match the criteria or none available.</p>';
     }

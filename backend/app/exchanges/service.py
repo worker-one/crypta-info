@@ -59,6 +59,12 @@ class ExchangeService:
             filter_conditions.append(exchange_models.Exchange.total_review_count >= filters.min_total_review_count)
         if filters.max_total_review_count is not None:
             filter_conditions.append(exchange_models.Exchange.total_review_count <= filters.max_total_review_count)
+            
+        # Rating count filtering
+        if filters.min_total_rating_count is not None:
+            filter_conditions.append(exchange_models.Exchange.total_rating_count >= filters.min_total_rating_count)
+        if filters.max_total_rating_count is not None:
+            filter_conditions.append(exchange_models.Exchange.total_rating_count <= filters.max_total_rating_count)
 
 
         # Filtering by relationships requires joins or subqueries

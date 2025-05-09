@@ -75,7 +75,11 @@ const updateSortButtonCounts = () => {
     let positiveCount = 0;
     let negativeCount = 0;
 
-    currentReviews.forEach(review => {
+    // Filter reviews based on those that have comments
+    const reviewsWithComments = currentReviews.filter(review => review.comment && review.comment.trim() !== '');
+    
+    // Count positive and negative ratings from reviews with comments
+    reviewsWithComments.forEach(review => {
         const rating = review.rating;
         if (rating >= 4) {
             positiveCount++;
@@ -170,29 +174,35 @@ const renderReviewsList = (reviews) => {
     reviewsListContainer.innerHTML = '';
 
     if (reviews && reviews.length > 0) {
-        reviews.forEach(review => {
-            const reviewElement = document.createElement('div');
-            reviewElement.classList.add('review-item');
-            const ratingValue = review.rating;
+        const reviewsWithComments = reviews.filter(review => review.comment !== null);
+        
+        if (reviewsWithComments.length > 0) {
+            reviewsWithComments.forEach(review => {
+                const reviewElement = document.createElement('div');
+                reviewElement.classList.add('review-item');
+                const ratingValue = review.rating;
 
-            reviewElement.innerHTML = `
-                <div class="review-header">
-                    <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
-                    <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                </div>
-                <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
-                <div class="review-content">
-                    <p>${review.comment}</p>
-                </div>
-                <div class="review-footer">
-                    <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
-                    <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
-                    <span class="vote-feedback" data-review-id="${review.id}"></span>
-                </div>
-            `;
-            reviewsListContainer.appendChild(reviewElement);
-        });
-        setupVoteButtons();
+                reviewElement.innerHTML = `
+                    <div class="review-header">
+                        <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
+                        <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
+                    <div class="review-content">
+                        <p>${review.comment}</p>
+                    </div>
+                    <div class="review-footer">
+                        <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
+                        <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
+                        <span class="vote-feedback" data-review-id="${review.id}"></span>
+                    </div>
+                `;
+                reviewsListContainer.appendChild(reviewElement);
+            });
+            setupVoteButtons();
+        } else {
+            reviewsListContainer.innerHTML = '<p>No reviews with comments available.</p>';
+        }
     } else {
         reviewsListContainer.innerHTML = '<p>No reviews match the criteria or none available.</p>';
     }
@@ -307,8 +317,8 @@ const handleReviewSubmit = async (event, exchangeId) => {
             guestNameInput.focus();
             return;
         }
-        if (guestName.length > 100) {
-            displayErrorMessage('review-submit-error', 'Guest name cannot exceed 100 characters.');
+        if (guestName.length > 50) {
+            displayErrorMessage('review-submit-error', 'Guest name cannot exceed 50 characters.');
             showElement(reviewSubmitError);
             submitButton.disabled = false;
             submitButton.textContent = 'Submit Review';

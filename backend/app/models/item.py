@@ -36,6 +36,7 @@ class Item(Base):
     # Common aggregated fields
     overall_average_rating = Column(Numeric(3, 2), default=0.00, index=True)
     total_review_count = Column(Integer, default=0, index=True)
+    total_rating_count = Column(Integer, default=0, index=True)
 
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())

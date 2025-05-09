@@ -1,5 +1,5 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, listItemReviews, voteOnReview } from '../api.js';
+import { getExchangeDetails, listItemReviews, voteOnReview, submitItemReview } from '../api.js';
 import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { isLoggedIn, handleLogout } from '../auth.js';
 
@@ -15,12 +15,13 @@ const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
 
 /**
- * Renders a star rating display.
+ * Renders a star rating display with clickable stars.
  * @param {string|number} ratingString - The rating value (e.g., "4.5" or 4.5).
  * @param {number} maxStars - The maximum number of stars to display (default 5).
+ * @param {number|string} exchangeId - The exchange ID for submitting ratings (optional).
  * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
  */
-function renderStarRating(ratingString, maxStars = 5) {
+function renderStarRating(ratingString, maxStars = 5, exchangeId = null) {
     const rating = parseFloat(ratingString);
     if (isNaN(rating) || rating < 0) {
         return 'N/A'; // Return N/A if rating is not a valid number
@@ -28,15 +29,115 @@ function renderStarRating(ratingString, maxStars = 5) {
 
     let starsHtml = '';
     const simpleRoundedRating = Math.round(rating);
+    
+    // Only make stars clickable if exchangeId is provided
+    const clickableClass = exchangeId ? 'clickable-star' : '';
+    const dataAttr = exchangeId ? `data-exchange-id="${exchangeId}"` : '';
+    
     for (let i = 1; i <= maxStars; i++) {
         if (i <= simpleRoundedRating) {
-            starsHtml += '★'; // Filled star
+            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}" ${dataAttr}>★</span>`; // Filled star
         } else {
-            starsHtml += '☆'; // Empty star
+            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}" ${dataAttr}>☆</span>`; // Empty star
         }
     }
 
-    return `${rating.toFixed(1)} ${starsHtml} <span class="numerical-rating"></span>`;
+    return `<span style="font-weight: bold; color: gold;">${rating.toFixed(1)}</span> ${starsHtml} <span class="numerical-rating"></span>`;
+}
+
+/**
+ * Handles click on a star to submit a rating.
+ * @param {Event} event - The click event
+ */
+async function handleStarClick(event) {
+    const starElement = event.target.closest('.clickable-star');
+    if (!starElement) return;
+    
+    const rating = parseInt(starElement.dataset.rating, 10);
+    const exchangeId = starElement.dataset.exchangeId;
+    
+    if (!rating || !exchangeId) return;
+    
+    // Create a feedback element if it doesn't exist yet
+    let feedbackEl = document.querySelector('.rating-feedback');
+    if (!feedbackEl) {
+        feedbackEl = document.createElement('div');
+        feedbackEl.className = 'rating-feedback';
+        starElement.parentNode.parentNode.appendChild(feedbackEl);
+    }
+    
+    feedbackEl.textContent = 'Submitting your rating...';
+    
+    try {
+        // Submit the rating with null comment and "Guest" as guest_name
+        await submitItemReview(exchangeId, {
+            comment: null,
+            rating: rating,
+            guest_name: "Guest",
+            moderation_status: "approved"
+        });
+        
+        feedbackEl.textContent = 'Thank you for your rating!';
+        feedbackEl.classList.add('success');
+        
+        // Optionally refresh the exchange details after a short delay
+        setTimeout(async () => {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const slug = urlParams.get('slug');
+                const exchange = await getExchangeDetails(slug);
+                
+                // Update the displayed rating
+                const ratingContainer = starElement.closest('.stat-item');
+                if (ratingContainer) {
+                    const valueDiv = ratingContainer.querySelector('.value');
+                    if (valueDiv) {
+                        valueDiv.innerHTML = renderStarRating(exchange.overall_average_rating, 5, exchange.id);
+                    }
+                    const labelDiv = ratingContainer.querySelector('.label');
+                    if (labelDiv) {
+                        labelDiv.textContent = `${exchange.total_rating_count} голосов`;
+                    }
+                }
+                
+                // Re-attach click handlers to the new stars
+                attachStarClickHandlers();
+                
+                // Clear feedback message
+                setTimeout(() => {
+                    feedbackEl.textContent = '';
+                    feedbackEl.classList.remove('success');
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Failed to refresh exchange details:', error);
+            }
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Failed to submit rating:', error);
+        feedbackEl.textContent = `Error: ${error.message}`;
+        feedbackEl.classList.add('error');
+        
+        // Clear error message after a delay
+        setTimeout(() => {
+            feedbackEl.textContent = '';
+            feedbackEl.classList.remove('error');
+        }, 3000);
+    }
+}
+
+/**
+ * Attaches click handlers to all clickable stars on the page.
+ */
+function attachStarClickHandlers() {
+    const stars = document.querySelectorAll('.clickable-star');
+    stars.forEach(star => {
+        // Remove existing listener to prevent duplicates
+        star.removeEventListener('click', handleStarClick);
+        // Add new listener
+        star.addEventListener('click', handleStarClick);
+    });
 }
 
 /**
@@ -179,10 +280,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
 
             <div class="stat-item">
-            <a href="/reviews.html?slug=${exchange.slug}" style="text-decoration: none; color: inherit;">
-            <div class="value">${renderStarRating(exchange.overall_average_rating)}</div>
-            <div class="label">${exchange.total_review_count} голосов</div>
-            </a>
+            <div class="value">${renderStarRating(exchange.overall_average_rating, 5, exchange.id)}</div>
+            <div class="label">${exchange.total_rating_count} голосов</div>
             </div>
             <div class="stat-item">
             <a href="/exchanges/reviews.html?slug=${exchange.slug}" style="text-decoration: none; color: inherit;">
@@ -244,10 +343,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             <div class="detail-card">
             <h3>Комиссии, бонусы</h3>
-            <p><strong>Spot Maker Fee:</strong> ${exchange.spot_maker_fee ? parseFloat(exchange.spot_maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-            <p><strong>Spot Taker Fee:</strong> ${exchange.spot_taker_fee ? parseFloat(exchange.spot_taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-            <p><strong>Futures Maker Fee:</strong> ${exchange.futures_maker_fee ? parseFloat(exchange.futures_maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
-            <p><strong>Futures Taker Fee:</strong> ${exchange.futures_taker_fee ? parseFloat(exchange.futures_taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</p>
+            <table class="fees-table" style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;"></th>
+                  <th style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;">Тейкер</th>
+                  <th style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;">Мейкер</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; padding: 8px; border-bottom: 1px solid #eee;"><strong>Спот</strong></td>
+                  <td style="text-align: center; padding: 8px; border-bottom: 1px solid #eee;">${exchange.spot_taker_fee ? parseFloat(exchange.spot_taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</td>
+                  <td style="text-align: center; padding: 8px; border-bottom: 1px solid #eee;">${exchange.spot_maker_fee ? parseFloat(exchange.spot_maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; padding: 8px;"><strong>Фьючерсы</strong></td>
+                  <td style="text-align: center; padding: 8px;">${exchange.futures_taker_fee ? parseFloat(exchange.futures_taker_fee).toFixed(4) * 100 + '%' : 'N/A'}</td>
+                  <td style="text-align: center; padding: 8px;">${exchange.futures_maker_fee ? parseFloat(exchange.futures_maker_fee).toFixed(4) * 100 + '%' : 'N/A'}</td>
+                </tr>
+              </tbody>
+            </table>
             <div class="bonus-button-container" style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
             <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer" class="bonus-button" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; font-size: 18px; border-radius: 4px; transition: background-color 0.3s;">Получить бонус</a>
             </div>
@@ -260,6 +376,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             
         `;
         console.log('Exchange detail HTML built and inserted into DOM');
+
+        // Attach click handlers to the stars
+        attachStarClickHandlers();
 
         // Show review section
         console.log('Showing review section...');
@@ -362,7 +481,10 @@ async function loadExchangeReviews(exchangeId) {
             throw new Error("Invalid response structure for reviews.");
         }
 
-        currentReviews = response.items;
+        // Filter out reviews with null comments
+        currentReviews = response.items.filter(review => review.comment !== null);
+        console.log(`Filtered ${response.items.length - currentReviews.length} reviews with null comments`);
+        
         updateSortButtonCounts(); // Update counts after fetching
 
         if (reviewsTabLink) {

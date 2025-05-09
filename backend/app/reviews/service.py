@@ -1,9 +1,9 @@
 # app/reviews/service.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func, desc, asc, and_, distinct, delete, cast, Float, func, select, text
-from sqlalchemy.orm import selectinload, joinedload
-from typing import List, Optional, Tuple, Dict
+from sqlalchemy import func, desc, asc, and_, distinct, func, select, text
+from sqlalchemy.orm import selectinload
+from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
 import datetime
 import logging # Import logging
@@ -13,8 +13,15 @@ from app.schemas.common import PaginationParams
 from app.models.review import ModerationStatusEnum, Review, ReviewScreenshot, ReviewUsefulnessVote
 from app.models.item import Item # Import Item model
 
-# Get logger
+# Get logger and configure it properly
 logger = logging.getLogger(__name__)
+# Ensure the logger has a handler and proper log level
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 class ReviewService:
 
@@ -22,12 +29,15 @@ class ReviewService:
         """
         Recalculates and updates the total_review_count and overall_average_rating
         for a given item based on its approved reviews.
+        total_review_count only includes reviews with non-null comments.
+        total_rating_count includes all reviews (with or without comments).
         """
         logger.info(f"Updating review stats for item_id: {item_id}")
-        # Query to get count and average rating of approved reviews
+        # Query to get count of approved reviews with comments and average rating of all approved reviews
         stmt = (
             select(
-                func.count(Review.id).label("approved_count"),
+                func.count(Review.id).filter(Review.comment.is_not(None)).label("approved_count_with_comments"),
+                func.count(Review.id).label("total_approved_count"),
                 func.avg(Review.rating).label("average_rating")
             )
             .where(Review.item_id == item_id)
@@ -36,20 +46,30 @@ class ReviewService:
         result = await db.execute(stmt)
         stats = result.first() # Use first() as it returns one row or None
 
-        approved_count = stats.approved_count if stats else 0
+        approved_count_with_comments = stats.approved_count_with_comments if stats else 0
+        total_approved_count = stats.total_approved_count if stats else 0
         average_rating = stats.average_rating if stats and stats.average_rating is not None else 0.0
 
         # Fetch the item
         item = await db.get(Item, item_id)
         if item:
-            logger.info(f"Updating item {item_id}: count={approved_count}, avg_rating={average_rating:.2f}")
-            item.total_review_count = approved_count
+            logger.info(f"Updating item {item_id}: count_with_comments={approved_count_with_comments}, total_count={total_approved_count}, avg_rating={average_rating:.2f}")
+            item.total_review_count = approved_count_with_comments
+            item.total_rating_count = total_approved_count
             # Ensure rating is stored appropriately (e.g., as float or decimal)
             item.overall_average_rating = float(average_rating)
             db.add(item) # Add item to session to ensure update is tracked
+            
+            # Add an explicit commit to persist the changes to the database
+            try:
+                await db.commit()
+                logger.info(f"Successfully committed updated stats for item {item_id}")
+            except Exception as e:
+                await db.rollback()
+                logger.error(f"Failed to commit item stats update: {e}", exc_info=True)
+                raise
         else:
             logger.warning(f"Item with id {item_id} not found while trying to update review stats.")
-
 
     async def get_review_by_id(self, db: AsyncSession, review_id: int, load_relations: bool = True) -> Optional[Review]:
         """Fetches a single review by ID, optionally loading relationships."""
@@ -150,7 +170,8 @@ class ReviewService:
         review_in: ItemReviewCreate,
         user_id: Optional[int] # Changed to Optional[int]
     ) -> Review:
-        """Creates a new review for an item. Does NOT update item stats here."""
+        """Creates a new review for an item and updates the item's review statistics."""
+        logger.info(f"Creating review for item_id: {review_in.item_id} by user_id: {user_id}")
         item = await db.get(Item, review_in.item_id)
         if not item:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
@@ -179,20 +200,34 @@ class ReviewService:
             item_id=review_in.item_id,
             user_id=user_id,
             guest_name=review_in.guest_name if not user_id else None,
-            moderation_status=ModerationStatusEnum.pending
+            moderation_status=review_in.moderation_status
         )
         db.add(db_review)
 
         try:
             await db.commit()
+            logger.info(f"Successfully committed review for item_id: {review_in.item_id}")
         except Exception as e:
             await db.rollback()
+            logger.error(f"Failed to create review: {e}", exc_info=True)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Could not create review: {e}")
 
         # Fetch the created review with relationships loaded
         created_review = await self.get_review_by_id(db, db_review.id)
         if not created_review:
+            logger.error(f"Failed to retrieve created review after commit for item_id: {review_in.item_id}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve created review after commit")
+        
+        logger.info(f"Created review: {created_review.id} for item_id: {review_in.item_id}")
+        
+        try:
+            logger.info(f"Attempting to update item review stats for item_id: {review_in.item_id}")
+            await self._update_item_review_stats(db, review_in.item_id)
+            logger.info(f"Successfully updated review stats for item_id: {review_in.item_id}")
+        except Exception as e:
+            logger.error(f"Error updating item review stats: {e}", exc_info=True)
+            # Consider whether to re-raise or just log the error
+            
         return created_review
 
     async def update_review_moderation_details(
