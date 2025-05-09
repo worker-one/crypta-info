@@ -10,7 +10,7 @@ let currentSortDirection = 'desc'; // Default direction
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
-const BASE_URL_API = 'http://localhost:8200/api/v1';
+const BASE_URL_API = 'http://176.124.219.116:8200/api/v1';
 
 // --- Initialization ---
 
@@ -334,7 +334,7 @@ async function loadHomepageExchanges(params = {}) {
 
                     // Rating Cell
                     cell = row.insertCell();
-                    cell.textContent = formattedRating;
+                    cell.innerHTML = `<span style="font-weight: bold; color: gold;">${formattedRating}</span>`;
                     cell.style.textAlign = 'center';
                     cell.style.verticalAlign = 'middle';
 
@@ -462,7 +462,7 @@ function renderCardView(exchanges, containerId) {
                 <div class="card-body">
                     <div class="card-info-row">
                         <span class="card-info-label">Рейтинг:</span> <!-- Translated -->
-                        <span class="card-info-value card-rating"><strong style="color: gold;">${formattedRating}</strong></span>
+                        <span class="card-info-value card-rating"><span style="font-weight: bold; color: gold;">${formattedRating}</span></span>
                     </div>
                     <div class="card-info-row">
                         <span class="card-info-label">Отзывы:</span> <!-- Translated -->

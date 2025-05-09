@@ -34,6 +34,9 @@ function renderStarRating(ratingString, maxStars = 5, exchangeId = null) {
     const clickableClass = exchangeId ? 'clickable-star' : '';
     const dataAttr = exchangeId ? `data-exchange-id="${exchangeId}"` : '';
     
+    // Create a container for stars to make hover effect targeting easier
+    starsHtml = `<span class="stars-container" ${exchangeId ? 'data-interactive="true"' : ''}>`;
+    
     for (let i = 1; i <= maxStars; i++) {
         if (i <= simpleRoundedRating) {
             starsHtml += `<span class="star ${clickableClass}" data-rating="${i}" ${dataAttr}>★</span>`; // Filled star
@@ -41,8 +44,10 @@ function renderStarRating(ratingString, maxStars = 5, exchangeId = null) {
             starsHtml += `<span class="star ${clickableClass}" data-rating="${i}" ${dataAttr}>☆</span>`; // Empty star
         }
     }
+    
+    starsHtml += `</span>`;
 
-    return `<span style="font-weight: bold; color: gold;">${rating.toFixed(1)}</span> ${starsHtml} <span class="numerical-rating"></span>`;
+    return `<span style="font-weight: bold; color: #007bff;">${rating.toFixed(1)}</span> ${starsHtml} <span class="numerical-rating"></span>`;
 }
 
 /**
@@ -128,15 +133,101 @@ async function handleStarClick(event) {
 }
 
 /**
- * Attaches click handlers to all clickable stars on the page.
+ * Handles hover on a star to preview rating.
+ * @param {Event} event - The mouseover/focus event
+ */
+function handleStarHover(event) {
+    const starElement = event.target.closest('.clickable-star');
+    if (!starElement) return;
+    
+    const starsContainer = starElement.closest('.stars-container');
+    if (!starsContainer || starsContainer.getAttribute('data-interactive') !== 'true') return;
+    
+    const hoverRating = parseInt(starElement.dataset.rating, 10);
+    const stars = starsContainer.querySelectorAll('.star');
+    
+    // Fill stars up to the hovered position
+    stars.forEach((star, index) => {
+        // +1 because index is 0-based but our ratings start at 1
+        if (index + 1 <= hoverRating) {
+            star.textContent = '★'; // Fill star
+            star.classList.add('hovered');
+        } else {
+            star.textContent = '☆'; // Empty star
+            star.classList.remove('hovered');
+        }
+    });
+}
+
+/**
+ * Handles mouse leaving the star rating area to reset preview.
+ * @param {Event} event - The mouseleave/blur event
+ */
+function handleStarLeave(event) {
+    const starsContainer = event.target.closest('.stars-container');
+    if (!starsContainer || starsContainer.getAttribute('data-interactive') !== 'true') return;
+    
+    const stars = starsContainer.querySelectorAll('.star');
+    
+    // Reset to original state based on data attributes
+    stars.forEach(star => {
+        const ratingValue = parseInt(star.dataset.rating, 10);
+        const exchangeId = star.dataset.exchangeId;
+        
+        // Get the parent stat-item to find the current actual rating
+        const statItem = starsContainer.closest('.stat-item');
+        let currentRating = 0;
+        
+        if (statItem) {
+            const ratingText = statItem.querySelector('.value span').textContent;
+            currentRating = Math.round(parseFloat(ratingText));
+        }
+        
+        // Reset star appearance
+        if (ratingValue <= currentRating) {
+            star.textContent = '★'; // Filled star
+        } else {
+            star.textContent = '☆'; // Empty star
+        }
+        star.classList.remove('hovered');
+    });
+}
+
+/**
+ * Attaches all event handlers to clickable stars on the page.
  */
 function attachStarClickHandlers() {
     const stars = document.querySelectorAll('.clickable-star');
     stars.forEach(star => {
-        // Remove existing listener to prevent duplicates
+        // Remove existing listeners to prevent duplicates
         star.removeEventListener('click', handleStarClick);
-        // Add new listener
+        star.removeEventListener('mouseover', handleStarHover);
+        star.removeEventListener('focus', handleStarHover);
+        
+        // Add click listener
         star.addEventListener('click', handleStarClick);
+        
+        // Add hover/focus listeners for rating preview
+        star.addEventListener('mouseover', handleStarHover);
+        star.addEventListener('focus', handleStarHover);
+    });
+    
+    // Add mouseleave/blur handlers to star containers for resetting preview
+    const starContainers = document.querySelectorAll('.stars-container[data-interactive="true"]');
+    starContainers.forEach(container => {
+        container.removeEventListener('mouseleave', handleStarLeave);
+        container.addEventListener('mouseleave', handleStarLeave);
+        
+        // For accessibility: reset when focus leaves the container
+        container.querySelectorAll('.star').forEach(star => {
+            star.removeEventListener('blur', handleStarLeave);
+            star.addEventListener('blur', (event) => {
+                // Only reset if focus is moving outside the container
+                if (!container.contains(event.relatedTarget)) {
+                    handleStarLeave({ target: container });
+                }
+            });
+        });
     });
 }
 

@@ -397,3 +397,49 @@
 .rating-feedback.error {
     color: #f44336;
 }
+
+/* Star Rating Styles */
+.stars-container {
+    display: inline-flex;
+    position: relative;
+}
+
+.star {
+    font-size: 1.2rem;
+    color: #ffd700; /* Gold color for stars */
+    transition: transform 0.1s ease-in-out, color 0.1s ease-in-out;
+}
+
+.clickable-star {
+    cursor: pointer;
+}
+
+.clickable-star:hover, 
+.clickable-star.hovered,
+.clickable-star:focus {
+    color: #ffc107; /* Brighter gold for hovered stars */
+    transform: scale(1.1);
+}
+
+/* Ensure focus outline for accessibility */
+.clickable-star:focus {
+    outline: 1px dotted #007bff;
+    outline-offset: 2px;
+}
+
+/* Rating feedback styles */
+.rating-feedback {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    height: 1.5em;
+    color: #6c757d;
+}
+
+.rating-feedback.success {
+    color: #28a745;
+}
+
+.rating-feedback.error {
+    color: #dc3545;
+}
