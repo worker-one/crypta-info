@@ -680,7 +680,7 @@ function setupSortingButtons() {
         sortPositiveBtn.addEventListener('click', () => {
             console.log('Sort Positive clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => {
-                return calculateAverageRating(b) - calculateAverageRating(a);
+                return b.rating - a.rating;
             });
             renderReviewsList(sortedReviews);
         });
@@ -692,7 +692,7 @@ function setupSortingButtons() {
         sortNegativeBtn.addEventListener('click', () => {
             console.log('Sort Negative clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => {
-                return calculateAverageRating(a) - calculateAverageRating(b);
+                return a.rating - b.rating;
             });
             renderReviewsList(sortedReviews);
         });
