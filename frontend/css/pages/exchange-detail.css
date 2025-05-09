@@ -405,7 +405,7 @@
 
 .star {
     font-size: 1.2rem;
-    color: #ffd700; /* Gold color for stars */
+    color: #007bff; /* Gold color for stars */
     transition: transform 0.1s ease-in-out, color 0.1s ease-in-out;
 }
 
@@ -416,7 +416,7 @@
 .clickable-star:hover, 
 .clickable-star.hovered,
 .clickable-star:focus {
-    color: #ffc107; /* Brighter gold for hovered stars */
+    color: #007bff; /* Brighter gold for hovered stars */
     transform: scale(1.1);
 }
 
