@@ -210,15 +210,6 @@
     color: #6c757d;
 }
 
-.review-rating {
-    color: #ffc107; /* Accent color */
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-    font-size: 1.1rem; /* Slightly larger rating */
-}
-.review-rating::before {
-    content: '★ '; /* Add star */
-}
 
 .review-content {
     line-height: 1.6;

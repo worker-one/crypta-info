@@ -249,8 +249,8 @@ const updateSortButtonCounts = () => {
         // Reviews with avgRating 0 (or N/A) are not counted in either category
     });
 
-    sortPositiveBtn.textContent = `Positive (${positiveCount})`;
-    sortNegativeBtn.textContent = `Negative (${negativeCount})`;
+    sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;
+    sortNegativeBtn.textContent = `Плохие (${negativeCount})`;
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -298,11 +298,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set tab links dynamically
     if (newsTabLink) {
         newsTabLink.href = `news.html?slug=${slug}`;
-        console.log(`Set News tab link to: ${newsTabLink.href}`);
+        console.log(`Set Новости биржи tab link to: ${newsTabLink.href}`);
     }
     if (guideTabLink) {
         guideTabLink.href = `guide.html?slug=${slug}`;
-        console.log(`Set Guide tab link to: ${guideTabLink.href}`);
+        console.log(`Set Инструкции tab link to: ${guideTabLink.href}`);
     }
 
     if (reviewsTabLink) {
@@ -377,16 +377,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="stat-item">
             <a href="/exchanges/reviews.html?slug=${exchange.slug}" style="text-decoration: none; color: inherit;">
             <div class="value">${exchange.total_review_count || '0'}</div>
-            <div class="label">Total Reviews</div>
+            <div class="label">Отзывы</div>
             </a>
             </div>
             <div class="stat-item">
             <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}B</div>
-            <div class="label">24h Volume</div>
+            <div class="label">Объем (24ч)</div>
             </div>
             <div class="stat-item">
             <div class="value">${exchange.year_founded || 'N/A'}</div>
-            <div class="label">Year Founded</div>
+            <div class="label">Год Основания</div>
             </div>
             </div>
             </div>
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <strong>KYC/Верификация:</strong>
             <img src="${exchange.has_kyc ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_kyc ? 'Yes' : 'No'}" width="25" height="25">
             </p>
-            <p><strong>Сайт:</strong> <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
+            <p><strong>Сайт:</strong> <a href="${exchange.referral_link}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
             </div>
             
             <div class="detail-card">
@@ -474,6 +474,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Show review section
         console.log('Showing review section...');
         reviewSection.classList.remove('hidden');
+        // Update review section heading with exchange name
+        const reviewSectionHeading = reviewSection.querySelector('h2');
+        if (reviewSectionHeading) {
+            reviewSectionHeading.textContent = `Отзывы о бирже ${exchange.name}`;
+        }
 
         // Load exchange reviews and set up sorting/voting
         console.log(`Loading reviews for exchange ID: ${exchange.id}`);
@@ -514,7 +519,18 @@ const renderReviewsList = (reviews) => {
         reviews.forEach(review => {
             const reviewElement = document.createElement('div');
             reviewElement.classList.add('review-item');
-            const averageRating = review.rating
+            const ratingValue = review.rating
+
+            // Generate stars based on rating value 
+            let starsHtml = '<div class="review-rating">';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= ratingValue) {
+                starsHtml += '<span class="star filled" style="color: #ffc107;">★</span>';
+                } else {
+                starsHtml += '<span class="star empty" style="color: #e4e5e9;">☆</span>';
+                }
+            }
+            starsHtml += '</div>';
 
             const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
             
@@ -523,14 +539,14 @@ const renderReviewsList = (reviews) => {
                     <span class="review-author">${authorName}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
-                <div class="review-rating">Rating: ${averageRating > 0 ? averageRating.toFixed(1) + ' ★' : 'N/A'}</div>
+                <div>${starsHtml}</div>
                 <div class="review-content">
                     <p>${review.comment}</p>
                 </div>
                 <div class="review-footer">
-                    <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true">👍 (${review.useful_votes_count})</button>
-                    <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false">👎 (${review.not_useful_votes_count})</button>
-                    <span class="vote-feedback" data-review-id="${review.id}"></span>
+                <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
+                <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
+                <span class="vote-feedback" data-review-id="${review.id}"></span>
                 </div>
             `;
             reviewsList.appendChild(reviewElement);
@@ -545,7 +561,7 @@ async function loadExchangeReviews(exchangeId) {
     const paginationElement = document.getElementById('reviews-pagination');
 
     if (reviewsTabLink) {
-        reviewsTabLink.textContent = 'Reviews (...)'; // Indicate loading
+        reviewsTabLink.textContent = 'Отзывы (...)'; // Indicate loading
     }
 
     if (!reviewsList || !reviewsLoadingElement || !reviewsErrorElement) {
@@ -579,7 +595,7 @@ async function loadExchangeReviews(exchangeId) {
         updateSortButtonCounts(); // Update counts after fetching
 
         if (reviewsTabLink) {
-            reviewsTabLink.textContent = `Reviews (${currentReviews.length})`;
+            reviewsTabLink.textContent = `Отзывы (${currentReviews.length})`;
         }
 
         if (currentReviews.length === 0) {
@@ -598,7 +614,7 @@ async function loadExchangeReviews(exchangeId) {
         currentReviews = [];
         updateSortButtonCounts(); // Update counts on error (to 0)
         if (reviewsTabLink) {
-            reviewsTabLink.textContent = 'Reviews (0)';
+            reviewsTabLink.textContent = 'Отзывы (0)';
         }
     }
 }
@@ -618,7 +634,7 @@ async function handleReviewVoteClick(event) {
 
     if (!isLoggedIn()) {
         console.log('User not logged in, showing alert');
-        alert('Please log in to vote on reviews.');
+        alert('Please log in to vote on reviews.'); // This line shows the pop-up
         return;
     }
 
@@ -678,25 +694,25 @@ function setupSortingButtons() {
     console.log('Setting up sorting button event handlers');
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
-            console.log('Sort Positive clicked');
+            console.log('Sort Хорошие clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => {
                 return b.rating - a.rating;
             });
             renderReviewsList(sortedReviews);
         });
     } else {
-        console.warn('Sort Positive button not found');
+        console.warn('Sort Хорошие button not found');
     }
 
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
-            console.log('Sort Negative clicked');
+            console.log('Sort Плохие clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => {
                 return a.rating - b.rating;
             });
             renderReviewsList(sortedReviews);
         });
     } else {
-        console.warn('Sort Negative button not found');
+        console.warn('Sort Плохие button not found');
     }
 }

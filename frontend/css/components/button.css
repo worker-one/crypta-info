@@ -60,15 +60,15 @@
 
 /* Danger Button */
 .btn-danger {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
+    color: #ffffff;
+    background-color: #fb5959;
+    border-color: #fb5959;
 }
 
 .btn-danger:hover {
-    color: #fff;
-    background-color: #c82333;
-    border-color: #bd2130;
+    color: #ffffff;
+    background-color: #bb4242;
+    border-color: #a72929;
 }
 
 .btn-danger:focus,
@@ -78,13 +78,13 @@
 
 /* Success Button (Optional, if needed) */
 .btn-success {
-    color: #fff;
-    background-color: #28a745;
-    border-color: #28a745;
+    color: #ffffff;
+    background-color: #69b36c;
+    border-color: #69b36c;
 }
 
 .btn-success:hover {
-    color: #fff;
+    color: #ffffff;
     background-color: #218838;
     border-color: #1e7e34;
 }

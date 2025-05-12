@@ -32,6 +32,8 @@ class Item(Base):
     description = Column(Text, nullable=True)
     logo_url = Column(String(512), nullable=True) # Generic logo/cover placeholder
     website_url = Column(String(512), nullable=True)
+    referral_link = Column(String(512), nullable=True)
+    reviews_page_content = Column(Text, nullable=True) # Placeholder for reviews page content
 
     # Common aggregated fields
     overall_average_rating = Column(Numeric(3, 2), default=0.00, index=True)

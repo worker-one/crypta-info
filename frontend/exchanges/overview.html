@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exchange Details - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components/button.css">
     <link rel="stylesheet" href="../css/pages/exchange-detail.css">
 </head>
 <body>
@@ -30,45 +31,47 @@
         <section class="exchange-detail-section">
             <div class="container">
                 <div id="breadcrumb">
-                    <a href="/exchanges">Exchanges</a> / <span id="exchange-name-breadcrumb">Exchange Details</span>
+                    <a href="/exchanges">Биржи</a> / <span id="exchange-name-breadcrumb">Обзор биржи</span>
                 </div>
 
                 <!-- Tab Navigation -->
                 <nav class="exchange-tabs" id="exchange-tabs">
-                    <a href="#" class="tab-link active" id="tab-overview">Overview</a>
-                    <a href="#" class="tab-link" id="tab-reviews">Reviews</a>
-                    <a href="#" class="tab-link" id="tab-news">News</a>
-                    <a href="#" class="tab-link" id="tab-guide">Guide</a>
+                    <a href="#" class="tab-link active" id="tab-overview">Обзор</a>
+                    <a href="#" class="tab-link" id="tab-reviews">Отзывы</a>
+                    <a href="#" class="tab-link" id="tab-news">Новости биржи</a>
+                    <a href="#" class="tab-link" id="tab-guide">Инструкции</a>
                     <a href="#" class="tab-link btn btn-primary hidden" id="tab-website" target="_blank" rel="noopener noreferrer" style="margin-left: auto; color: white">Официальный сайт</a>
                 </nav>
 
                 <div id="exchange-detail-loading" class="loading-message">Loading exchange details...</div>
                 <div id="exchange-detail-error" class="error-message"></div>
 
-                <!-- Overview Tab Content -->
+                <!-- Обзор Tab Content -->
                 <div id="overview-content">
                     <div id="exchange-detail" class="exchange-detail hidden">
                         <!-- Exchange details will be loaded here via JavaScript -->
                     </div>
 
                     <div id="review-section" class="hidden">
-                        <h2>User Reviews</h2>
+                        <h2>Отзывы о бирже</h2>
                         <div id="reviews-container">
                             <!-- Reviews will be loaded here -->
                             <div id="reviews-loading" class="loading-message">Loading reviews...</div>
                             <div id="reviews-error" class="error-message"></div>
                             <!-- Add Sorting Buttons -->
-                            <div class="review-sort-controls" style="margin-bottom: 15px;">
-                                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
-                                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
-                                <!-- <button id="sort-reviews-date" class="btn btn-secondary btn-sm">Sort: Newest First</button> -->
+                            <div class="review-sort-controls" style="margin-bottom: 15px; display: flex; align-items: center;">
+                                <div>
+                                    <button id="sort-reviews-positive" class="btn btn-success btn-sm" style="min-width: 100px;">Хорошие</button>
+                                    <button id="sort-reviews-negative" class="btn btn-danger btn-sm" style="min-width: 100px;">Плохие</button>
+                                    <!-- <button id="sort-reviews-date" class="btn btn-secondary btn-sm">Sort: Newest First</button> -->
+                                </div>
+                                <!-- The href will be set dynamically by JS -->
+                                <a href="#" id="add-review-link" class="btn btn-primary" style="margin-left: auto; min-width: 150px; text-align: center;">Оставить отзыв</a>
                             </div>
+                             
                             <div id="reviews-list"></div>
                             <!-- Add Review Button (Link) -->
-                            <div style="margin-top: 20px;">
-                                <!-- The href will be set dynamically by JS -->
-                                <a href="#" id="add-review-link" class="btn btn-primary">Add Your Review</a>
-                            </div>
+
                         </div>
                     </div>
                 </div> <!-- End #overview-content -->

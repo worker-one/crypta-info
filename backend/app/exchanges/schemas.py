@@ -5,7 +5,7 @@ from datetime import date, datetime
 from decimal import Decimal
 import enum  # Required for KycTypeEnum
 
-from app.schemas.common import CountryRead, LanguageRead, FiatCurrencyRead, RatingCategoryRead
+from app.schemas.common import CountryRead, LanguageRead, FiatCurrencyRead
 
 # Define KycTypeEnum for Pydantic, matching the model's enum
 class KycTypeEnum(str, enum.Enum):
@@ -44,7 +44,9 @@ class ExchangeBase(BaseModel):
     overview: Optional[str] = None
     logo_url: Optional[str] = None
     website_url: Optional[str] = None
+    referral_link: Optional[str] = None
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
+    reviews_page_content: Optional[str] = None  # Placeholder for reviews page content
 
     has_kyc: Optional[bool] = False
     has_p2p: bool = False
@@ -179,5 +181,5 @@ class ExchangeFilterParams(BaseModel):
     has_demo_trading: Optional[bool] = None
 
 class ExchangeSortBy(BaseModel):
-    field: Literal['name', 'overall_average_rating', 'trading_volume_24h', 'total_review_count', 'total_rating_count'] = 'overall_average_rating'
+    field: Literal['name', 'overall_average_rating', 'trading_volume_24h', 'total_review_count', 'total_rating_count', "has_kyc", "has_p2p"] = 'overall_average_rating'
     direction: Literal['asc', 'desc'] = 'desc'

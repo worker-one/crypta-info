@@ -10,7 +10,7 @@ const loadingIndicator = document.getElementById('guide-loading');
 const errorContainer = document.getElementById('guide-error');
 const exchangeNameHeading = document.getElementById('exchange-name-heading');
 const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
-const guideBreadcrumbSpan = document.getElementById('guide-breadcrumb-span'); // The static "Guide" span
+const guideBreadcrumbSpan = document.getElementById('guide-breadcrumb-span'); // The static "Инструкции" span
 const guideDetailBreadcrumb = document.getElementById('guide-detail-breadcrumb'); // Span for guide item title
 
 // --- Helper Functions ---
@@ -40,14 +40,14 @@ function updateTabLinks(slug) {
  * @param {string} exchangeSlug - The slug of the exchange.
  */
 function updateGuideListUI(exchangeName, exchangeSlug) {
-    if (exchangeNameHeading) exchangeNameHeading.textContent = `${exchangeName} Guide`;
+    if (exchangeNameHeading) exchangeNameHeading.textContent = `${exchangeName} Инструкции`;
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
         exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
     }
-    // Ensure "Guide" part is not a link in list view
+    // Ensure "Инструкции" part is not a link in list view
     if (guideBreadcrumbSpan) {
-        guideBreadcrumbSpan.innerHTML = 'Guide'; // Reset to plain text
+        guideBreadcrumbSpan.innerHTML = 'Инструкции'; // Reset to plain text
         showElement(guideBreadcrumbSpan);
     }
     if (guideDetailBreadcrumb) hideElement(guideDetailBreadcrumb); // Hide detail part
@@ -66,8 +66,8 @@ function updateGuideDetailUI(exchangeName, exchangeSlug, guideTitle) {
         exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
     }
     if (guideBreadcrumbSpan) {
-        // Make the "Guide" part a link back to the list
-        guideBreadcrumbSpan.innerHTML = `<a href="guide.html?slug=${exchangeSlug}">Guide</a>`;
+        // Make the "Инструкции" part a link back to the list
+        guideBreadcrumbSpan.innerHTML = `<a href="guide.html?slug=${exchangeSlug}">Инструкции</a>`;
         showElement(guideBreadcrumbSpan);
     }
     if (guideDetailBreadcrumb) {
@@ -194,7 +194,7 @@ const loadSingleGuideItem = async (guideId, slug) => {
         displayErrorMessage('guide-error', `Failed to load guide item. ${error.message}`);
         // Optionally, update title/breadcrumb to show error state
         const exchangeName = exchangeLinkBreadcrumb?.textContent || 'Exchange'; // Fallback
-        updateGuideDetailUI(exchangeName, slug, 'Error Loading Guide');
+        updateGuideDetailUI(exchangeName, slug, 'Error Loading Инструкции');
     }
 };
 

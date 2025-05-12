@@ -2,7 +2,7 @@
 
 // Define the API base URL directly. For production, consider a configuration approach.
 // TODO: Move BASE_URL_API to a config.js file
-const BASE_URL_API = 'http://176.124.219.116:8300/api/v1';
+const BASE_URL_API = 'http://localhost:8300/api/v1';
 
 /**
  * Renders a single exchange card.
@@ -129,7 +129,7 @@ export function renderGuideDetail(guideItem) {
         </div>
         <div class="guide-detail-footer">
              <!-- Optional: Add a link back to the guide list for the exchange -->
-             <!-- <a href="guide.html?slug=..." class="btn btn-outline-secondary btn-sm">Back to Guide List</a> -->
+             <!-- <a href="guide.html?slug=..." class="btn btn-outline-secondary btn-sm">Back to Инструкции List</a> -->
         </div>
     `;
 
@@ -151,7 +151,7 @@ export function renderGuideCard(guideItem, slug) {
     // const excerpt = guideItem.excerpt || 'No description available.'; // Use excerpt or fallback
     // except is the first 200 characters of the content
     const excerpt = guideItem.content ? guideItem.content.substring(0, 200) + '...' : 'No description available.';
-    const title = guideItem.title || 'Untitled Guide';
+    const title = guideItem.title || 'Untitled Инструкции';
 
     // Decide on the link - does clicking a guide card go somewhere?
     // Option 1: Link to a detail page (like news) - NOW points back to guide.html with guide_id
@@ -166,7 +166,7 @@ export function renderGuideCard(guideItem, slug) {
             <h3 class="guide-card-title">${title}</h3>
             <p class="guide-card-excerpt">${excerpt}</p>
             <!-- Optional: Add a link/button if needed -->
-            <a href="${readMoreUrl}" class="guide-card-link">Read Guide &rarr;</a>
+            <a href="${readMoreUrl}" class="guide-card-link">Read Инструкции &rarr;</a>
         </div>
     `;
 

@@ -1,7 +1,7 @@
 /* Import Base Styles */
 @import url('base.css');
 @import url('layout.css');
-@import url('components/buttons.css');
+@import url('components/button.css');
 @import url('components/form.css');
 @import url('components/card.css');
 @import url('components/table.css');

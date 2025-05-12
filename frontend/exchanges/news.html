@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exchange News - Crypta.Info</title>
+    <title>Новости биржи - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css"> <!-- Adjust path -->
     <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles if applicable -->
     <style>
@@ -96,23 +96,23 @@
             <div class="container">
                 <div id="breadcrumb">
                     <a href="/">Home</a> /
-                    <a href="#" id="exchange-link-breadcrumb">Exchange</a> <!-- JS will populate this -->
-                    <span id="news-breadcrumb-span">/ News</span> <!-- Static part -->
+                    <a href="#" id="exchange-link-breadcrumb">Биржа</a> <!-- JS will populate this -->
+                    <span id="news-breadcrumb-span">/ Новости биржи</span> <!-- Static part -->
                     <span id="news-detail-breadcrumb" class="hidden"></span> <!-- Dynamic part for news item title -->
                 </div>
 
                 <nav class="exchange-tabs" id="exchange-tabs">
-                    <a href="#" class="tab-link" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link" id="tab-overview">Обзор</a>
                     <a href="#" class="tab-link" id="tab-reviews">Reviews</a>
-                    <a href="#" class="tab-link active" id="tab-news">News</a>
-                    <a href="#" class="tab-link" id="tab-guide">Guide</a>
+                    <a href="#" class="tab-link active" id="tab-news">Новости биржи</a>
+                    <a href="#" class="tab-link" id="tab-guide">Инструкции</a>
                 </nav>
 
-                <h1 id="exchange-name-heading">Exchange News</h1> <!-- JS will populate this -->
+                <h1 id="exchange-name-heading">Новости биржи</h1> <!-- JS will populate this -->
 
                 <!-- Container for the list view -->
                 <div id="news-list" class="news-list">
-                    <!-- News cards will be loaded here by JS -->
+                    <!-- Новости биржи cards will be loaded here by JS -->
                 </div>
 
                 <!-- Container for the single item detail view (hidden initially) -->
@@ -151,12 +151,12 @@
         // We don't fetch details here anymore, exchange-news.js handles it
 
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log("News page DOMContentLoaded.");
+            console.log("Новости биржи page DOMContentLoaded.");
 
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug');
             const newsId = urlParams.get('news_id'); // Check if viewing single item
-            console.log("Slug:", slug, "News ID:", newsId);
+            console.log("Slug:", slug, "Новости биржи ID:", newsId);
 
             const exchangeNameHeading = document.getElementById('exchange-name-heading');
             const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
@@ -186,7 +186,7 @@
                 }
                 if (exchangeNameHeading) {
                     // Initial heading depends on whether we view list or detail
-                    exchangeNameHeading.textContent = newsId ? 'Loading News...' : `${exchangeName} News`;
+                    exchangeNameHeading.textContent = newsId ? 'Loading Новости биржи...' : `${exchangeName} Новости биржи`;
                 }
 
                 // Set tab links

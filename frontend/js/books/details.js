@@ -5,7 +5,7 @@ import { checkAndCacheUserProfile, handleLogout, isLoggedIn } from '../auth.js';
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
 
-// --- DOM Elements for Reviews (assuming these IDs exist in the HTML) ---
+// --- DOM Elements for Отзывы (assuming these IDs exist in the HTML) ---
 const reviewsList = document.getElementById('reviews-list');
 const reviewsLoading = document.getElementById('reviews-loading');
 const reviewsError = document.getElementById('reviews-error');
@@ -178,7 +178,7 @@ function renderBookDetails(book, container) {
                     </div>
                     <div class="stat-item">
                         <div class="value">${reviewCount}</div>
-                        <div class="label">Total Reviews</div>
+                        <div class="label">Отзывы</div>
                     </div>
                 </div>
                  <div class="topics">
@@ -299,7 +299,7 @@ const renderReviewsList = (reviews) => {
                     <span class="review-author">${review.user?.nickname || review.guest_name}</span>
                     <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
-                <div class="review-rating">Rating: ${ratingDisplay}</div>
+                <div class="review-content">Rating: ${ratingDisplay}</div>
                 <div class="review-content">
                     <p>${review.comment || 'No comment provided.'}</p>
                 </div>
@@ -411,8 +411,8 @@ const updateSortButtonCounts = () => {
         // Reviews with rating 0 or null are not counted in either category
     });
 
-    sortPositiveBtn.textContent = `Positive (${positiveCount})`;
-    sortNegativeBtn.textContent = `Negative (${negativeCount})`;
+    sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;
+    sortNegativeBtn.textContent = `Плохие (${negativeCount})`;
 };
 
 
@@ -424,7 +424,7 @@ function setupSortingButtons() {
 
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
-            console.log('Sort Positive clicked');
+            console.log('Sort Хорошие clicked');
             // Sort by rating descending (highest first)
             const sortedReviews = [...currentReviews].sort((a, b) => {
                 // Handle null/undefined ratings if necessary
@@ -435,12 +435,12 @@ function setupSortingButtons() {
             renderReviewsList(sortedReviews);
         });
     } else {
-        console.warn('Sort Positive button not found (expected ID: sort-reviews-positive)');
+        console.warn('Sort Хорошие button not found (expected ID: sort-reviews-positive)');
     }
 
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
-            console.log('Sort Negative clicked');
+            console.log('Sort Плохие clicked');
             // Sort by rating ascending (lowest first)
              const sortedReviews = [...currentReviews].sort((a, b) => {
                 // Handle null/undefined ratings if necessary
@@ -451,7 +451,7 @@ function setupSortingButtons() {
             renderReviewsList(sortedReviews);
         });
     } else {
-        console.warn('Sort Negative button not found (expected ID: sort-reviews-negative)');
+        console.warn('Sort Плохие button not found (expected ID: sort-reviews-negative)');
     }
     // Initial update of counts based on potentially pre-loaded reviews
     updateSortButtonCounts();

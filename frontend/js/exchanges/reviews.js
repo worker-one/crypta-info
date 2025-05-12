@@ -18,6 +18,7 @@ const guestNameInput = document.getElementById('guest-name');
 
 const exchangeNameHeading = document.getElementById('exchange-name-heading');
 const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
+const exchangeReviewsPageContent = document.getElementById('exchange-reviews-page-content'); // Added
 const pageErrorContainer = document.getElementById('page-error'); // General page error
 const pageLoadingIndicator = document.getElementById('page-loading'); // General page loading
 const reviewSectionContainer = document.getElementById('review-section'); // Main content container
@@ -36,15 +37,17 @@ const hideElement = (el) => el?.classList.add('hidden');
  * Updates breadcrumbs and heading.
  * @param {string} exchangeName - The name of the exchange.
  * @param {string} exchangeSlug - The slug of the exchange.
+ * @param {string} reviewsPageContent - The HTML content for the reviews page.
  */
-function updatePageUI(exchangeName, exchangeSlug) {
+function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent) {
     const overviewPageUrl = `overview.html?slug=${exchangeSlug}`;
-    if (exchangeNameHeading) exchangeNameHeading.textContent = `${exchangeName} Reviews`;
+    if (exchangeNameHeading) exchangeNameHeading.textContent = `Отзывы о криптобирже ${exchangeName}`;
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
         exchangeLinkBreadcrumb.href = overviewPageUrl;
     }
-    document.title = `${exchangeName} Reviews - Crypta.Info`;
+    exchangeReviewsPageContent.innerHTML = reviewsPageContent || 'EMpty'; // Added
+    document.title = `Отзывы ${exchangeName}  - Crypta.Info`;
 
     const overviewTabLink = document.getElementById('tab-overview');
     const newsTabLink = document.getElementById('tab-news');
@@ -88,8 +91,8 @@ const updateSortButtonCounts = () => {
         }
     });
 
-    sortPositiveBtn.textContent = `Positive (${positiveCount})`;
-    sortNegativeBtn.textContent = `Negative (${negativeCount})`;
+    sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;
+    sortNegativeBtn.textContent = `Плохие (${negativeCount})`;
 };
 
 /**
@@ -178,26 +181,37 @@ const renderReviewsList = (reviews) => {
         
         if (reviewsWithComments.length > 0) {
             reviewsWithComments.forEach(review => {
-                const reviewElement = document.createElement('div');
-                reviewElement.classList.add('review-item');
-                const ratingValue = review.rating;
+            const reviewElement = document.createElement('div');
+            reviewElement.classList.add('review-item');
+            const ratingValue = review.rating || 0;
 
-                reviewElement.innerHTML = `
-                    <div class="review-header">
-                        <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
-                        <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
-                    <div class="review-content">
-                        <p>${review.comment}</p>
-                    </div>
-                    <div class="review-footer">
-                        <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
-                        <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
-                        <span class="vote-feedback" data-review-id="${review.id}"></span>
-                    </div>
-                `;
-                reviewsListContainer.appendChild(reviewElement);
+            // Generate stars based on rating value 
+            let starsHtml = '<div class="review-rating">';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= ratingValue) {
+                starsHtml += '<span class="star filled" style="color: #ffc107;">★</span>';
+                } else {
+                starsHtml += '<span class="star empty" style="color: #e4e5e9;">☆</span>';
+                }
+            }
+            starsHtml += '</div>';
+
+            reviewElement.innerHTML = `
+                <div class="review-header">
+                <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
+                <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                </div>
+                <div class="review-rating">${starsHtml}</div>
+                <div class="review-content">
+                <p>${review.comment}</p>
+                </div>
+                <div class="review-footer">
+                <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
+                <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
+                <span class="vote-feedback" data-review-id="${review.id}"></span>
+                </div>
+            `;
+            reviewsListContainer.appendChild(reviewElement);
             });
             setupVoteButtons();
         } else {
@@ -291,14 +305,14 @@ const handleReviewSubmit = async (event, exchangeId) => {
          displayErrorMessage('review-submit-error', 'Please provide a review text (at least 3 characters).');
          showElement(reviewSubmitError);
          submitButton.disabled = false;
-         submitButton.textContent = 'Submit Review';
+         submitButton.textContent = 'Опубликовать';
          return;
     }
     if (ratingValue === null) {
         displayErrorMessage('review-submit-error', 'Please select a star rating.');
         showElement(reviewSubmitError);
         submitButton.disabled = false;
-        submitButton.textContent = 'Submit Review';
+        submitButton.textContent = 'Опубликовать';
         return;
     }
 
@@ -313,7 +327,7 @@ const handleReviewSubmit = async (event, exchangeId) => {
             displayErrorMessage('review-submit-error', 'Please provide your name as a guest.');
             showElement(reviewSubmitError);
             submitButton.disabled = false;
-            submitButton.textContent = 'Submit Review';
+            submitButton.textContent = 'Опубликовать';
             guestNameInput.focus();
             return;
         }
@@ -321,7 +335,7 @@ const handleReviewSubmit = async (event, exchangeId) => {
             displayErrorMessage('review-submit-error', 'Guest name cannot exceed 50 characters.');
             showElement(reviewSubmitError);
             submitButton.disabled = false;
-            submitButton.textContent = 'Submit Review';
+            submitButton.textContent = 'Опубликовать';
             guestNameInput.focus();
             return;
         }
@@ -343,7 +357,7 @@ const handleReviewSubmit = async (event, exchangeId) => {
     } finally {
         console.log('Re-enabling submit button.');
         submitButton.disabled = false;
-        submitButton.textContent = 'Submit Review';
+        submitButton.textContent = 'Опубликовать';
     }
 };
 
@@ -403,24 +417,24 @@ function setupSortingButtons() {
 
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
-            console.log('Sort Positive clicked');
+            console.log('Sort Хорошие clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => (b.rating || 0) - (a.rating || 0));
             renderReviewsList(sortedReviews);
             // Histogram is based on all reviews, so it doesn't need re-rendering on sort
         });
     } else {
-        console.warn('Sort Positive button not found during setup');
+        console.warn('Sort Хорошие button not found during setup');
     }
 
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
-            console.log('Sort Negative clicked');
+            console.log('Sort Плохие clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => (a.rating || 0) - (b.rating || 0));
             renderReviewsList(sortedReviews);
             // Histogram is based on all reviews, so it doesn't need re-rendering on sort
         });
     } else {
-        console.warn('Sort Negative button not found during setup');
+        console.warn('Sort Плохие button not found during setup');
     }
 }
 
@@ -440,8 +454,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Dynamically adding sort controls...');
         sortControlsContainer.innerHTML = `
             <div class="review-sort-controls" style="margin-top: 15px; margin-bottom: 15px;">
-                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
-                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
+            <button id="sort-reviews-positive" class="btn btn-success btn-sm">Хорошие</button>
+            <button id="sort-reviews-negative" class="btn btn-danger btn-sm">Плохие</button>
             </div>
         `;
     } else if (!sortControlsContainer) {
@@ -466,6 +480,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         showElement(pageLoadingIndicator);
         hideElement(pageErrorContainer);
+        if (exchangeReviewsPageContent) hideElement(exchangeReviewsPageContent); // Hide initially
 
         const exchange = await getExchangeDetails(slug);
         hideElement(pageLoadingIndicator);
@@ -475,7 +490,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const exchangeId = exchange.id;
-        updatePageUI(exchange.name, slug);
+        updatePageUI(exchange.name, slug, exchange.reviews_page_content); // Pass content
+        if (exchangeReviewsPageContent && exchange.reviews_page_content) { // Show if content exists
+            showElement(exchangeReviewsPageContent);
+        }
 
         showElement(reviewSectionContainer);
 
@@ -505,6 +523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         displayErrorMessage('page-error', `Error loading exchange data: ${error.message}`);
         showElement(pageErrorContainer);
         hideElement(reviewSectionContainer);
+        if (exchangeReviewsPageContent) hideElement(exchangeReviewsPageContent); // Hide on error
         if (exchangeNameHeading) exchangeNameHeading.textContent = 'Error Loading Exchange';
     }
 });

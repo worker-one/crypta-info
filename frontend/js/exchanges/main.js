@@ -10,7 +10,7 @@ let currentSortDirection = 'desc'; // Default direction
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
-const BASE_URL_API = 'http://176.124.219.116:8200/api/v1';
+const BASE_URL_API = 'http://localhost:8200/api/v1';
 
 // --- Initialization ---
 
@@ -219,6 +219,10 @@ function applyFilters() {
     }
     if (fiatId) params.supports_fiat_id = fiatId;
 
+    if (kycType === 'true' || kycType === 'false') {
+        params.has_kyc = kycType === 'true';
+    }
+
     // Add sort parameters
     params.field = currentSortKey;
     params.direction = currentSortDirection;
@@ -334,7 +338,7 @@ async function loadHomepageExchanges(params = {}) {
 
                     // Rating Cell
                     cell = row.insertCell();
-                    cell.innerHTML = `<span style="font-weight: bold; color: gold;">${formattedRating}</span>`;
+                    cell.innerHTML = `<span style="font-weight: bold; color: gold;"> ★ ${formattedRating}</span>`;
                     cell.style.textAlign = 'center';
                     cell.style.verticalAlign = 'middle';
 
@@ -343,6 +347,7 @@ async function loadHomepageExchanges(params = {}) {
                     reviewsTd.className = 'reviews-cell'; // Add class if needed for styling
                     reviewsTd.style.textAlign = 'center';
                     reviewsTd.style.verticalAlign = 'middle';
+
                     // Wrap the count in a link
                     const reviewsLink = document.createElement('a');
                     reviewsLink.href = `exchanges/reviews.html?slug=${exchange.slug}`;

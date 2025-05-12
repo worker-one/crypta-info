@@ -2,7 +2,7 @@
 import { getAccessToken } from './auth.js'; // Import the auth function
 
 // Base URL for API, taken from environment variable or fallback to default
-const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
+const BASE_API_URL = 'http://localhost:8300/api/v1'
 
 /**
  * Performs a fetch request to the API.
@@ -329,7 +329,7 @@ export async function adminModerateReview(reviewId, moderationPayload) {
     }, true); // Requires admin auth
 }
 
-// --- News API Functions ---
+// --- Новости биржи API Functions ---
 
 /**
  * Fetches a list of news items.
@@ -394,7 +394,7 @@ export async function fetchBookTopics() {
     return fetchApi('/books/topics/', { method: 'GET' });
 }
 
-// --- Guide API Functions ---
+// --- Инструкции API Functions ---
 
 /**
  * Fetches a list of guide items, optionally filtered by exchange ID.

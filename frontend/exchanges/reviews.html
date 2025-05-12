@@ -6,6 +6,7 @@
     <title>Exchange Reviews - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles -->
+    <link rel="stylesheet" href="../css/components/button.css"> <!-- Reuse button styles -->
     <link rel="stylesheet" href="../css/star-rating.css"> <!-- Added star rating CSS -->
     <style>
         /* Add any specific styles for reviews if needed */
@@ -97,23 +98,26 @@
         <section class="content-section">
             <div class="container">
                 <div id="breadcrumb">
-                    <a href="/">Home</a> /
-                    <a href="#" id="exchange-link-breadcrumb">Exchange</a> <!-- JS will populate this -->
+                    <a href="/">Главная</a> /
+                    <a href="#" id="exchange-link-breadcrumb">Биржа</a> <!-- JS will populate this -->
                     / Reviews
                 </div>
 
                 <nav class="exchange-tabs" id="exchange-tabs">
-                    <a href="#" class="tab-link" id="tab-overview">Overview</a>
-                    <a href="#" class="tab-link active" id="tab-reviews">Reviews</a> <!-- Already active -->
-                    <a href="#" class="tab-link" id="tab-news">News</a>
-                    <a href="#" class="tab-link" id="tab-guide">Guide</a>
+                    <a href="#" class="tab-link" id="tab-overview">Обзор</a>
+                    <a href="#" class="tab-link active" id="tab-reviews">Отзывы</a> <!-- Already active -->
+                    <a href="#" class="tab-link" id="tab-news">Новости биржи</a>
+                    <a href="#" class="tab-link" id="tab-guide">Инструкции</a>
                 </nav>
 
                 <h1 id="exchange-name-heading">Exchange Reviews</h1> <!-- JS will populate this -->
+                <div id="exchange-reviews-page-content" class="exchange-page-content" style="margin-bottom: 20px;">
+                    <!-- JS will populate this with exchange.reviews_page_content -->
+                </div>
                 <!-- Reviews Section -->
                 <div id="review-section">
                     <div id="reviews-container">
-                        <div id="reviews-loading" class="loading-message">Loading reviews...</div>
+                        <div id="reviews-loading" class="loading-message">Загрузка отзывов...</div>
                         <div id="reviews-error" class="error-message"></div>
                         <!-- Add container for sort buttons -->
                         
@@ -123,11 +127,11 @@
                         </div>
 
                         <div id="add-review-section"> <!-- Always shown, guest_name field toggled by JS -->
-                            <h3>Add Your Review</h3>
+                            <h3>Оставить отзыв</h3>
                             <form id="review-form">
                                 <!-- Container for the single rating input -->
                                 <div id="review-rating-input-container" class="form-group">
-                                    <label>Your Rating:</label>
+                                    <label>Общая оценка</label>
                                     <div class="star-rating single-rating" data-rating-group="overall">
                                         <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
                                         <label for="star-overall-5"></label>
@@ -142,14 +146,14 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="review-text">Your Review:</label>
-                                    <textarea id="review-text" name="review-text" rows="5" placeholder="Optional - Share your experience"></textarea>
+                                    <label for="review-text">Текст отзыва</label>
+                                    <textarea id="review-text" name="review-text" rows="5" placeholder="Поделитесь своим мнением — это поможет другим сделать правильный выбор!"></textarea>
                                 </div>
                                 <div id="guest-name-input-container" class="form-group hidden"> <!-- Hidden by default -->
-                                    <label for="guest-name">Your Name (as Guest):</label>
+                                    <label for="guest-name">Ваше Имя</label>
                                     <input type="text" id="guest-name" name="guest-name" class="form-control">
                                 </div>
-                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                                <button type="submit" class="btn btn-primary">Опубликовать</button>
                                 <div id="review-submit-error" class="error-message"></div>
                                 <div id="review-submit-success" class="success-message"></div>
                             </form>
@@ -207,6 +211,7 @@
             console.log("Slug:", slug);
 
             const exchangeNameHeading = document.getElementById('exchange-name-heading');
+            const exchangeReviewsPageContent = document.getElementById('exchange-reviews-page-content'); // Added
             const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
             const overviewTabLink = document.getElementById('tab-overview');
             const newsTabLink = document.getElementById('tab-news');
@@ -228,7 +233,10 @@
                     exchangeLinkBreadcrumb.textContent = exchangeName; // Will be updated by JS
                 }
                 if (exchangeNameHeading) {
-                    exchangeNameHeading.textContent = `${exchangeName} Reviews`; // Will be updated by JS
+                    exchangeNameHeading.textContent = `${exchangeName} Отзывы`; // Will be updated by JS
+                }
+                if (exchangeReviewsPageContent) { // Added
+                    exchangeReviewsPageContent.innerHTML = ''; // Clear initially
                 }
 
                 // Set tab links
@@ -247,6 +255,7 @@
                 if (newsTabLink) newsTabLink.href = '#';
                 if (reviewsTabLink) reviewsTabLink.href = '#'; // Current page, but slug missing
                 if (guideTabLink) guideTabLink.href = '#';
+                if (exchangeReviewsPageContent) exchangeReviewsPageContent.classList.add('hidden'); // Hide on error
                 document.getElementById('review-section').classList.add('hidden');
                 document.getElementById('page-error').textContent = 'Cannot load page: Exchange identifier (slug) is missing.';
                 document.getElementById('page-error').classList.remove('hidden');

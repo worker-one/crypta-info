@@ -9,7 +9,7 @@ const loadingIndicator = document.getElementById('news-loading');
 const errorContainer = document.getElementById('news-error'); // General error display
 const exchangeNameHeading = document.getElementById('exchange-name-heading');
 const exchangeLinkBreadcrumb = document.getElementById('exchange-link-breadcrumb');
-const newsBreadcrumbSpan = document.getElementById('news-breadcrumb-span'); // The static "News" span
+const newsBreadcrumbSpan = document.getElementById('news-breadcrumb-span'); // The static "Новости биржи" span
 const newsDetailBreadcrumb = document.getElementById('news-detail-breadcrumb'); // Span for news item title
 
 // --- Helper Functions ---
@@ -39,7 +39,7 @@ function updateTabLinks(slug) {
  * @param {string} exchangeSlug - The slug of the exchange.
  */
 function updateListUI(exchangeName, exchangeSlug) {
-    if (exchangeNameHeading) exchangeNameHeading.textContent = `${exchangeName} News`;
+    if (exchangeNameHeading) exchangeNameHeading.textContent = `Новости биржи ${exchangeName}`;
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
         exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
@@ -61,8 +61,8 @@ function updateDetailUI(exchangeName, exchangeSlug, newsTitle) {
         exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
     }
     if (newsBreadcrumbSpan) {
-        // Make the "News" part a link back to the list
-        newsBreadcrumbSpan.innerHTML = `<a href="news.html?slug=${exchangeSlug}">News</a>`;
+        // Make the "Новости биржи" part a link back to the list
+        newsBreadcrumbSpan.innerHTML = `<a href="news.html?slug=${exchangeSlug}">Новости биржи</a>`;
         showElement(newsBreadcrumbSpan);
     }
     if (newsDetailBreadcrumb) {
@@ -162,7 +162,7 @@ const loadSingleNewsItem = async (newsId, slug) => {
         newsDetailContainer.innerHTML = '';
         displayErrorMessage('news-error', `Failed to load news item. ${error.message}`);
         // Optionally, update title/breadcrumb to show error state
-        updateDetailUI(exchangeLinkBreadcrumb?.textContent || 'Exchange', slug, 'Error Loading News');
+        updateDetailUI(exchangeLinkBreadcrumb?.textContent || 'Exchange', slug, 'Error Loading Новости биржи');
     }
 };
 

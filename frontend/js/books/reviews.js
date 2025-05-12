@@ -78,8 +78,8 @@ export const updateSortButtonCounts = () => { // Added export
         }
     });
 
-    sortPositiveBtn.textContent = `Positive (${positiveCount})`;
-    sortNegativeBtn.textContent = `Negative (${negativeCount})`;
+    sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;
+    sortNegativeBtn.textContent = `Плохие (${negativeCount})`;
 };
 
 /**
@@ -107,7 +107,7 @@ export const renderReviewsList = (reviews) => { // Added export
                         <span class="review-author">${authorName}</span>
                         <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
                     </div>
-                    <div class="review-rating">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
+                    <div class="review-content">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
                     <div class="review-content">
                         <p>${review.comment}</p>
                     </div>
@@ -213,7 +213,7 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
             displayErrorMessage('review-submit-error', 'Please provide your name as a guest.');
             showElement(reviewSubmitError);
             submitButton.disabled = false;
-            submitButton.textContent = 'Submit Review';
+            submitButton.textContent = 'Опубликовать';
             return;
         }
     }
@@ -222,14 +222,14 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
          displayErrorMessage('review-submit-error', 'Please provide a review text (at least 3 characters).');
          showElement(reviewSubmitError);
          submitButton.disabled = false;
-         submitButton.textContent = 'Submit Review';
+         submitButton.textContent = 'Опубликовать';
          return;
     }
     if (ratingValue === null) {
         displayErrorMessage('review-submit-error', 'Please select a star rating.');
         showElement(reviewSubmitError);
         submitButton.disabled = false;
-        submitButton.textContent = 'Submit Review';
+        submitButton.textContent = 'Опубликовать';
         return;
     }
 
@@ -258,7 +258,7 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
     } finally {
         console.log('Re-enabling submit button.');
         submitButton.disabled = false;
-        submitButton.textContent = 'Submit Review';
+        submitButton.textContent = 'Опубликовать';
     }
 };
 
@@ -321,22 +321,22 @@ export function setupSortingButtons() { // Added export
 
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
-            console.log('Sort Positive clicked');
+            console.log('Sort Хорошие clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => (b.rating || 0) - (a.rating || 0));
             renderReviewsList(sortedReviews);
         });
     } else {
-        console.warn('Sort Positive button not found during setup');
+        console.warn('Sort Хорошие button not found during setup');
     }
 
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
-            console.log('Sort Negative clicked');
+            console.log('Sort Плохие clicked');
             const sortedReviews = [...currentReviews].sort((a, b) => (a.rating || 0) - (b.rating || 0));
             renderReviewsList(sortedReviews);
         });
     } else {
-        console.warn('Sort Negative button not found during setup');
+        console.warn('Sort Плохие button not found during setup');
     }
 }
 
@@ -389,8 +389,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Dynamically adding sort controls for books...');
         sortControlsContainer.innerHTML = `
             <div class="review-sort-controls" style="margin-bottom: 15px;">
-                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Positive</button>
-                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Negative</button>
+                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Хорошие</button>
+                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Плохие</button>
             </div>
         `;
     } else if (!sortControlsContainer) {

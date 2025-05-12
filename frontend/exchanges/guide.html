@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exchange Guide - Crypta.Info</title>
+    <title>Exchange Инструкции - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css"> <!-- Adjust path -->
     <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles if applicable -->
     <!-- Add specific guide page CSS if needed -->
@@ -75,24 +75,24 @@
                  <div id="breadcrumb">
                     <a href="/">Home</a> /
                     <a href="#" id="exchange-link-breadcrumb">Exchange</a> / <!-- JS will populate this -->
-                    <span id="guide-breadcrumb-span">Guide</span> <!-- Static "Guide" part -->
+                    <span id="guide-breadcrumb-span">Инструкции</span> <!-- Static "Инструкции" part -->
                     <span id="guide-detail-breadcrumb" class="hidden"></span> <!-- Placeholder for guide item title -->
                 </div>
 
                 <!-- Tab Navigation -->
                 <nav class="exchange-tabs" id="exchange-tabs">
-                    <a href="#" class="tab-link" id="tab-overview">Overview</a>
+                    <a href="#" class="tab-link" id="tab-overview">Обзор</a>
                     <a href="#" class="tab-link" id="tab-reviews">Reviews</a>
-                    <a href="#" class="tab-link" id="tab-news">News</a>
-                    <a href="#" class="tab-link active" id="tab-guide">Guide</a>
+                    <a href="#" class="tab-link" id="tab-news">Новости биржи</a>
+                    <a href="#" class="tab-link active" id="tab-guide">Инструкции</a>
                 </nav>
 
-                <h1 id="exchange-name-heading">Exchange Guide</h1> <!-- JS will populate this -->
+                <h1 id="exchange-name-heading">Exchange Инструкции</h1> <!-- JS will populate this -->
 
                 <div id="guide-content">
                     <!-- Container for guide items (list view) -->
                     <div id="guide-list" class="guide-grid">
-                        <!-- Guide cards will be loaded here -->
+                        <!-- Инструкции cards will be loaded here -->
                     </div>
                     <!-- Container for single guide item (detail view) -->
                     <div id="guide-detail-content" class="hidden">
@@ -157,14 +157,14 @@
                 }
                  if (exchangeNameHeading) {
                     // Heading will be updated by exchange-guide.js later
-                    // exchangeNameHeading.textContent = `${exchangeName} Guide`;
+                    // exchangeNameHeading.textContent = `${exchangeName} Инструкции`;
                  }
                 if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
                 if (newsTabLink) newsTabLink.href = newsPageUrl;
                 if (guideTabLink) guideTabLink.href = `#`; // Current page
             } else {
                  // Handle missing slug
-                if (exchangeNameHeading) exchangeNameHeading.textContent = 'Exchange Guide - Error: Slug missing';
+                if (exchangeNameHeading) exchangeNameHeading.textContent = 'Exchange Инструкции - Error: Slug missing';
                 console.error("Exchange slug is missing from URL.");
                 document.getElementById('guide-error').textContent = 'Cannot load page: Exchange identifier (slug) is missing.';
                 document.getElementById('guide-loading').classList.add('hidden');

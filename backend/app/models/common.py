@@ -1,7 +1,7 @@
 # app/models/common.py
 # (Only showing Country for brevity, assume others are okay unless they directly referenced removed Exchange fields)
 
-from sqlalchemy import Column, Integer, String, Text, Table, ForeignKey # Added Table, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 # Import Base from the central location

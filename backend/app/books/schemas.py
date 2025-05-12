@@ -23,6 +23,7 @@ class BookBase(BaseModel):
     description: Optional[str] = None
     logo_url: Optional[HttpUrl] = Field(None, description="Cover image URL")
     website_url: Optional[HttpUrl] = Field(None, description="Link to buy or learn more")
+    referral_link: Optional[HttpUrl] = Field(None, description="Affiliate link for the book")
 
     
     # Book-specific fields
@@ -43,6 +44,7 @@ class BookUpdate(BookBase):
     slug: Optional[str] = Field(None, min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$")
     logo_url: Optional[HttpUrl] = None
     website_url: Optional[HttpUrl] = None
+    referral_link: Optional[HttpUrl] = None
     year: Optional[int] = Field(None, ge=1500, le=datetime.now().year)
     number: Optional[str] = Field(None, max_length=50)
 
