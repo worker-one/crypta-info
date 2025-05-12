@@ -10,7 +10,7 @@ let currentSortDirection = 'desc'; // Default direction
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
-const BASE_URL_API = 'http://localhost:8200/api/v1';
+const BASE_URL_API = 'http://176.124.219.116:8200/api/v1';
 
 // --- Initialization ---
 
