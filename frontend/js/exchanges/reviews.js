@@ -205,7 +205,7 @@ const renderReviewsList = (reviews) => {
                 <div class="review-content">
                 <p>${review.comment}</p>
                 </div>
-                <div class="review-footer">
+                <div class="review-footer" style="margin-top: 5px;">
                 <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
                 <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
                 <span class="vote-feedback" data-review-id="${review.id}"></span>

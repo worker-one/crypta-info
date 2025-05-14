@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Details - Crypta.Info</title> <!-- Changed title -->
     <link rel="stylesheet" href="../css/main.css">
-    <!-- Optional: Add a specific CSS file for book details if needed -->
     <link rel="stylesheet" href="../css/pages/book-detail.css"> <!-- Assuming a similar CSS structure -->
 </head>
 <body>
@@ -30,8 +29,11 @@
 
     <main>
         <section class="book-detail-section"> <!-- Changed class name -->
+            
             <div class="container">
-
+                <div id="breadcrumb">
+                    <a href="/books">Книги</a> / <span id="book-name-breadcrumb">Обзор книги</span>
+                </div>
                 <!-- Added Tab Navigation -->
                 <nav class="exchange-tabs" id="book-tabs"> <!-- Reusing class, added ID -->
                     <a href="#" class="tab-link active" id="tab-overview">Обзор</a>

@@ -479,11 +479,11 @@ function renderCardView(exchanges, containerId) {
                     </div>
                     <div class="card-info-row">
                         <span class="card-info-label">P2P:</span>
-                        <span class="card-info-value">${p2pText}</span> <!-- Added P2P -->
+                        <span class="card-info-value">${p2pText}</span>
                     </div>
                      <div class="card-info-row">
                         <span class="card-info-label">KYC:</span>
-                        <span class="card-info-value">${kycText}</span> <!-- Added KYC -->
+                        <span class="card-info-value">${kycText}</span>
                     </div>
                     <div class="card-info-row">
                         <div class="card-info-label">Info:</div>

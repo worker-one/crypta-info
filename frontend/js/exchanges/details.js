@@ -3,6 +3,8 @@ import { getExchangeDetails, listItemReviews, voteOnReview, submitItemReview } f
 import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { isLoggedIn, handleLogout } from '../auth.js';
 
+const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
+
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
 let reviewsTabLink; // Declare reviewsTabLink in module scope
@@ -327,7 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Show/hide website tab link
         if (exchange.website_url) {
             if (websiteTabLink) {
-                websiteTabLink.href = exchange.website_url;
+                websiteTabLink.href = `${BASE_API_URL}/exchanges/go/${exchange.slug}`;
                 websiteTabLink.classList.remove('hidden');
             }
         }
@@ -456,7 +458,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               </tbody>
             </table>
             <div class="bonus-button-container" style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
-            <a href="${exchange.website_url}" target="_blank" rel="noopener noreferrer" class="bonus-button" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; font-size: 18px; border-radius: 4px; transition: background-color 0.3s;">Получить бонус</a>
+            <a href="${BASE_API_URL}/exchanges/go/${exchange.slug}" target="_blank" rel="noopener noreferrer" class="bonus-button" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; font-size: 18px; border-radius: 4px; transition: background-color 0.3s;">Получить бонус</a>
             </div>
             </div>
             
@@ -543,7 +545,7 @@ const renderReviewsList = (reviews) => {
                 <div class="review-content">
                     <p>${review.comment}</p>
                 </div>
-                <div class="review-footer">
+                <div class="review-footer" style="margin-top: 5px;">
                 <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
                 <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
                 <span class="vote-feedback" data-review-id="${review.id}"></span>

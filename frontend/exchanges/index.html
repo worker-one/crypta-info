@@ -34,10 +34,19 @@
     <!-- Site Navigation - Added Below Header -->
     <div class="site-nav-container">
         <div class="container">
-            <nav class="site-nav">
-                <a href="/exchanges" class="nav-link active">КРИПТОБИРЖИ</a> <!-- Example: Add 'active' class dynamically -->
-                <a href="/books" class="nav-link">КНИГИ</a>
-            </nav>
+            <div style="display: flex; align-items: center; justify-content: flex-start;">
+                <nav class="site-nav" style="display: flex; gap: 1.5rem;">
+                    <a href="/exchanges" class="nav-link active">КРИПТОБИРЖИ</a>
+                    <a href="/books" class="nav-link">КНИГИ</a>
+                </nav>
+                <div style="flex:0;"></div>
+                <form id="search-filter-form">
+                    <input type="search" id="search-input" placeholder="Search...">
+                    <button type="submit">
+                        <img src="../assets/images/search-interface-symbol.png" alt="Search">
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -52,15 +61,8 @@
                 </div>
 
                 <!-- Filters Section -->
-                <div id="exchange-filters" class="exchange-filters-container" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
-                    <!-- Search Bar -->
-                    <div class="header-search-container" style="width:100%; margin-bottom: 0.5rem;">
-                        <form id="search-filter-form" style="display:flex; width:100%;">
-                            <input type="search" id="search-input" placeholder="Search exchanges..." style="flex:1; min-width:0;">
-                            <button type="submit" class="btn btn-primary btn-sm" style="margin-left:8px;">Поиск</button>
-                        </form>
-                    </div>
-                    
+                <!-- <div id="exchange-filters" class="exchange-filters-container" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                     -->
                     <!-- <form id="filter-form" class="filter-form">
                         <div class="form-group">
                             <label for="filter-country-registration">Registration Country</label>
@@ -93,8 +95,8 @@
                             <button type="button" id="reset-filters-btn" class="btn btn-outline-secondary btn-sm">Reset</button>
                         </div>
                     </form> -->
-                    
-                </div>
+<!--                     
+                </div> -->
 
                 <!-- Table container stays outside inner container to be full width -->
                 <div id="exchange-table-container">
@@ -117,7 +119,7 @@
                                 <th class="sortable" data-sort-key="overall_average_rating" style="text-align: center;">Рейтинг</th> <!-- Added centering -->
                                 <th class="sortable" data-sort-key="total_review_count" style="text-align: center;">Отзывы</th> <!-- Added centering -->
                                 <th class="sortable" data-sort-key="trading_volume_24h" style="text-align: center;">Объем (24ч)</th> <!-- Added centering -->
-                                <th class="sortable" data-sort-key="has_p2p style="text-align: center;">P2P</th> <!-- Added centering -->
+                                <th class="sortable" data-sort-key="has_p2p" style="text-align: center;">P2P</th> <!-- Added centering -->
                                 <th class="sortable" data-sort-key="has_kyc" style="text-align: center;">KYC</th> <!-- Added centering -->
                                 <th style="text-align: center;"> </th> <!-- Added centering -->
                             </tr>
