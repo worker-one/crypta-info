@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
+    const ratingFromUrl = urlParams.get('rating'); // Get rating from URL
 
     if (!slug) {
         displayErrorMessage('page-error', 'Cannot load page: Exchange identifier (slug) is missing.');
@@ -499,6 +500,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await loadReviews(exchangeId);
         setupSortingButtons();
+
+        // Pre-select rating if passed in URL and scroll to form
+        if (ratingFromUrl) {
+            const ratingValue = parseInt(ratingFromUrl, 10);
+            if (ratingValue >= 1 && ratingValue <= 5) {
+                const ratingInput = document.querySelector(`#review-rating-input-container .single-rating input[name="rating-overall"][value="${ratingValue}"]`);
+                if (ratingInput) {
+                    ratingInput.checked = true;
+                    console.log(`Pre-selected rating from URL: ${ratingValue}`);
+                    const reviewFormSection = document.getElementById('add-review-section');
+                    if (reviewFormSection) {
+                        // Ensure the form is visible before scrolling
+                        if (addReviewSection.classList.contains('hidden')) {
+                            showElement(addReviewSection);
+                        }
+                        reviewFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else {
+                    console.warn(`Rating input for value ${ratingValue} not found.`);
+                }
+            } else {
+                console.warn(`Invalid rating value from URL: ${ratingFromUrl}`);
+            }
+        }
 
         // Configure form based on login state
         if (isLoggedIn()) {

@@ -20,10 +20,10 @@ const sortNegativeBtn = document.getElementById('sort-reviews-negative');
  * Renders a star rating display with clickable stars.
  * @param {string|number} ratingString - The rating value (e.g., "4.5" or 4.5).
  * @param {number} maxStars - The maximum number of stars to display (default 5).
- * @param {number|string} exchangeId - The exchange ID for submitting ratings (optional).
+ * @param {boolean} interactive - Whether the stars should be interactive (for hover/click).
  * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
  */
-function renderStarRating(ratingString, maxStars = 5, exchangeId = null) {
+function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
     const rating = parseFloat(ratingString);
     if (isNaN(rating) || rating < 0) {
         return 'N/A'; // Return N/A if rating is not a valid number
@@ -32,18 +32,17 @@ function renderStarRating(ratingString, maxStars = 5, exchangeId = null) {
     let starsHtml = '';
     const simpleRoundedRating = Math.round(rating);
     
-    // Only make stars clickable if exchangeId is provided
-    const clickableClass = exchangeId ? 'clickable-star' : '';
-    const dataAttr = exchangeId ? `data-exchange-id="${exchangeId}"` : '';
+    const clickableClass = interactive ? 'clickable-star' : ''; // Use interactive flag
     
     // Create a container for stars to make hover effect targeting easier
-    starsHtml = `<span class="stars-container" ${exchangeId ? 'data-interactive="true"' : ''}>`;
+    starsHtml = `<span class="stars-container" ${interactive ? 'data-interactive="true"' : ''}>`; // Use interactive flag
     
     for (let i = 1; i <= maxStars; i++) {
+        // data-rating is always added for hover/click logic
         if (i <= simpleRoundedRating) {
-            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}" ${dataAttr}>★</span>`; // Filled star
+            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}">★</span>`; // Filled star
         } else {
-            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}" ${dataAttr}>☆</span>`; // Empty star
+            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}">☆</span>`; // Empty star
         }
     }
     
@@ -53,85 +52,34 @@ function renderStarRating(ratingString, maxStars = 5, exchangeId = null) {
 }
 
 /**
- * Handles click on a star to submit a rating.
+ * Handles click on a star. Redirects to the review page with the selected rating.
  * @param {Event} event - The click event
  */
-async function handleStarClick(event) {
+function handleStarClick(event) { // Made non-async, removed direct submission
     const starElement = event.target.closest('.clickable-star');
     if (!starElement) return;
     
     const rating = parseInt(starElement.dataset.rating, 10);
-    const exchangeId = starElement.dataset.exchangeId;
     
-    if (!rating || !exchangeId) return;
-    
-    // Create a feedback element if it doesn't exist yet
-    let feedbackEl = document.querySelector('.rating-feedback');
-    if (!feedbackEl) {
-        feedbackEl = document.createElement('div');
-        feedbackEl.className = 'rating-feedback';
-        starElement.parentNode.parentNode.appendChild(feedbackEl);
+    if (!rating || rating < 1 || rating > 5) {
+        console.warn("Invalid rating clicked or star not properly configured:", rating);
+        return;
     }
     
-    feedbackEl.textContent = 'Submitting your rating...';
-    
-    try {
-        // Submit the rating with null comment and "Guest" as guest_name
-        await submitItemReview(exchangeId, {
-            comment: null,
-            rating: rating,
-            guest_name: "Guest",
-            moderation_status: "approved"
-        });
-        
-        feedbackEl.textContent = 'Thank you for your rating!';
-        feedbackEl.classList.add('success');
-        
-        // Optionally refresh the exchange details after a short delay
-        setTimeout(async () => {
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const slug = urlParams.get('slug');
-                const exchange = await getExchangeDetails(slug);
-                
-                // Update the displayed rating
-                const ratingContainer = starElement.closest('.stat-item');
-                if (ratingContainer) {
-                    const valueDiv = ratingContainer.querySelector('.value');
-                    if (valueDiv) {
-                        valueDiv.innerHTML = renderStarRating(exchange.overall_average_rating, 5, exchange.id);
-                    }
-                    const labelDiv = ratingContainer.querySelector('.label');
-                    if (labelDiv) {
-                        labelDiv.textContent = `${exchange.total_rating_count} голосов`;
-                    }
-                }
-                
-                // Re-attach click handlers to the new stars
-                attachStarClickHandlers();
-                
-                // Clear feedback message
-                setTimeout(() => {
-                    feedbackEl.textContent = '';
-                    feedbackEl.classList.remove('success');
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Failed to refresh exchange details:', error);
-            }
-        }, 1500);
-        
-    } catch (error) {
-        console.error('Failed to submit rating:', error);
-        feedbackEl.textContent = `Error: ${error.message}`;
-        feedbackEl.classList.add('error');
-        
-        // Clear error message after a delay
-        setTimeout(() => {
-            feedbackEl.textContent = '';
-            feedbackEl.classList.remove('error');
-        }, 3000);
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug'); 
+
+    if (!slug) {
+        console.error("Slug not found in current URL. Cannot redirect to reviews page with rating.");
+        // Optionally, display an error message to the user or disable star clicking if slug is missing.
+        return;
     }
+    
+    // Construct the redirect URL, including a hash to scroll to the review form
+    const redirectUrl = `/exchanges/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
+    
+    console.log(`Redirecting to: ${redirectUrl}`);
+    window.location.href = redirectUrl;
 }
 
 /**
@@ -373,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
 
             <div class="stat-item">
-            <div class="value">${renderStarRating(exchange.overall_average_rating, 5, exchange.id)}</div>
+            <div class="value">${renderStarRating(exchange.overall_average_rating, 5, true)}</div>
             <div class="label">${exchange.total_rating_count} голосов</div>
             </div>
             <div class="stat-item">
@@ -403,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <strong>KYC/Верификация:</strong>
             <img src="${exchange.has_kyc ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_kyc ? 'Yes' : 'No'}" width="25" height="25">
             </p>
-            <p><strong>Сайт:</strong> <a href="${exchange.referral_link}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
+            <p><strong>Сайт:</strong> <a href="${BASE_API_URL}/exchanges/go/${exchange.slug}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
             </div>
             
             <div class="detail-card">
@@ -534,7 +482,7 @@ const renderReviewsList = (reviews) => {
             }
             starsHtml += '</div>';
 
-            const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
+            const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Гость)` : 'Anonymous');
             
             reviewElement.innerHTML = `
                 <div class="review-header">
@@ -697,7 +645,7 @@ function setupSortingButtons() {
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
             console.log('Sort Хорошие clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => {
+            const sortedReviews = [...currentReviews].filter(review => review.comment !== null).sort((a, b) => { // Filter out null comments before sorting
                 return b.rating - a.rating;
             });
             renderReviewsList(sortedReviews);
@@ -709,7 +657,7 @@ function setupSortingButtons() {
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
             console.log('Sort Плохие clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => {
+            const sortedReviews = [...currentReviews].filter(review => review.comment !== null).sort((a, b) => { // Filter out null comments before sorting
                 return a.rating - b.rating;
             });
             renderReviewsList(sortedReviews);

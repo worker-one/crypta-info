@@ -1,0 +1,101 @@
+
+/* --- Search/Filter Bar (in header) --- */
+/* Remove styles specific to its old location if needed */
+.search-filter-section {
+    /* margin-bottom: 1.5rem; */ /* No longer needed here if moved */
+    /* padding: 0; */
+}
+
+/* Styles for the form itself, now potentially inside .header-search-container */
+#search-filter-form {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    max-width: 260px; /* Or adjust as needed */
+    margin: 15px 0 0.25rem auto; /* Reduced bottom margin from 0.5rem to 0.25rem */
+    
+    background-color: #fff;
+    border: 1px solid #dfe1e5;
+    border-radius: 8px; /* Made less rounded */
+    box-shadow: 0 1px 6px rgba(32,33,36,.28);
+    height: 40px;
+    padding: 0 12px 0 20px; /* Padding: T, R(for icon), B, L(for input start) */
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+#search-filter-form:hover,
+#search-filter-form:focus-within {
+    box-shadow: 0 2px 8px rgba(32,33,36,.40); /* Deeper shadow on hover/focus */
+}
+
+#search-filter-form input[type="search"] {
+    flex-grow: 1; /* Input takes available space */
+    padding: 0; /* Remove default padding, especially right */
+    border: none; /* No border for input */
+    outline: none; /* No outline on focus */
+    background-color: transparent; /* Transparent background */
+    font-size: 16px; /* Standard search input font size */
+    color: #202124;
+    height: 70%; /* Fill height of form */
+}
+
+#search-filter-form input[type="search"]::placeholder {
+    color: #5f6368; /* Google placeholder color */
+    opacity: 1;
+}
+
+#search-filter-form button {
+    padding: 20; /* Remove default padding */
+    margin-right: 1px; /* Space between input text and icon (now on right) */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Fill height of form */
+}
+
+#search-filter-form .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Gap between label and select */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+#search-filter-form label {
+    margin-bottom: 0; /* Override default label margin */
+    white-space: nowrap; /* Prevent label wrapping */
+}
+
+#search-filter-form select {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    background-color: #fff;
+    min-width: 120px; /* Give select some minimum width */
+}
+
+/* Style the button group within the form */
+#search-filter-form .filter-buttons {
+    display: flex;
+    gap: 0.5rem; /* Gap between buttons */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+#search-filter-form button {
+    padding: 0; /* Remove default padding */
+    margin-left: -20px; /* Space between input text and icon (now on right) */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Fill height of form */
+}
+
+#search-filter-form button img {
+    height: 20px;
+    width: 20px;
+    display: block;
+}
