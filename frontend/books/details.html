@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Обзор - Crypta.Автор</title> <!-- Changed title -->
+    <title>Book Обзор - Crypta.Info</title> <!-- Changed title -->
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/pages/books/details.css"> <!-- Assuming a similar CSS structure -->
     <link rel="stylesheet" href="../css/components/rating.css">
@@ -13,9 +13,9 @@
     <header class="main-header">
         <div class="container">
             <a href="/" class="logo">
-                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Автор Logo" height="40">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
                 <div>
-                    <span class="logo-text">Crypta.Автор</span>
+                    <span class="logo-text">Crypta.Info</span>
                 </div>
             </a>
             <nav id="main-nav">
@@ -37,9 +37,9 @@
                     <a href="/books">Книги</a> / <span id="book-name-breadcrumb">Обзор книги</span>
                 </div>
                 <!-- Added Tab Navigation -->
-                <nav class="exchange-tabs" id="book-tabs"> <!-- Reusing class, added ID -->
+                <nav class="details-tabs" id="book-tabs">
                     <a href="#" class="tab-link active" id="tab-overview">Обзор</a>
-                    <a href="#" class="tab-link active" id="tab-reviews">Отзывы</a>
+                    <a href="#" class="tab-link" id="tab-reviews">Отзывы</a>
                 </nav>
 
                 <div id="book-detail-loading" class="loading-message">Loading book details...</div> <!-- Changed ID -->
@@ -81,24 +81,24 @@
                     </div>
                     <!-- End Book Description Section -->
 
-                    <!-- Отзывы Section (Preview/Summary on Обзор) -->
-                    <div id="review-section"> <!-- Removed hidden class -->
-                        <h2>Отзывы о бирже</h2>
-                        <div id="reviews-container"> <!-- Kept ID, context is clear -->
-                            <div id="reviews-loading" class="loading-message">Loading reviews...</div>
+                    <div id="review-section" class="hidden">
+                        <h2>Отзывы о книге</h2>
+                        <div id="reviews-container">
+                            <!-- Reviews will be loaded here -->
+                            <div id="reviews-loading" class="loading-message">Загрузка отзывов...</div>
                             <div id="reviews-error" class="error-message"></div>
-                            <!-- Optional: Add Sorting Buttons if needed for book reviews -->
-                            <div class="review-sort-controls" style="margin-bottom: 15px;">
-                                <button id="sort-reviews-positive" class="btn btn-secondary btn-sm">Хорошие</button>
-                                <button id="sort-reviews-negative" class="btn btn-secondary btn-sm">Плохие</button>
-                                <!-- <button id="sort-reviews-date" class="btn btn-secondary btn-sm">Sort: Newest First</button> -->
+                            <!-- Add Sorting Buttons -->
+                            <div class="review-sort-controls" style="margin-bottom: 15px; display: flex; align-items: center;">
+                                <div>
+                                    <button id="sort-reviews-positive" class="btn btn-success btn-sm" style="min-width: 100px;">Хорошие</button>
+                                    <button id="sort-reviews-negative" class="btn btn-danger btn-sm" style="min-width: 100px;">Плохие</button>
+                                </div>
+                                <!-- The href will be set dynamically by JS -->
+                                <a href="#" id="add-review-link" class="btn btn-primary" style="margin-left: auto; min-width: 150px; text-align: center;">Оставить отзыв</a>
                             </div>
+                             
                             <div id="reviews-list"></div>
-                            <!-- Add Review Button (Link) -->
-                            <div style="margin-top: 20px;">
-                                <!-- The href will be set dynamically by JS based on book ID/slug -->
-                                <a href="#" id="add-review-link" class="btn btn-primary">Оставить отзыв</a>
-                            </div>
+
                         </div>
                     </div>
                 </div> <!-- End #book-detail-content -->
@@ -112,7 +112,7 @@
     <!-- Footer Section -->
     <footer class="main-footer">
         <div class="container">
-            <p>© 2025 Crypta.Автор. All rights reserved.</p>
+            <p>© 2025 Crypta.Info. All rights reserved.</p>
             <nav>
                 <!-- Footer links remain the same -->
                 <a href="/privacy">Privacy Policy</a> |

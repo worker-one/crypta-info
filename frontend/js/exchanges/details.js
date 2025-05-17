@@ -1,10 +1,10 @@
 // Exchange Detail Page Logic
 import { getExchangeDetails, listItemReviews, voteOnReview, submitItemReview } from '../api.js';
 import { updateHeaderNav } from '../header.js'; // Import from new header module
-import { renderReviewsList } from '../reviews.js';
+import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../reviews.js';
 import { isLoggedIn, handleLogout } from '../auth.js';
 
-const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
+const BASE_API_URL = 'https://humble-garbanzo-q7pqgwwxr97rh4wgg-8300.app.github.dev/api/v1'
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -455,7 +455,7 @@ async function loadExchangeReviews(exchangeId) {
     reviewsList.innerHTML = '';
     if (paginationElement) paginationElement.innerHTML = '';
     currentReviews = []; // Reset reviews before fetch
-    updateSortButtonCounts(); // Update counts to 0 initially
+    updateSortButtonCounts(currentReviews); // Update counts to 0 initially
 
     try {
         console.log('Calling API to list exchange reviews...');
@@ -473,7 +473,7 @@ async function loadExchangeReviews(exchangeId) {
         currentReviews = response.items.filter(review => review.comment !== null);
         console.log(`Filtered ${response.items.length - currentReviews.length} reviews with null comments`);
         
-        updateSortButtonCounts(); // Update counts after fetching
+        updateSortButtonCounts(currentReviews); // Update counts after fetching
 
         if (reviewsTabLink) {
             reviewsTabLink.textContent = `Отзывы (${currentReviews.length})`;
@@ -487,13 +487,17 @@ async function loadExchangeReviews(exchangeId) {
             renderReviewsList(currentReviews);
         }
 
+        // Setup sorting and voting after rendering
+        setupSortingButtons(currentReviews);
+        setupReviewVoting();
+
     } catch (error) {
         console.error("Error loading exchange reviews:", error);
         reviewsLoadingElement.classList.add('hidden');
         reviewsErrorElement.textContent = error.message || 'Failed to load reviews.';
         reviewsErrorElement.classList.add('visible');
         currentReviews = [];
-        updateSortButtonCounts(); // Update counts on error (to 0)
+        updateSortButtonCounts(currentReviews); // Update counts on error (to 0)
         if (reviewsTabLink) {
             reviewsTabLink.textContent = 'Отзывы (0)';
         }

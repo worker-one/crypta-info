@@ -1,12 +1,10 @@
-import { getBookDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Use book-related API functions
+import { getBookDetails, submitItemReview } from '../api.js';
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
+import { setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../reviews.js'; // Import all needed
 import { updateHeaderNav } from '../header.js'; // Import from header.js
 import { handleLogout, isLoggedIn, getAccessToken } from '../auth.js';
 
 // --- DOM Elements (Declare with let, assign inside DOMContentLoaded) ---
-let reviewsListContainer;
-let reviewsLoadingIndicator;
-let reviewsErrorContainer;
 let addReviewSection;
 let reviewForm;
 let reviewRatingInputContainer;
@@ -35,12 +33,12 @@ const hideElement = (el) => el?.classList.add('hidden');
  */
 export function updatePageUI(bookName, bookId) { // Added export
     const overviewPageUrl = `details.html?id=${bookId}`; // Use ID
-    if (bookNameHeading) bookNameHeading.textContent = `${bookName} Reviews`;
+    if (bookNameHeading) bookNameHeading.textContent = `${bookName} Отзывы`;
     if (bookLinkBreadcrumb) {
         bookLinkBreadcrumb.textContent = bookName;
         bookLinkBreadcrumb.href = overviewPageUrl;
     }
-    document.title = `${bookName} Reviews - Crypta.Info`;
+    document.title = `${bookName} Отзывы - Crypta.Info`;
 
     // Update tab links for books
     const overviewTabLink = document.getElementById('tab-overview');
@@ -52,118 +50,6 @@ export function updatePageUI(bookName, bookId) { // Added export
         reviewsTabLink.href = '#'; // Current page
     }
 }
-
-/**
- * Updates the text content of sorting buttons to include review counts.
- * Counts based on the single 'rating' property.
- */
-export const updateSortButtonCounts = () => { // Added export
-    const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Use book-specific ID if different
-    const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Use book-specific ID if different
-
-    if (!sortPositiveBtn || !sortNegativeBtn) {
-        console.warn("Sorting buttons not found during count update.");
-        return;
-    }
-
-    let positiveCount = 0;
-    let negativeCount = 0;
-
-    currentReviews.forEach(review => {
-        const rating = review.rating; // Assuming 'rating' field exists for book reviews
-        if (rating >= 4) {
-            positiveCount++;
-        } else if (rating > 0 && rating < 4) {
-            negativeCount++;
-        }
-    });
-
-    sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;
-    sortNegativeBtn.textContent = `Плохие (${negativeCount})`;
-};
-
-/**
- * Renders a list of book reviews into the DOM.
- * Displays the single 'rating' property.
- * @param {Array<object>} reviews - The array of review objects to render.
- */
-export const renderReviewsList = (reviews) => { // Added export
-    if (!reviewsListContainer) return;
-    reviewsListContainer.innerHTML = '';
-
-    if (reviews && reviews.length > 0) {
-        const reviewsWithComments = reviews.filter(review => review.comment !== null);
-        
-        if (reviewsWithComments.length > 0) {
-            reviewsWithComments.forEach(review => {
-                const reviewElement = document.createElement('div');
-                reviewElement.classList.add('review-item');
-                const ratingValue = review.rating; // Assuming 'rating' field
-                
-                const authorName = review.user ? review.user.nickname : (review.guest_name ? `${review.guest_name} (Guest)` : 'Anonymous');
-
-                reviewElement.innerHTML = `
-                    <div class="review-header">
-                        <span class="review-author">${authorName}</span>
-                        <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <div class="review-content">Rating: ${ratingValue ? `${ratingValue} ★` : 'N/A'}</div>
-                    <div class="review-content">
-                        <p>${review.comment}</p>
-                    </div>
-                    <div class="review-footer">
-                        <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 (${review.useful_votes_count})</button>
-                        <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 (${review.not_useful_votes_count})</button>
-                        <span class="vote-feedback" data-review-id="${review.id}"></span>
-                    </div>
-                `;
-                reviewsListContainer.appendChild(reviewElement);
-            });
-            setupVoteButtons(); // Setup voting after rendering
-        } else {
-            reviewsListContainer.innerHTML = '<p>No reviews with comments available.</p>';
-        }
-    } else {
-        reviewsListContainer.innerHTML = '<p>No reviews match the criteria or none available.</p>';
-    }
-};
-
-/**
- * Loads and displays reviews for a given book ID.
- * @param {string} bookId - The ID of the book.
- */
-export const loadReviews = async (bookId) => { // Already exported
-    if (!reviewsListContainer || !reviewsLoadingIndicator || !reviewsErrorContainer) return;
-
-    showElement(reviewsLoadingIndicator);
-    hideElement(reviewsErrorContainer);
-    reviewsListContainer.innerHTML = '';
-    currentReviews = [];
-    updateSortButtonCounts(); // Reset counts
-
-    try {
-        // Assuming listItemReviews can take a bookId and type, or use a specific book review function
-        const reviewsData = await listItemReviews(bookId, { limit: 100, sort_by: 'created_at', direction: 'desc' }, 'book'); // Added type 'book'
-        hideElement(reviewsLoadingIndicator);
-
-        if (reviewsData && reviewsData.items) {
-            currentReviews = reviewsData.items;
-            renderReviewsList(currentReviews);
-        } else {
-            currentReviews = [];
-            reviewsListContainer.innerHTML = '<p>No reviews yet. Be the first to add one!</p>';
-        }
-        updateSortButtonCounts(); // Update counts after loading
-    } catch (error) {
-        console.error('Failed to load book reviews:', error);
-        hideElement(reviewsLoadingIndicator);
-        currentReviews = [];
-        updateSortButtonCounts(); // Reset counts on error
-        reviewsListContainer.innerHTML = '';
-        displayErrorMessage('reviews-error', `Failed to load reviews. ${error.message}`);
-        showElement(reviewsErrorContainer);
-    }
-};
 
 /**
  * Handles the submission of the book review form.
@@ -262,83 +148,6 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
     }
 };
 
-/**
- * Sets up event listeners for vote buttons on book reviews.
- */
-export function setupVoteButtons() { // Added export
-    const voteButtons = document.querySelectorAll('.vote-btn');
-    // Clear existing listeners before adding new ones
-    voteButtons.forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-    // Add new listeners
-    document.querySelectorAll('.vote-btn').forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const reviewId = event.target.dataset.reviewId;
-            const isUseful = event.target.dataset.vote === 'true';
-
-            if (!isLoggedIn()) {
-                alert('Please log in to vote on reviews.');
-                return;
-            }
-
-            const feedbackElement = document.querySelector(`.vote-feedback[data-review-id="${reviewId}"]`);
-            const footer = event.target.closest('.review-footer');
-            footer.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = true);
-            feedbackElement.textContent = 'Voting...';
-            feedbackElement.classList.remove('error');
-
-            try {
-                // Assuming voteOnReview works for any review ID
-                const updatedReview = await voteOnReview(reviewId, isUseful);
-
-                const usefulBtn = footer.querySelector(`.vote-btn.useful`);
-                const notUsefulBtn = footer.querySelector(`.vote-btn.not-useful`);
-                usefulBtn.textContent = `👍 (${updatedReview.useful_votes_count})`;
-                notUsefulBtn.textContent = `👎 (${updatedReview.not_useful_votes_count})`;
-                feedbackElement.textContent = 'Voted!';
-
-                setTimeout(() => { feedbackElement.textContent = ''; }, 2000);
-            } catch (error) {
-                console.error(`Vote failed for review ${reviewId}:`, error);
-                feedbackElement.textContent = `Error: ${error.message || 'Vote failed'}`;
-                feedbackElement.classList.add('error');
-                setTimeout(() => { feedbackElement.textContent = ''; feedbackElement.classList.remove('error'); }, 3000);
-            } finally {
-                footer.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = false);
-            }
-        });
-    });
-}
-
-/**
- * Sets up event listeners for sorting buttons for book reviews.
- * Sorts based on the single 'rating' property.
- */
-export function setupSortingButtons() { // Added export
-    const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Use book-specific ID if different
-    const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Use book-specific ID if different
-
-    if (sortPositiveBtn) {
-        sortPositiveBtn.addEventListener('click', () => {
-            console.log('Sort Хорошие clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-            renderReviewsList(sortedReviews);
-        });
-    } else {
-        console.warn('Sort Хорошие button not found during setup');
-    }
-
-    if (sortNegativeBtn) {
-        sortNegativeBtn.addEventListener('click', () => {
-            console.log('Sort Плохие clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => (a.rating || 0) - (b.rating || 0));
-            renderReviewsList(sortedReviews);
-        });
-    } else {
-        console.warn('Sort Плохие button not found during setup');
-    }
-}
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -425,14 +234,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         showElement(reviewSectionContainer);
         showElement(addReviewSection); // Ensure add review section is visible
 
-        await loadReviews(bookId); // Load reviews for this book ID
-        setupSortingButtons(); // Setup sorting after loading
+        // Fetch reviews for this book and store in currentReviews
+        // Assume you have a function to fetch reviews, e.g., getBookReviews(bookId)
+        // Replace with your actual fetch logic if different
+        currentReviews = await window.getBookReviews(bookId); // You may need to import or define getBookReviews
+        renderReviewsList(currentReviews);
+        updateSortButtonCounts(currentReviews);
+        setupSortingButtons(currentReviews);
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);
             hideElement(guestNameGroup); // Hide guest name field if logged in
-            // The check 'if (reviewForm)' is now redundant here because we exit early if it's null,
-            // but keeping it doesn't hurt.
             if (reviewForm) {
                 reviewForm.addEventListener('submit', (event) => handleReviewSubmit(event, bookId));
                 console.log('Submit event listener added to review form.');

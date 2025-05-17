@@ -1,7 +1,7 @@
 // Book Detail Page Logic
 import { getBookDetails, listItemReviews, voteOnReview } from '../api.js'; // Added listItemReviews, voteOnReview
 import { checkAndCacheUserProfile, handleLogout, isLoggedIn } from '../auth.js'; // Added isLoggedIn
-import { renderReviewsList, setupSortingButtons } from '../reviews.js';
+import { renderReviewsList, setupSortingButtons, updateSortButtonCounts, setupReviewVoting } from '../reviews.js';
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -11,8 +11,6 @@ const reviewsList = document.getElementById('reviews-list');
 const reviewsLoading = document.getElementById('reviews-loading');
 const reviewsError = document.getElementById('reviews-error');
 const reviewsPagination = document.getElementById('reviews-pagination');
-const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Assuming this ID exists
-const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Assuming this ID exists
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Book detail page initializing...');
@@ -126,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Load book reviews using the new function
             await loadBookReviews(book.id);
             // Setup sorting buttons (now uses global currentReviews)
-            setupSortingButtons();
+            setupSortingButtons(currentReviews);
         } else {
             console.log('Review section not found or book ID missing, skipping review load.');
             if (reviewSection) reviewSection.classList.add('hidden');
@@ -224,13 +222,19 @@ function renderBookDetails(book, container) {
 }
 
 // --- Review Loading, Rendering, Voting, and Sorting Functions ---
-
 /**
- * Loads reviews for a specific book.
+ * Loads reviews for a specific book and updates the reviews tab count.
  * @param {string|number} bookId - The ID of the book.
  */
 async function loadBookReviews(bookId) {
     console.log(`Loading reviews for book ID: ${bookId}`);
+
+    // Find the reviews tab link (assumes it has id 'reviews-tab-link')
+    const reviewsTabLink = document.getElementById('reviews-tab-link');
+
+    if (reviewsTabLink) {
+        reviewsTabLink.textContent = 'Отзывы (...)'; // Indicate loading
+    }
 
     if (!reviewsList || !reviewsLoading || !reviewsError) {
         console.error('Required DOM elements for reviews not found');
@@ -240,7 +244,7 @@ async function loadBookReviews(bookId) {
     reviewsLoading.classList.remove('hidden');
     reviewsError.classList.remove('visible');
     reviewsList.innerHTML = '';
-    if (reviewsPagination) reviewsPagination.innerHTML = ''; // Clear pagination if exists
+    if (reviewsPagination) reviewsPagination.innerHTML = '';
     currentReviews = []; // Reset reviews before fetch
     updateSortButtonCounts(currentReviews); // Update counts to 0 initially
 
@@ -257,16 +261,27 @@ async function loadBookReviews(bookId) {
             throw new Error("Invalid response structure for reviews.");
         }
 
-        currentReviews = response.items;
-        updateSortButtonCounts(); // Update counts after fetching
+        // Filter out reviews with null comments
+        currentReviews = response.items.filter(review => review.comment !== null);
+        console.log(`Filtered ${response.items.length - currentReviews.length} reviews with null comments`);
+
+        updateSortButtonCounts(currentReviews); // Update counts after fetching
+
+        if (reviewsTabLink) {
+            reviewsTabLink.textContent = `Отзывы (${currentReviews.length})`;
+        }
 
         if (currentReviews.length === 0) {
             console.log('No reviews found for this book');
-            reviewsList.innerHTML = '<p>No reviews found for this book yet.</p>';
+            reviewsList.innerHTML = '<p>Для этой книги отзывов пока нет.</p>';
         } else {
             console.log(`Rendering ${currentReviews.length} reviews initially (sorted by date)...`);
             renderReviewsList(currentReviews); // Render reviews sorted by date initially
         }
+
+        // Setup sorting and voting after rendering
+        setupSortingButtons(currentReviews);
+        setupReviewVoting();
 
         // TODO: Implement pagination if response.total > response.limit
 
@@ -276,16 +291,9 @@ async function loadBookReviews(bookId) {
         reviewsError.textContent = error.message || 'Failed to load reviews.';
         reviewsError.classList.add('visible');
         currentReviews = [];
-        updateSortButtonCounts(); // Update counts on error (to 0)
+        updateSortButtonCounts(currentReviews); // Update counts on error (to 0)
+        if (reviewsTabLink) {
+            reviewsTabLink.textContent = 'Отзывы (0)';
+        }
     }
 }
-
-/**
- * Displays the reviews in the UI.
- * @param {Array} reviews - The array of review objects to display.
- */
-function displayReviews(reviews) {
-    renderReviewsList(reviews);
-    setupSortingButtons(reviews);
-}
-

@@ -23,8 +23,6 @@ const exchangeReviewsPageContent = document.getElementById('exchange-reviews-pag
 const pageErrorContainer = document.getElementById('page-error'); // General page error
 const pageLoadingIndicator = document.getElementById('page-loading'); // General page loading
 const reviewSectionContainer = document.getElementById('review-section'); // Main content container
-const sortPositiveBtn = document.getElementById('sort-reviews-positive'); // Added
-const sortNegativeBtn = document.getElementById('sort-reviews-negative'); // Added
 const reviewsHistogramContainer = document.getElementById('reviews-histogram-container'); // Added
 
 // --- Global variable to store fetched reviews ---

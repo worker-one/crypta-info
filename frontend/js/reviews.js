@@ -1,14 +1,8 @@
-
 const reviewsList = document.getElementById('reviews-list');
 const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
 
-
-
-/**
- * Updates the text content of sorting buttons to include review counts.
- */
-const updateSortButtonCounts = (currentReviews) => {
+export const updateSortButtonCounts = (currentReviews) => {
     if (!sortPositiveBtn || !sortNegativeBtn) return;
 
     let positiveCount = 0;
@@ -30,8 +24,9 @@ const updateSortButtonCounts = (currentReviews) => {
 
 /**
  * Sets up event listeners for sorting buttons.
+ * Accepts currentReviews as parameter.
  */
-export function setupSortingButtons = (currentReviews) => {
+export function setupSortingButtons(currentReviews) {
     console.log('Setting up sorting button event handlers');
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
@@ -60,11 +55,11 @@ export function setupSortingButtons = (currentReviews) => {
 
 /**
  * Renders a list of reviews into the DOM.
- * @param {Array<object>} reviews - The array of review objects to render.
+ * Accepts reviews and optionally a container.
  */
-export const renderReviewsList = (reviews) => {
-    if (!reviewsList) return;
-    reviewsList.innerHTML = ''; // Clear previous reviews
+export const renderReviewsList = (reviews, container = document.getElementById('reviews-list')) => {
+    if (!container) return;
+    container.innerHTML = ''; // Clear previous reviews
 
     if (reviews && reviews.length > 0) {
         reviews.forEach(review => {
@@ -100,10 +95,10 @@ export const renderReviewsList = (reviews) => {
                 <span class="vote-feedback" data-review-id="${review.id}"></span>
                 </div>
             `;
-            reviewsList.appendChild(reviewElement);
+            container.appendChild(reviewElement);
         });
     } else {
-        reviewsList.innerHTML = '<p>No reviews match the criteria or none available.</p>';
+        container.innerHTML = '<p>No reviews match the criteria or none available.</p>';
     }
 };
 
@@ -112,7 +107,7 @@ export const renderReviewsList = (reviews) => {
 /**
  * Sets up the event listener for review voting using event delegation.
  */
-function setupReviewVoting() {
+export function setupReviewVoting() {
     if (!reviewsList) return;
     console.log('Setting up review voting listener on reviewsList container');
     // Remove previous listeners if any (though ideally called once)
@@ -128,7 +123,7 @@ function setupReviewVoting() {
  * Uses event delegation.
  * @param {Event} event - The click event object.
  */
-async function handleReviewVoteClick(event) {
+export async function handleReviewVoteClick(event) {
     const button = event.target.closest('.vote-btn'); // Find the closest vote button
     if (!button) return; // Exit if the click wasn't on a vote button or its child
 

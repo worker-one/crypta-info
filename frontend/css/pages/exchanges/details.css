@@ -122,14 +122,14 @@
 }
 
 /* Tab Navigation Styles */
-.exchange-tabs {
+.details-tabs {
     display: flex;
     gap: 0.5rem; /* Space between tabs */
     border-bottom: 2px solid #dee2e6; /* Separator line */
     margin-bottom: 2rem; /* Space below tabs */
 }
 
-.exchange-tabs .tab-link {
+.details-tabs .tab-link {
     padding: 0.75rem 1.25rem; /* Tab padding */
     font-size: 1rem;
     font-weight: 500;
@@ -142,12 +142,12 @@
     transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.exchange-tabs .tab-link:hover {
+.details-tabs .tab-link:hover {
     color: #0056b3; /* Darker blue on hover */
     border-color: #e9ecef #e9ecef transparent #e9ecef; /* Subtle border on hover */
 }
 
-.exchange-tabs .tab-link.active {
+.details-tabs .tab-link.active {
     color: #007bff; /* Active tab color */
     border-color: #dee2e6 #dee2e6 #fff #dee2e6; /* Active tab border */
     border-width: 2px;
