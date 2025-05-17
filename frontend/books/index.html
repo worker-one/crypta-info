@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Books - Crypta.Info</title> <!-- Changed Title -->
+    <title>Books - Crypta.Автор</title> <!-- Changed Литература -->
     <link rel="stylesheet" href="../css/layout.css?v=1.0"> <!-- Adjusted path -->
     <link rel="stylesheet" href="../css/main.css?v=1.0"> <!-- Adjusted path -->
-    <link rel="stylesheet" href="../css/pages/book-detail.css?v=1.0">
-    <link rel="stylesheet" href="../css/books/index.css?v=1.0"> <!-- New CSS for books -->
+    <link rel="stylesheet" href="../css/pages/books/details.css?v=1.0">
+    <link rel="stylesheet" href="../css/pages/books/index.css?v=1.0"> <!-- New CSS for books -->
 </head>
 <body>
     <!-- Header Section (Same as exchanges) -->
     <header class="main-header">
         <div class="container">
-            <!-- Logo Title (left) -->
+            <!-- Logo Литература (left) -->
             <a href="/" class="logo">
-                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40"> <!-- Adjusted path -->
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Автор Logo" height="40"> <!-- Adjusted path -->
                 <div>
-                    <span class="logo-text">Crypta.Info</span>
+                    <span class="logo-text">Crypta.Автор</span>
                 </div>
             </a>
 
@@ -47,7 +47,7 @@
 
 
         <!-- Book List Section -->
-        <section id="book-list-section" class="book-list-section"> <!-- Changed ID -->
+        <section id="item-list-section" class="item-list-section"> <!-- Changed ID -->
             <div class="container">
 
             <div class="intro-text-box" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
@@ -81,9 +81,9 @@
             </div>
 
                 <!-- Table container -->
-                <div id="book-table-container"> <!-- Changed ID -->
+                <div id="item-table-container"> <!-- Changed ID -->
                     <p id="loading-books">Loading books...</p> <!-- Changed ID -->
-                    <div id="book-list-error" class="error-message"></div> <!-- Changed ID -->
+                    <div id="item-list-error" class="error-message"></div> <!-- Changed ID -->
                     <div class="card-view-toggle">
                         <!-- Added toggle button structure -->
                         <button id="toggle-view-btn" class="btn btn-sm btn-secondary hidden">
@@ -93,20 +93,20 @@
                     </div>
 
                     <!-- Table View -->
-                    <table class="data-table book-table" id="book-table"> <!-- Changed class and ID -->
+                    <table class="data-table item-table" id="item-table"> <!-- Changed class and ID -->
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Cover</th> <!-- Changed Header -->
-                                <th class="sortable" data-sort-key="name">Title</th> <!-- Changed Header and sort key -->
-                                <th class="sortable" data-sort-key="overall_average_rating">Rating</th>
-                                <th class="sortable" data-sort-key="total_review_count">Reviews</th>
-                                <th class="sortable" data-sort-key="year">Year</th> <!-- Changed Header and sort key -->
-                                <th>Info</th>
+                                <th> </th> <!-- Changed Header -->
+                                <th class="sortable" data-sort-key="name">Литература</th>
+                                <th class="sortable" data-sort-key="overall_average_rating">Рейтинг</th>
+                                <th class="sortable" data-sort-key="total_review_count">Отзывы</th>
+                                <th class="sortable" data-sort-key="year">Год</th> 
+                                <th class="sortable" data-sort-key="author">Автор</th>
                                 <th><!-- Action column header removed/emptied --></th>
                             </tr>
                         </thead>
-                        <tbody id="book-list-body"> <!-- Changed ID -->
+                        <tbody id="item-list-body"> <!-- Changed ID -->
                             <!-- Table rows loaded here -->
                         </tbody>
                     </table>
@@ -128,7 +128,7 @@
     <!-- Footer Section (Same as exchanges) -->
     <footer class="main-footer">
         <div class="container">
-           <p>© 2025 Crypta.Info. All rights reserved.</p>
+           <p>© 2025 Crypta.Автор. All rights reserved.</p>
            <nav>
                <a href="../privacy.html">Privacy Policy</a> | <!-- Adjusted path -->
                <a href="../terms.html">Terms of Service</a> | <!-- Adjusted path -->

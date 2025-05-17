@@ -4,21 +4,6 @@
     padding: 2rem 0;
 }
 
-#breadcrumb {
-    margin-bottom: 1.5rem; /* Reduced margin */
-    font-size: 0.9rem;
-    color: #6c757d; /* Secondary text */
-}
-
-#breadcrumb a {
-    color: #007bff; /* Primary link color */
-    text-decoration: none;
-}
-
-#breadcrumb a:hover {
-    text-decoration: underline;
-}
-
 .book-detail { /* Renamed from .exchange-detail */
     margin-bottom: 30px; /* Add some space before the reviews */
 }
@@ -161,74 +146,6 @@
     padding-top: 1.5rem;
     border-top: 1px solid #e9ecef;
 }
-
-/* --- Review Section Styles (Mostly reused) --- */
-#review-section {
-    margin-top: 40px; /* Add space above the review section */
-    padding-top: 20px;
-    border-top: 1px solid #ccc; /* Separator */
-}
-
-#review-section h2 {
-    margin-bottom: 20px;
-    font-size: 1.75rem;
-}
-
-.review-item {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e9ecef;
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.review-author {
-    font-weight: 600;
-    color: #212529;
-}
-
-.review-date {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-.review-rating {
-    color: #ffc107;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.review-content {
-    line-height: 1.6;
-    color: #495057;
-}
-
-/* Add Review Button/Link Style (if needed, often covered by .btn) */
-#add-review-link {
-    /* Uses .btn .btn-primary from main.css */
-    display: inline-block; /* Ensure it behaves like a button */
-    margin-top: 1rem; /* Add some space above */
-}
-
-/* --- Removed Styles --- */
-/* Removed .exchange-tabs and related styles */
-/* Removed .exchange-detail .logo styles (replaced by .book-cover) */
-/* Removed .available / .unavailable styles (not relevant for books) */
-/* Removed .exchange-detail ul styles (not currently used) */
-/* Removed #add-review-section and form styles (assuming separate add review page/modal) */
-/* Removed .star-rating styles (assuming separate add review page/modal) */
-/* Removed old .exchange-detail-header, .exchange-info, chart, news styles */
 
 /* NEW: Styles for horizontal layout of extra info */
 .book-extra-info-container {

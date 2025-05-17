@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Reviews - Crypta.Info</title> <!-- Changed title -->
+    <title>Book Отзывы - Crypta.Автор</title> <!-- Changed title -->
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/pages/book-detail.css"> <!-- Reuse styles -->
-    <link rel="stylesheet" href="../css/star-rating.css"> <!-- Added star rating CSS -->
+    <link rel="stylesheet" href="../css/pages/books/details.css"> <!-- Reuse styles -->
+    <link rel="stylesheet" href="../css/rating.css"> <!-- Added star rating CSS -->
     <style>
         /* Add any specific styles for reviews if needed */
         #reviews-list .review-item { /* Example style */
@@ -24,13 +24,13 @@
     </style>
 </head>
 <body>
-    <!-- Header Section (Copied from overview.html) -->
+    <!-- Header Section (Copied from details.html) -->
     <header class="main-header">
         <div class="container">
             <a href="/" class="logo">
-                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Автор Logo" height="40">
                 <div>
-                    <span class="logo-text">Crypta.Info</span>
+                    <span class="logo-text">Crypta.Автор</span>
                 </div>
             </a>
             <nav id="main-nav">
@@ -58,9 +58,9 @@
                     <a href="#" class="tab-link active" id="tab-reviews">Отзывы</a> <!-- Active tab -->
                 </nav>
 
-                <h1 id="book-name-heading">Book Reviews</h1> <!-- JS will populate this -->
+                <h1 id="book-name-heading">Book Отзывы</h1> <!-- JS will populate this -->
 
-                <!-- Reviews Section -->
+                <!-- Отзывы Section -->
                 <div id="review-section">
                     <div id="reviews-container">
                         <div id="reviews-loading" class="loading-message">Loading reviews...</div>
@@ -70,7 +70,7 @@
                             <!-- Sorting buttons will be dynamically added here by JS if not present -->
                         </div>
                         <div id="reviews-list">
-                            <!-- Reviews will be loaded here -->
+                            <!-- Отзывы will be loaded here -->
                         </div>
                     </div>
 
@@ -119,10 +119,10 @@
         </section>
     </main>
 
-    <!-- Footer Section (Copied from overview.html) -->
+    <!-- Footer Section (Copied from details.html) -->
     <footer class="main-footer">
         <div class="container">
-            <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <p>© 2025 Crypta.Автор. All rights reserved.</p>
             <nav>
                 <a href="/privacy">Privacy Policy</a> |
                 <a href="/terms">Terms of Service</a> |
@@ -136,7 +136,7 @@
     <!-- Inline script for initial setup -->
     <script type="module">
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log("Book Reviews page DOMContentLoaded.");
+            console.log("Book Отзывы page DOMContentLoaded.");
 
             const urlParams = new URLSearchParams(window.location.search);
             const bookId = urlParams.get('id'); // Assuming 'id' is used
@@ -152,7 +152,7 @@
             if (bookId) {
                 console.log("Setting initial tab links with book ID:", bookId);
 
-                const overviewPageUrl = `overview.html?id=${bookId}`;
+                const overviewPageUrl = `details.html?id=${bookId}`;
                 const reviewsPageUrl = `#`; // Current page
 
                 if (bookLinkBreadcrumb) {
@@ -160,7 +160,7 @@
                     bookLinkBreadcrumb.textContent = bookName; // Will be updated by JS
                 }
                 if (bookNameHeading) {
-                    bookNameHeading.textContent = `${bookName} Reviews`; // Will be updated by JS
+                    bookNameHeading.textContent = `${bookName} Отзывы`; // Will be updated by JS
                 }
 
                 // Set tab links

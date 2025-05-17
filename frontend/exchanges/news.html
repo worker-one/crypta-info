@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Новости биржи - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css"> <!-- Adjust path -->
-    <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles if applicable -->
+    <link rel="stylesheet" href="../css/pages/exchanges/details.css"> <!-- Reuse styles if applicable -->
     <style>
         /* Basic styling for news detail view */
         .news-detail-content {
@@ -176,7 +176,7 @@
                 // This could be a separate lightweight API call if available
                 // For now, we rely on exchange-news.js to update names after fetching data
 
-                const overviewPageUrl = `overview.html?slug=${slug}`;
+                const overviewPageUrl = `details.html?slug=${slug}`;
                 const newsListPageUrl = `news.html?slug=${slug}`; // Link to the list view
                 const guidePageUrl = `guide.html?slug=${slug}`;
 

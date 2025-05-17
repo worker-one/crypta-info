@@ -2,20 +2,6 @@
     padding: 2rem 0;
 }
 
-#breadcrumb {
-    margin-bottom: 1.5rem; /* Reduced margin */
-    font-size: 0.9rem;
-    color: #6c757d; /* Secondary text */
-}
-
-#breadcrumb a {
-    color: #007bff; /* Primary link color */
-    text-decoration: none;
-}
-
-#breadcrumb a:hover {
-    text-decoration: underline;
-}
 
 .exchange-detail {
     margin-bottom: 3rem;
@@ -168,115 +154,6 @@
     border-style: solid;
     border-bottom-color: #fff; /* Make bottom border blend with content area */
     font-weight: 600;
-}
-
-/* Review Section Styles */
-#review-section {
-    margin-top: 3rem;
-    border-top: 1px solid #dee2e6; /* Standard border */
-    padding-top: 2.5rem; /* Increased padding */
-}
-
-#review-section h2 {
-    margin-bottom: 2rem; /* Increased margin */
-    font-size: 1.75rem; /* Consistent heading size */
-}
-
-.review-item {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Consistent shadow */
-    border: 1px solid #e9ecef; /* Lighter border for reviews */
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap; /* Allow wrapping */
-    gap: 0.5rem; /* Add gap */
-}
-
-.review-author {
-    font-weight: 600;
-    color: #212529;
-}
-
-.review-date {
-    font-size: 0.85rem; /* Smaller date */
-    color: #6c757d;
-}
-
-
-.review-content {
-    line-height: 1.6;
-    color: #495057;
-}
-
-/* Add Review Form */
-#add-review-section {
-    background-color: #f8f9fa; /* Light background */
-    padding: 2rem; /* Increased padding */
-    border-radius: 8px;
-    margin-top: 2.5rem; /* Increased margin */
-    border: 1px solid #dee2e6; /* Add border */
-}
-
-#add-review-section h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    font-size: 1.4rem; /* Consistent heading size */
-}
-
-/* Star Rating - Update colors */
-.star-rating {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
-    gap: 0.25rem; /* Add gap between stars */
-}
-
-.star-rating input {
-    display: none;
-}
-
-.star-rating label {
-    cursor: pointer;
-    width: 28px; /* Slightly smaller stars */
-    height: 28px;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23adb5bd'%3e%3cpath d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3e%3c/svg%3e"); /* Muted gray default */
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    transition: background-image 0.1s ease-in-out;
-}
-.star-rating input:checked ~ label,
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23007bff'%3e%3cpath d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3e%3c/svg%3e"); /* Primary blue color selected */
-}
-
-/* Use form.css styles for the form */
-#review-form .form-group {
-    /* Inherits from form.css */
-    margin-bottom: 1.25rem;
-}
-
-#review-form label {
-    /* Inherits from form.css */
-}
-
-#review-form textarea {
-    /* Inherits from form.css */
-    min-height: 100px; /* Adjust height if needed */
-}
-
-#review-form button {
-    /* Use .btn .btn-primary classes in HTML */
 }
 
 /* Styles specific to the page showing details of a single exchange */

@@ -186,7 +186,7 @@ main .container {
 /* Remove specific section styles if .content-section is used */
 /* .placeholder-section,
 .search-filter-section,
-.exchange-list-section { ... } */
+.item-list-section { ... } */
 
 h1, h2, h3 { /* Consistent heading margins */
     margin-top: 0; /* Remove default top margin */

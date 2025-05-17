@@ -6,6 +6,7 @@
     <title>Exchanges - Crypta.Info</title>
     <link rel="stylesheet" href="../css/layout.css?v=1.0">
     <link rel="stylesheet" href="../css/main.css?v=1.0">
+    <link rel="stylesheet" href="../css/components/table.css">
     <link rel="stylesheet" href="../css/exchanges/index.css?v=1.0"> <!-- New CSS for exchanges -->
 </head>
 <body>
@@ -55,7 +56,7 @@
 
 
         <!-- Exchange List Section -->
-        <section id="exchange-list-section" class="exchange-list-section">
+        <section id="item-list-section" class="item-list-section">
             <div class="container" style="margin-top: 1px; margin-bottom: 0.5rem;">
                 <div class="intro-text-box" style="margin: 5px 0; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
                     <p>Площадок, позволяющих работать с цифровыми активами, сотни. Это одна из самых конкурентных ниш в финтехе. Новичку, который начинает торговать криптовалютами, сложно разобраться в рынке и сразу выбрать нужную платформу. Ему легко заблудиться в массе проплаченных обзоров и заказных отзывов, которыми наполнен интернет.</p>
@@ -100,9 +101,9 @@
                 </div> -->
 
                 <!-- Table container stays outside inner container to be full width -->
-                <div id="exchange-table-container">
-                    <p id="loading-exchanges">Loading exchanges...</p>
-                    <div id="exchange-list-error" class="error-message"></div>
+                <div id="item-table-container">
+                    <p id="loading-exchanges">Загрузка бирж...</p>
+                    <div id="item-list-error" class="error-message"></div>
                     <div class="card-view-toggle">
                         <button id="toggle-view-btn" class="btn btn-sm btn-secondary hidden">
                             <span class="table-view-text hidden">Table View</span>
@@ -111,21 +112,21 @@
                     </div>
                     
                     <!-- Table View -->
-                    <table class="data-table exchange-table" id="exchange-table">
+                    <table class="data-table item-table" id="item-table">
                         <thead>
                             <tr>
-                                <th style="text-align: center;">#</th> <!-- Added centering -->
+                                <th>#</th> 
                                 <!-- Logo TH removed -->
-                                <th class="sortable" data-sort-key="name" style="text-align: center;">Биржа</th> <!-- Combined Logo & Name Header -->
-                                <th class="sortable" data-sort-key="overall_average_rating" style="text-align: center;">Рейтинг</th> <!-- Added centering -->
-                                <th class="sortable" data-sort-key="total_review_count" style="text-align: center;">Отзывы</th> <!-- Added centering -->
-                                <th class="sortable" data-sort-key="trading_volume_24h" style="text-align: center;">Объем (24ч)</th> <!-- Added centering -->
-                                <th class="sortable" data-sort-key="has_p2p" style="text-align: center;">P2P</th> <!-- Added centering -->
-                                <th class="sortable" data-sort-key="has_kyc" style="text-align: center;">KYC</th> <!-- Added centering -->
-                                <th style="text-align: center;"> </th> <!-- Added centering -->
+                                <th class="sortable" data-sort-key="name">Биржа</th>
+                                <th class="sortable" data-sort-key="overall_average_rating">Рейтинг</th> 
+                                <th class="sortable" data-sort-key="total_review_count">Отзывы</th> 
+                                <th class="sortable" data-sort-key="trading_volume_24h">Объем (24ч)</th> 
+                                <th class="sortable" data-sort-key="has_p2p">P2P</th> 
+                                <th class="sortable" data-sort-key="has_kyc">KYC</th> 
+                                <th> </th> 
                             </tr>
                         </thead>
-                        <tbody id="exchange-list-body">
+                        <tbody id="item-list-body">
                             <!-- Table rows loaded here by main.js -->
                         </tbody>
                     </table>

@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Details - Crypta.Info</title> <!-- Changed title -->
+    <title>Book Обзор - Crypta.Автор</title> <!-- Changed title -->
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/pages/book-detail.css"> <!-- Assuming a similar CSS structure -->
+    <link rel="stylesheet" href="../css/pages/books/details.css"> <!-- Assuming a similar CSS structure -->
+    <link rel="stylesheet" href="../css/components/rating.css">
+    <link rel="stylesheet" href="../css/components/reviews.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container">
             <a href="/" class="logo">
-                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
+                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Автор Logo" height="40">
                 <div>
-                    <span class="logo-text">Crypta.Info</span>
+                    <span class="logo-text">Crypta.Автор</span>
                 </div>
             </a>
             <nav id="main-nav">
@@ -37,7 +39,7 @@
                 <!-- Added Tab Navigation -->
                 <nav class="exchange-tabs" id="book-tabs"> <!-- Reusing class, added ID -->
                     <a href="#" class="tab-link active" id="tab-overview">Обзор</a>
-                    <a href="#" class="tab-link active" id="tab-reviews">Reviews</a>
+                    <a href="#" class="tab-link active" id="tab-reviews">Отзывы</a>
                 </nav>
 
                 <div id="book-detail-loading" class="loading-message">Loading book details...</div> <!-- Changed ID -->
@@ -51,7 +53,7 @@
                             <!-- Placeholder for main info like title, author, description -->
                         </div>
 
-                        <!-- New Horizontal Section for Additional Info and Where to Buy -->
+                        <!-- New Horizontal Section for Additional Автор and Where to Buy -->
                         <div class="book-extra-info-container">
                             <div class="additional-info-section">
                                 <h2>Additional Information</h2>
@@ -79,7 +81,7 @@
                     </div>
                     <!-- End Book Description Section -->
 
-                    <!-- Reviews Section (Preview/Summary on Обзор) -->
+                    <!-- Отзывы Section (Preview/Summary on Обзор) -->
                     <div id="review-section"> <!-- Removed hidden class -->
                         <h2>Отзывы о бирже</h2>
                         <div id="reviews-container"> <!-- Kept ID, context is clear -->
@@ -110,7 +112,7 @@
     <!-- Footer Section -->
     <footer class="main-footer">
         <div class="container">
-            <p>© 2025 Crypta.Info. All rights reserved.</p>
+            <p>© 2025 Crypta.Автор. All rights reserved.</p>
             <nav>
                 <!-- Footer links remain the same -->
                 <a href="/privacy">Privacy Policy</a> |

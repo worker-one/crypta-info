@@ -26,7 +26,7 @@ function updateTabLinks(slug) {
     const guideTabLink = document.getElementById('tab-guide');
     const reviewsTabLink = document.getElementById('tab-reviews');
 
-    if (overviewTabLink) overviewTabLink.href = `overview.html?slug=${slug}`;
+    if (overviewTabLink) overviewTabLink.href = `details.html?slug=${slug}`;
     // if (newsTabLink) newsTabLink.href = `news.html?slug=${slug}`; // Current page
     if (guideTabLink) guideTabLink.href = `guide.html?slug=${slug}`;
     if (reviewsTabLink) reviewsTabLink.href = `reviews.html?slug=${slug}`;
@@ -42,7 +42,7 @@ function updateListUI(exchangeName, exchangeSlug) {
     if (exchangeNameHeading) exchangeNameHeading.textContent = `Новости биржи ${exchangeName}`;
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
-        exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
+        exchangeLinkBreadcrumb.href = `details.html?slug=${exchangeSlug}`;
     }
     if (newsBreadcrumbSpan) showElement(newsBreadcrumbSpan);
     if (newsDetailBreadcrumb) hideElement(newsDetailBreadcrumb); // Hide detail part
@@ -58,7 +58,7 @@ function updateDetailUI(exchangeName, exchangeSlug, newsTitle) {
     if (exchangeNameHeading) exchangeNameHeading.textContent = newsTitle; // Show news title as main heading
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
-        exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
+        exchangeLinkBreadcrumb.href = `details.html?slug=${exchangeSlug}`;
     }
     if (newsBreadcrumbSpan) {
         // Make the "Новости биржи" part a link back to the list
@@ -109,7 +109,7 @@ const loadNewsList = async (slug) => {
             });
         } else {
             const noNewsMessage = document.createElement('p');
-            noNewsMessage.textContent = 'No news available at this time.';
+            noNewsMessage.textContent = 'Нет новостей для этой биржи';
             noNewsMessage.style.textAlign = 'center';
             noNewsMessage.style.padding = '2rem';
             noNewsMessage.style.gridColumn = '1 / -1';

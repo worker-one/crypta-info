@@ -24,6 +24,10 @@
     border-bottom: none; /* Remove border from last row */
 }
 
+#item-table th {
+  text-align: center;
+}
+
 .data-table th {
     position: sticky;
     top: 0;
@@ -100,13 +104,13 @@
 }
 
 /* Specific Column Styling */
-.exchange-table .logo-cell {
+.item-table .logo-cell {
     width: 60px;
     padding: 0.5rem; /* Adjust padding for logo */
     text-align: center;
 }
 
-.exchange-table .logo-cell img {
+.item-table .logo-cell img {
     display: block;
     max-height: 35px; /* Slightly larger logo */
     width: auto;
@@ -115,79 +119,49 @@
     transition: transform 0.2s ease;
 }
 
-.exchange-table .logo-cell img:hover {
+.item-table .logo-cell img:hover {
     transform: scale(1.1);
 }
 
-.exchange-table .name-cell {
+.item-table .name-cell {
     min-width: 150px;
     color: #212529; /* Ensure name is dark */
     font-weight: 500;
 }
 
-.exchange-table .rating-cell,
-.exchange-table .reviews-cell,
-.exchange-table .volume-cell {
+.item-table .rating-cell,
+.item-table .reviews-cell,
+.item-table .volume-cell {
     color: #495057; /* Muted text for data */
     text-align: right;
     white-space: nowrap;
 }
 
-.exchange-table .rating-cell {
+.item-table .rating-cell {
     color: #ffc107; /* Use accent color */
     font-weight: 600;
 }
 
-.exchange-table .info-cell {
+.item-table .info-cell {
     max-width: 250px;
     color: #6c757d; /* Secondary text color */
     font-size: 0.9rem; /* Slightly larger */
 }
 
-.exchange-table .action-cell {
+.item-table .action-cell {
     width: 100px; /* Adjust if needed based on button size */
     text-align: center;
     white-space: nowrap;
 }
 
 /* Use common button styles */
-.exchange-table .action-cell .btn {
+.item-table .action-cell .btn {
     /* Inherits from components/button.css */
 }
 
-.exchange-table .action-cell .btn-sm {
+.item-table .action-cell .btn-sm {
     /* Inherits from components/button.css */
 }
-
-.exchanges-table-container { /* Wrap table for scrolling */
-    margin-bottom: 1rem; /* Add some space below */
-    overflow-x: auto; /* Enable horizontal scroll on small screens */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
-
-.exchanges-table {
-    width: 100%;
-    min-width: 600px; /* Set a minimum width to force scroll if needed */
-    border-collapse: collapse;
-}
-
-/* Optional: Alternative stacking approach using data attributes (more complex) */
-/* @media (max-width: 767px) {
-    .exchanges-table thead { display: none; }
-    .exchanges-table, .exchanges-table tbody, .exchanges-table tr, .exchanges-table td { display: block; width: 100%; }
-    .exchanges-table tr { margin-bottom: 15px; border: 1px solid #ddd; }
-    .exchanges-table td { text-align: right; padding-left: 50%; position: relative; }
-    .exchanges-table td::before {
-        content: attr(data-label); // Requires adding data-label attributes to TDs in JS/HTML
-        position: absolute;
-        left: 10px;
-        width: calc(50% - 20px);
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: bold;
-    }
-} */
 
 /* Card view toggle styling */
 .card-view-toggle {
@@ -308,11 +282,11 @@
         padding: 0.7rem 0.8rem;
     }
 
-    .exchange-table .logo-cell {
+    .item-table .logo-cell {
         width: 50px;
     }
 
-    .exchange-table .logo-cell img {
+    .item-table .logo-cell img {
         max-height: 30px;
     }
 
@@ -320,11 +294,11 @@
         display: block;
     }
 
-    #exchange-table-container {
+    #item-table-container {
        /* No width change needed, already 100% */
     }
 
-    .exchange-table .info-cell {
+    .item-table .info-cell {
         max-width: 180px;
     }
 

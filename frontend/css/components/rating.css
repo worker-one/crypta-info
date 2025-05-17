@@ -43,3 +43,22 @@
   position: absolute;
   left: -9999px;
 }
+
+/* --- Stats --- */
+.stat-item {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.stat-item .value {
+    font-weight: 600; /* or bold */
+    color: #007bff;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+
+.stat-item .label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+

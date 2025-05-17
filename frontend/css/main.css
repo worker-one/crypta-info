@@ -9,12 +9,15 @@
 @import url('components/messages.css'); /* If messages are separate */
 @import url('components/modals.css'); /* If modals exist */
 @import url('components/pagination.css'); /* If pagination exists */
+@import url('components/rating.css'); /* If tooltips exist */
+@import url('components/breadcrumb.css'); /* If breadcrumbs exist */
+@import url('components/reviews.css');
 
 /* Import Page-Specific Styles */
 @import url('pages/auth.css');
 @import url('pages/admin.css');
-@import url('pages/exchange-detail.css');
-@import url('pages/book-detail.css');
+@import url('pages/exchanges/details.css');
+@import url('pages/books/details.css');
 @import url('pages/profile.css');
 
 /* Utility Classes (can also be in base.css) */

@@ -1,0 +1,111 @@
+/* Common styles for detail pages (exchange, book, etc.) */
+
+/* --- Breadcrumb --- */
+#breadcrumb {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+#breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+#breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* --- Section --- */
+.exchange-detail-section,
+.book-detail-section {
+    padding: 2rem 0;
+}
+
+/* --- Description --- */
+.exchange-detail .description,
+.description {
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #495057;
+}
+
+
+/* --- Обзор Grid & Cards --- */
+.exchange-detail .details,
+.details {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.exchange-detail .detail-card,
+.detail-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+    border: 1px solid #dee2e6;
+}
+
+/* --- Typography --- */
+.exchange-detail p,
+p {
+    line-height: 1.6;
+    color: #495057;
+}
+
+.exchange-detail strong,
+strong {
+    font-weight: 600;
+    color: #212529;
+}
+
+/* --- Review Section --- */
+#review-section {
+    border-top: 1px solid #dee2e6; /* Unified border color */
+}
+
+#review-section h2 {
+    font-size: 1.75rem;
+}
+
+.review-item {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9ecef;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.review-author {
+    font-weight: 600;
+    color: #212529;
+}
+
+.review-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.review-content {
+    line-height: 1.6;
+    color: #495057;
+}
+
+/* --- Responsive for Review Header --- */
+@media (max-width: 768px) {
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

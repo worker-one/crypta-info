@@ -27,7 +27,7 @@ function updateTabLinks(slug) {
     const guideTabLink = document.getElementById('tab-guide');
     const reviewsTabLink = document.getElementById('tab-reviews');
 
-    if (overviewTabLink) overviewTabLink.href = `overview.html?slug=${slug}`;
+    if (overviewTabLink) overviewTabLink.href = `details.html?slug=${slug}`;
     if (newsTabLink) newsTabLink.href = `news.html?slug=${slug}`;
     // if (guideTabLink) guideTabLink.href = `guide.html?slug=${slug}`; // Current page
     if (reviewsTabLink) reviewsTabLink.href = `reviews.html?slug=${slug}`;
@@ -43,7 +43,7 @@ function updateGuideListUI(exchangeName, exchangeSlug) {
     if (exchangeNameHeading) exchangeNameHeading.textContent = `${exchangeName} Инструкции`;
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
-        exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
+        exchangeLinkBreadcrumb.href = `details.html?slug=${exchangeSlug}`;
     }
     // Ensure "Инструкции" part is not a link in list view
     if (guideBreadcrumbSpan) {
@@ -63,7 +63,7 @@ function updateGuideDetailUI(exchangeName, exchangeSlug, guideTitle) {
     if (exchangeNameHeading) exchangeNameHeading.textContent = guideTitle; // Show guide title as main heading
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
-        exchangeLinkBreadcrumb.href = `overview.html?slug=${exchangeSlug}`;
+        exchangeLinkBreadcrumb.href = `details.html?slug=${exchangeSlug}`;
     }
     if (guideBreadcrumbSpan) {
         // Make the "Инструкции" part a link back to the list

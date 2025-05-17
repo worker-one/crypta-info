@@ -34,7 +34,7 @@ const hideElement = (el) => el?.classList.add('hidden');
  * @param {string} bookId - The ID of the book.
  */
 export function updatePageUI(bookName, bookId) { // Added export
-    const overviewPageUrl = `overview.html?id=${bookId}`; // Use ID
+    const overviewPageUrl = `details.html?id=${bookId}`; // Use ID
     if (bookNameHeading) bookNameHeading.textContent = `${bookName} Reviews`;
     if (bookLinkBreadcrumb) {
         bookLinkBreadcrumb.textContent = bookName;
@@ -46,7 +46,7 @@ export function updatePageUI(bookName, bookId) { // Added export
     const overviewTabLink = document.getElementById('tab-overview');
     const reviewsTabLink = document.getElementById('tab-reviews');
 
-    if (overviewTabLink) overviewTabLink.href = `overview.html?id=${bookId}`; // Use ID
+    if (overviewTabLink) overviewTabLink.href = `details.html?id=${bookId}`; // Use ID
     if (reviewsTabLink) {
         reviewsTabLink.classList.add('active');
         reviewsTabLink.href = '#'; // Current page

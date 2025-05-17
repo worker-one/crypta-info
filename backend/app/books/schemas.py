@@ -93,5 +93,5 @@ class BookFilterParams(BaseModel):
     max_total_review_count: Optional[int] = None
 
 class BookSortBy(BaseModel):
-    field: Literal['name', 'year', 'overall_average_rating', 'total_review_count'] = 'overall_average_rating'
+    field: Literal['name', 'year', 'overall_average_rating', 'total_review_count', "author"] = 'overall_average_rating'
     direction: Literal['asc', 'desc'] = 'desc'

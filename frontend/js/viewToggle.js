@@ -9,7 +9,7 @@ export function initTableViewToggle() {
     // const toggleBtn = document.getElementById('toggle-view-btn'); // Button might be hidden by default now
     // Find the relevant table and card containers based on the current page context
     // This might need adjustment if IDs are not consistent or if used on multiple pages
-    const tableView = document.querySelector('.data-table:not(.hidden)') || document.getElementById('exchange-table') || document.getElementById('book-table');
+    const tableView = document.querySelector('.data-table:not(.hidden)') || document.getElementById('item-table') || document.getElementById('item-table');
     const cardView = document.querySelector('.card-list:not(.hidden)') || document.getElementById('exchange-card-container') || document.getElementById('book-card-container');
 
 

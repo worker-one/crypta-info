@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exchange Reviews - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/pages/exchange-detail.css"> <!-- Reuse styles -->
+    <link rel="stylesheet" href="../css/pages/exchanges/details.css"> <!-- Reuse styles -->
     <link rel="stylesheet" href="../css/components/button.css"> <!-- Reuse button styles -->
-    <link rel="stylesheet" href="../css/star-rating.css"> <!-- Added star rating CSS -->
+    <link rel="stylesheet" href="../css/components/rating.css"> <!-- Added star rating CSS -->
     <style>
         /* Add any specific styles for reviews if needed */
         #reviews-list .review-item { /* Example style */
@@ -223,7 +223,7 @@
             if (slug) {
                 console.log("Setting initial tab links with slug:", slug);
 
-                const overviewPageUrl = `overview.html?slug=${slug}`;
+                const overviewPageUrl = `details.html?slug=${slug}`;
                 const newsPageUrl = `news.html?slug=${slug}`;
                 const reviewsPageUrl = `#`; // Current page
                 const guidePageUrl = `guide.html?slug=${slug}`;

@@ -2,6 +2,7 @@ import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } f
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn, getAccessToken } from '../auth.js';
+import { renderReviewsList, setupSortingButtons } from './reviews.js'; // Import shared review functions
 
 // --- DOM Elements ---
 const reviewsListContainer = document.getElementById('reviews-list');
@@ -164,62 +165,6 @@ const renderRatingHistogram = (reviews) => {
         statContainer.appendChild(statItem);
     }
     reviewsHistogramContainer.appendChild(statContainer);
-};
-
-/**
- * Renders a list of reviews into the DOM.
- * Displays the single 'rating' property.
- * Assumes the API returns 'rating' instead of 'ratings'.
- * @param {Array<object>} reviews - The array of review objects to render.
- */
-const renderReviewsList = (reviews) => {
-    if (!reviewsListContainer) return;
-    reviewsListContainer.innerHTML = '';
-
-    if (reviews && reviews.length > 0) {
-        const reviewsWithComments = reviews.filter(review => review.comment !== null);
-        
-        if (reviewsWithComments.length > 0) {
-            reviewsWithComments.forEach(review => {
-            const reviewElement = document.createElement('div');
-            reviewElement.classList.add('review-item');
-            const ratingValue = review.rating || 0;
-
-            // Generate stars based on rating value 
-            let starsHtml = '<div class="review-rating">';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= ratingValue) {
-                starsHtml += '<span class="star filled" style="color: #ffc107;">★</span>';
-                } else {
-                starsHtml += '<span class="star empty" style="color: #e4e5e9;">☆</span>';
-                }
-            }
-            starsHtml += '</div>';
-
-            reviewElement.innerHTML = `
-                <div class="review-header">
-                <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
-                <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                </div>
-                <div class="review-rating">${starsHtml}</div>
-                <div class="review-content">
-                <p>${review.comment}</p>
-                </div>
-                <div class="review-footer" style="margin-top: 5px;">
-                <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
-                <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
-                <span class="vote-feedback" data-review-id="${review.id}"></span>
-                </div>
-            `;
-            reviewsListContainer.appendChild(reviewElement);
-            });
-            setupVoteButtons();
-        } else {
-            reviewsListContainer.innerHTML = '<p>No reviews with comments available.</p>';
-        }
-    } else {
-        reviewsListContainer.innerHTML = '<p>No reviews match the criteria or none available.</p>';
-    }
 };
 
 /**
@@ -552,3 +497,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (exchangeNameHeading) exchangeNameHeading.textContent = 'Error Loading Exchange';
     }
 });
+
+// Example: After fetching reviews for the item (exchange or book)
+function displayReviews(reviews) {
+    renderReviewsList(reviews);
+    setupSortingButtons(reviews);
+}
+
+// ...wherever you previously rendered reviews manually...
+// Replace manual rendering with:
+displayReviews(fetchedReviews);

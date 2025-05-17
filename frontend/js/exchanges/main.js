@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
     populateFilterOptions();
 
     // Load exchanges if we're on the homepage (uses default sort initially)
-    if (document.getElementById('exchange-list-body')) {
-        loadHomepageExchanges(); // Initial load with default sort
+    if (document.getElementById('item-list-body')) {
+        renderExchangeTable(); // Initial load with default sort
     }
 
     const searchForm = document.getElementById('search-filter-form');
@@ -61,11 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSortKey = 'overall_average_rating';
         currentSortDirection = 'desc';
         updateSortIndicators(); // Update visual indicators
-        loadHomepageExchanges(); // Reload with default filters and sort
+        renderExchangeTable(); // Reload with default filters and sort
     });
 
     // Add listener for table header clicks (sorting)
-    const tableHeader = document.querySelector('#exchange-table thead tr');
+    const tableHeader = document.querySelector('#item-table thead tr');
     tableHeader?.addEventListener('click', (event) => {
         const headerCell = event.target.closest('th'); // Find the clicked header cell
         if (headerCell && headerCell.classList.contains('sortable')) {
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add listener for table body clicks (row navigation)
-    const tableBody = document.getElementById('exchange-list-body');
+    const tableBody = document.getElementById('item-list-body');
     tableBody?.addEventListener('click', (event) => {
         // Check if the click target is the reviews link or inside it
         if (event.target.closest('a.reviews-link')) {
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (row && row.dataset.slug) {
             const slug = row.dataset.slug;
             console.log(`Navigating to exchange details for slug: ${slug}`);
-            window.location.href = `exchanges/overview.html?slug=${slug}`;
+            window.location.href = `exchanges/details.html?slug=${slug}`;
         }
     });
 
@@ -189,7 +189,7 @@ function handleSortClick(newSortKey) {
  * Updates the visual indicators (classes) on table headers based on current sort state.
  */
 function updateSortIndicators() {
-    const headers = document.querySelectorAll('#exchange-table th.sortable');
+    const headers = document.querySelectorAll('#item-table th.sortable');
     headers.forEach(th => {
         th.classList.remove('sorted-asc', 'sorted-desc');
         if (th.dataset.sortKey === currentSortKey) {
@@ -228,18 +228,53 @@ function applyFilters() {
     params.direction = currentSortDirection;
 
     console.log("Applying filters and sort:", params);
-    loadHomepageExchanges(params);
+    renderExchangeTable(params);
+}
+
+
+/**
+ * Renders a single exchange card.
+ * @param {object} exchange - The exchange data object.
+ * @returns {HTMLElement} - The created card element.
+ */
+export function renderExchangeCard(exchange) {
+    const card = document.createElement('div');
+    card.className = 'exchange-card';
+
+    // Basic structure following Material Design and matching our CSS
+    card.innerHTML = `
+        <div class="logo">
+            <img src="${exchange.logo_url || '../assets/images/logo-placeholder.png'}" alt="${exchange.name} Logo">
+            <h3>${exchange.name}</h3>
+        </div>
+        <div class="card-content">
+            <div class="rating" data-label="Rating">
+                <span>${parseFloat(exchange.overall_average_rating).toFixed(1)}</span>
+            </div>
+            <div class="volume" data-label="Volume">
+                ${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}
+            </div>
+            <div class="info" data-label="Info">
+                Founded: ${exchange.year_founded || 'N/A'} | Country: ${exchange.registration_country?.name || 'N/A'}
+            </div>
+        </div>
+        <div class="details-link">
+            <a href="/exchanges/details.html?slug=${exchange.slug}" class="btn btn-primary">Обзор</a>
+        </div>
+    `;
+
+    return card;
 }
 
 /**
  * Fetches and displays exchanges on the homepage table.
  * @param {object} params - Optional parameters for filtering/searching/sorting exchanges.
  */
-async function loadHomepageExchanges(params = {}) {
-    const tbodyId = 'exchange-list-body';
+async function renderExchangeTable(params = {}) {
+    const tbodyId = 'item-list-body';
     const cardContainerId = 'exchange-card-container';
     const loadingIndicatorId = 'loading-exchanges';
-    const errorContainerId = 'exchange-list-error';
+    const errorContainerId = 'item-list-error';
 
     const loadingIndicator = document.getElementById(loadingIndicatorId);
     const tbody = document.getElementById(tbodyId);
@@ -491,14 +526,14 @@ function renderCardView(exchanges, containerId) {
                     </div>
                 </div>
                 <div class="card-footer">
-                    <a href="exchanges/overview.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Подробнее</a> <!-- Translated -->
+                    <a href="exchanges/details.html?slug=${exchange.slug}" class="btn btn-primary btn-sm">Подробнее</a> <!-- Translated -->
                 </div>
             `;
             // Add click listener to the card itself for navigation
             card.addEventListener('click', (e) => {
                  // Prevent navigation if the click was on the button itself
                 if (!e.target.closest('a')) {
-                    window.location.href = `exchanges/overview.html?slug=${exchange.slug}`;
+                    window.location.href = `exchanges/details.html?slug=${exchange.slug}`;
                 }
             });
 
