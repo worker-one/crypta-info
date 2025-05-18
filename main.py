@@ -2,7 +2,6 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from starlette.exceptions import HTTPException as StarletteHTTPException
 # from fastapi.responses import PlainTextResponse # Uncomment if using custom 404 handler
 
 # Define the path to the frontend directory relative to this script
