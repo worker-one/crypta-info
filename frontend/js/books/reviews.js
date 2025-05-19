@@ -1,6 +1,6 @@
 import { getBookDetails, submitItemReview } from '../api.js';
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
-import { setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../reviews.js'; // Import all needed
+import { setupSortingButtons, renderReviewsList, updateSortButtonCounts, setupReviewVoting } from '../reviews.js'; // Import all needed
 import { updateHeaderNav } from '../header.js'; // Import from header.js
 import { handleLogout, isLoggedIn, getAccessToken } from '../auth.js';
 
@@ -241,6 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderReviewsList(currentReviews);
         updateSortButtonCounts(currentReviews);
         setupSortingButtons(currentReviews);
+        setupReviewVoting();
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);

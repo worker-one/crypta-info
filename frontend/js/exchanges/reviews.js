@@ -1,7 +1,8 @@
 import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Removed getRatingCategories
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
-import { handleLogout, isLoggedIn, getAccessToken } from '../auth.js';
+import { handleLogout, isLoggedIn } from '../auth.js';
+import { setupReviewVoting, setupSortingButtons } from '../reviews.js'; // Import setupReviewVoting
 
 // --- DOM Elements ---
 const reviewsListContainer = document.getElementById('reviews-list');
@@ -407,37 +408,6 @@ function setupVoteButtons() {
     });
 }
 
-/**
- * Sets up event listeners for sorting buttons.
- * Sorts based on the single 'rating' property.
- */
-function setupSortingButtons() {
-    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
-    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
-
-    if (sortPositiveBtn) {
-        sortPositiveBtn.addEventListener('click', () => {
-            console.log('Sort Хорошие clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-            renderReviewsList(sortedReviews);
-            // Histogram is based on all reviews, so it doesn't need re-rendering on sort
-        });
-    } else {
-        console.warn('Sort Хорошие button not found during setup');
-    }
-
-    if (sortNegativeBtn) {
-        sortNegativeBtn.addEventListener('click', () => {
-            console.log('Sort Плохие clicked');
-            const sortedReviews = [...currentReviews].sort((a, b) => (a.rating || 0) - (b.rating || 0));
-            renderReviewsList(sortedReviews);
-            // Histogram is based on all reviews, so it doesn't need re-rendering on sort
-        });
-    } else {
-        console.warn('Sort Плохие button not found during setup');
-    }
-}
-
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
     updateHeaderNav();
@@ -500,6 +470,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await loadReviews(exchangeId);
         setupSortingButtons();
+        setupReviewVoting();
 
         // Pre-select rating if passed in URL and scroll to form
         if (ratingFromUrl) {

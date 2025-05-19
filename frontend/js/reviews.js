@@ -1,3 +1,5 @@
+import { isLoggedIn } from './auth.js';
+
 const reviewsList = document.getElementById('reviews-list');
 const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
@@ -132,8 +134,8 @@ export async function handleReviewVoteClick(event) {
     console.log(`Vote button clicked (delegated) for review ${reviewId}, isUseful: ${isUseful}`);
 
     if (!isLoggedIn()) {
-        console.log('User not logged in, showing alert');
-        alert('Please log in to vote on reviews.'); // This line shows the pop-up
+        // Show a small popup with a Login button
+        showLoginPopup();
         return;
     }
 
@@ -172,4 +174,49 @@ export async function handleReviewVoteClick(event) {
         console.log('Re-enabling vote buttons');
         voteButtons.forEach(btn => btn.disabled = false);
     }
+}
+
+// --- Helper for login popup ---
+function showLoginPopup() {
+    // Remove any existing popup
+    let existing = document.getElementById('review-login-popup');
+    if (existing) existing.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'review-login-popup';
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.background = '#fff';
+    popup.style.border = '1px solid #ccc';
+    popup.style.borderRadius = '8px';
+    popup.style.boxShadow = '0 2px 16px rgba(0,0,0,0.15)';
+    popup.style.padding = '24px 32px';
+    popup.style.zIndex = '9999';
+    popup.style.textAlign = 'center';
+    popup.innerHTML = `
+        <div style="margin-bottom: 16px; font-size: 1.1em;">Чтобы проголосовать за отзыв, войдите в аккаунт</div>
+        <button id="review-login-popup-btn" class="btn btn-primary" style="margin-right: 10px;">Войти</button>
+        <button id="review-login-popup-close" class="btn btn-secondary">Закрыть</button>
+    `;
+    document.body.appendChild(popup);
+
+    document.getElementById('review-login-popup-btn').onclick = () => {
+        window.location.href = '/login.html';
+    };
+    document.getElementById('review-login-popup-close').onclick = () => {
+        popup.remove();
+    };
+
+    // Optional: close popup on outside click
+    setTimeout(() => {
+        function outsideClick(e) {
+            if (!popup.contains(e.target)) {
+                popup.remove();
+                document.removeEventListener('mousedown', outsideClick);
+            }
+        }
+        document.addEventListener('mousedown', outsideClick);
+    }, 0);
 }
