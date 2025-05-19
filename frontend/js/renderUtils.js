@@ -2,7 +2,7 @@
 
 // Define the API base URL directly. For production, consider a configuration approach.
 // TODO: Move BASE_URL_API to a config.js file
-const BASE_URL_API = 'https://humble-garbanzo-q7pqgwwxr97rh4wgg-8300.app.github.dev/api/v1';
+const BASE_URL_API = 'http://localhost:8300/api/v1';
 
 
 /**

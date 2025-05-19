@@ -4,19 +4,34 @@ const reviewsList = document.getElementById('reviews-list');
 const sortPositiveBtn = document.getElementById('sort-reviews-positive');
 const sortNegativeBtn = document.getElementById('sort-reviews-negative');
 
-export const updateSortButtonCounts = (currentReviews) => {
-    if (!sortPositiveBtn || !sortNegativeBtn) return;
+
+/**
+ * Updates the text content of sorting buttons to include review counts.
+ * Counts based on the single 'rating' property.
+ */
+const updateSortButtonCounts = () => {
+    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
+    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
+
+    if (!sortPositiveBtn || !sortNegativeBtn) {
+        console.warn("Sorting buttons not found during count update.");
+        return;
+    }
 
     let positiveCount = 0;
     let negativeCount = 0;
 
-    currentReviews.forEach(review => {
-        if (review.rating >= 4) {
+    // Filter reviews based on those that have comments
+    const reviewsWithComments = currentReviews.filter(review => review.comment && review.comment.trim() !== '');
+    
+    // Count positive and negative ratings from reviews with comments
+    reviewsWithComments.forEach(review => {
+        const rating = review.rating;
+        if (rating >= 4) {
             positiveCount++;
-        } else if (review.rating > 0) { // Count reviews with a rating < 4 but > 0 as negative
+        } else if (rating > 0 && rating < 4) {
             negativeCount++;
         }
-        // Reviews with avgRating 0 (or N/A) are not counted in either category
     });
 
     sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;

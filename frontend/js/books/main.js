@@ -126,283 +126,119 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /**
- * Fetches and displays books on the book list table.
- * @param {object} params - Optional parameters for filtering/searching/sorting books.
+ * Renders books into the provided table body element.
+ * @param {Array<object>} items - Array of book items to render.
+ * @param {HTMLTableSectionElement} tbodyElement - The tbody element to populate.
+ * @param {number} startIndex - The starting index for numbering items (for pagination).
  */
-async function renderBookTable(params = {}) {
-    const tbodyId = 'item-list-body'; // Assuming this is the ID for the books table tbody
-    const loadingIndicatorId = 'loading-books'; // Assuming this is the ID for the books loading indicator
-    const errorContainerId = 'item-list-error';
+function renderBookTable(items, tbodyElement, startIndex = 0) {
+    // tbodyElement is assumed to be valid and cleared by the caller (loadBooks)
 
-    const loadingIndicator = document.getElementById(loadingIndicatorId);
-    const tbody = document.getElementById(tbodyId);
-    const errorContainer = document.getElementById(errorContainerId);
+    if (!items || items.length === 0) {
+        const row = tbodyElement.insertRow();
+        const cell = row.insertCell();
+        // Dynamically determine colspan based on header row if available, otherwise use a default
+        const headerRow = tbodyElement.previousElementSibling?.rows?.[0];
+        const columnCount = headerRow ? headerRow.cells.length : 8; // Default to 8 columns if header not found
+        cell.colSpan = columnCount;
+        cell.textContent = 'No books found matching your criteria.';
+        cell.style.textAlign = 'center';
+        cell.style.padding = '2rem'; // Add padding for better appearance
+        cell.style.color = '#6c757d'; // Muted text color
+    } else {
+        items.forEach((book, index) => {
+            const row = tbodyElement.insertRow();
+            row.className = 'clickable-row'; // Keep row clickable
+            row.dataset.bookId = book.id; // Use data attribute for book ID
 
-    // Ensure elements exist before proceeding
-    if (!tbody) {
-        console.error(`Book list tbody #${tbodyId} not found.`);
-        // Optionally display a global error or handle this case
-        if (loadingIndicator) loadingIndicator.style.display = 'none';
-        if (errorContainer) displayErrorMessage(errorContainerId, 'Table element not found.');
-        return;
-    }
+            // Format data for display
+            const ratingValue = parseFloat(book.overall_average_rating);
+            const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+            const reviewCount = book.total_review_count?.toLocaleString() ?? 'N/A';
 
+            // Populate cells
+            let cell;
 
-    // Show loading, clear previous state
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
-    tbody.innerHTML = ''; // Clear previous table rows
-    if (errorContainer) errorContainer.classList.remove('visible');
+            // # Cell
+            cell = row.insertCell();
+            cell.textContent = startIndex + index + 1; // Use startIndex for correct numbering
+            cell.style.textAlign = 'center';
+            cell.style.verticalAlign = 'middle';
+            cell.className = 'number-cell';
 
-    try {
-        console.log("Loading books with params:", params);
-        // Ensure default sort is applied if not provided in params
-        // Assuming global variables for book sorting state: currentBookSortKey, currentBookSortDirection
-        const queryParams = {
-            field: typeof currentBookSortKey !== 'undefined' ? currentBookSortKey : 'name', // Default sort key, e.g., 'name'
-            direction: typeof currentBookSortDirection !== 'undefined' ? currentBookSortDirection : 'asc', // Default sort direction, e.g., 'asc'
-            limit: 25, // Default limit, adjust as needed
-            ...params // Params passed in will override defaults
-        };
+            // Cover Cell
+            cell = row.insertCell();
+            cell.style.textAlign = 'center';
+            cell.style.verticalAlign = 'middle';
+            cell.className = 'cover-cell';
 
-        // Clean up query parameters
-        Object.keys(queryParams).forEach(key => {
-            if (queryParams[key] === '' || queryParams[key] === null || queryParams[key] === undefined) {
-                delete queryParams[key];
-            }
+            const coverImg = document.createElement('img');
+            coverImg.src = book.cover_image_url || book.logo_url || '../assets/images/book-placeholder.png';
+            coverImg.alt = `${book.name || 'Book'} Cover`;
+            coverImg.loading = 'lazy';
+            coverImg.style.maxWidth = '50px';
+            coverImg.style.maxHeight = '75px';
+            coverImg.style.objectFit = 'contain';
+            coverImg.onerror = function() { this.onerror=null; this.src='../assets/images/book-placeholder.png'; };
+            cell.appendChild(coverImg);
+
+            // Title Cell
+            cell = row.insertCell();
+            cell.textContent = book.name || 'N/A';
+            cell.style.verticalAlign = 'middle';
+            cell.className = 'title-cell';
+
+            // Rating Cell
+            cell = row.insertCell();
+            cell.innerHTML = formattedRating !== 'N/A' ? `<span style="font-weight: bold; color: gold;"> ★ ${formattedRating}</span>` : formattedRating;
+            cell.style.textAlign = 'center';
+            cell.style.verticalAlign = 'middle';
+            cell.className = 'rating-cell';
+
+            // Reviews Cell
+            const reviewsTd = row.insertCell();
+            reviewsTd.className = 'reviews-cell';
+            reviewsTd.style.textAlign = 'center';
+            reviewsTd.style.verticalAlign = 'middle';
+
+            const reviewsLink = document.createElement('a');
+            reviewsLink.href = `books/reviews.html?id=${book.id}`;
+            reviewsLink.textContent = reviewCount;
+            reviewsLink.classList.add('reviews-link');
+            reviewsLink.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+            reviewsTd.appendChild(reviewsLink);
+
+            // Year Cell
+            cell = row.insertCell();
+            cell.textContent = book.year || 'N/A';
+            cell.style.textAlign = 'center';
+            cell.style.verticalAlign = 'middle';
+            cell.className = 'year-cell';
+
+            // Info Cell (Author)
+            cell = row.insertCell();
+            cell.textContent = book.author || 'Unknown Author';
+            cell.style.verticalAlign = 'middle';
+            cell.className = 'info-cell';
+
+            // Action Cell (Overview Button)
+            const actionTd = row.insertCell();
+            actionTd.className = 'action-cell';
+            actionTd.style.textAlign = 'center';
+            actionTd.style.verticalAlign = 'middle';
+
+            const detailBtn = document.createElement('a');
+            detailBtn.href = `/books/details.html?id=${book.id}`;
+            detailBtn.textContent = 'Обзор';
+            detailBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'details-link');
+            detailBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+            actionTd.appendChild(detailBtn);
         });
-
-        // Assume fetchBooks is an async function similar to fetchExchanges
-        // It should take queryParams and return a Promise resolving to data { items: [...], total: ... }
-        const data = await fetchBooks(queryParams);
-        console.log("Books received:", data);
-
-        if (data && data.items) {
-            // --- Manually render table rows ---
-            if (data.items.length === 0) {
-                const row = tbody.insertRow();
-                const cell = row.insertCell();
-                // Dynamically determine colspan based on header row if available, otherwise use a default
-                const headerRow = tbody.previousElementSibling?.rows?.[0];
-                const columnCount = headerRow ? headerRow.cells.length : 8; // Default to 8 columns if header not found
-                cell.colSpan = columnCount;
-                cell.textContent = 'No books found matching your criteria.';
-                cell.style.textAlign = 'center';
-                cell.style.padding = '2rem'; // Add padding for better appearance
-                cell.style.color = '#6c757d'; // Muted text color
-            } else {
-                data.items.forEach((book, index) => {
-                    const row = tbody.insertRow();
-                    row.className = 'clickable-row'; // Keep row clickable
-                    row.dataset.bookId = book.id; // Use data attribute for book ID
-
-                    // Format data for display
-                    const ratingValue = parseFloat(book.overall_average_rating);
-                    const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
-                    const reviewCount = book.total_review_count?.toLocaleString() ?? 'N/A';
-
-                    // Populate cells
-                    let cell;
-
-                    // # Cell (Index based on the current fetched page, assuming no startIndex param needed)
-                    cell = row.insertCell();
-                    cell.textContent = index + 1; // Simple sequential numbering per fetch
-                    cell.style.textAlign = 'center';
-                    cell.style.verticalAlign = 'middle';
-                    cell.className = 'number-cell'; // Add class
-
-                    // Cover Cell
-                    cell = row.insertCell();
-                    cell.style.textAlign = 'center'; // Center the image
-                    cell.style.verticalAlign = 'middle';
-                    cell.className = 'cover-cell'; // Add class
-
-                    const coverImg = document.createElement('img');
-                    // Use book.cover_image_url or book.logo_url based on API structure, default to placeholder
-                    coverImg.src = book.cover_image_url || book.logo_url || '../assets/images/book-placeholder.png';
-                    coverImg.alt = `${book.name || 'Book'} Cover`;
-                    coverImg.loading = 'lazy';
-                    coverImg.style.maxWidth = '50px';
-                    coverImg.style.maxHeight = '75px';
-                    coverImg.style.objectFit = 'contain'; // Ensure image fits within bounds
-                    // Add error handler for image loading
-                    coverImg.onerror = function() { this.onerror=null; this.src='../assets/images/book-placeholder.png'; };
-                    cell.appendChild(coverImg);
-
-                    // Title Cell
-                    cell = row.insertCell();
-                    cell.textContent = book.name || 'N/A';
-                    cell.style.verticalAlign = 'middle';
-                    cell.className = 'title-cell'; // Add class
-
-                    // Rating Cell
-                    cell = row.insertCell();
-                    cell.innerHTML = formattedRating !== 'N/A' ? `<span style="font-weight: bold; color: gold;"> ★ ${formattedRating}</span>` : formattedRating;
-                    cell.style.textAlign = 'center';
-                    cell.style.verticalAlign = 'middle';
-                    cell.className = 'rating-cell'; // Add class
-
-                    // Reviews Cell (Clickable link)
-                    const reviewsTd = row.insertCell();
-                    reviewsTd.className = 'reviews-cell'; // Add class
-                    reviewsTd.style.textAlign = 'center';
-                    reviewsTd.style.verticalAlign = 'middle';
-
-                    // Wrap the count in a link
-                    const reviewsLink = document.createElement('a');
-                    // Assuming the review page uses book ID
-                    reviewsLink.href = `books/reviews.html?id=${book.id}`;
-                    reviewsLink.textContent = reviewCount;
-                    reviewsLink.classList.add('reviews-link'); // Add class to identify the link
-                    // Prevent row click when clicking the link itself
-                    reviewsLink.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                    });
-                    reviewsTd.appendChild(reviewsLink);
-
-                    // Year Cell
-                    cell = row.insertCell();
-                    cell.textContent = book.year || 'N/A';
-                    cell.style.textAlign = 'center';
-                    cell.style.verticalAlign = 'middle';
-                    cell.className = 'year-cell'; // Add class
-
-                    // Info Cell (Author)
-                    cell = row.insertCell();
-                    cell.textContent = book.author || 'Unknown Author';
-                    cell.style.verticalAlign = 'middle';
-                    cell.className = 'info-cell'; // Add class
-
-                    // Action Cell (Overview Button)
-                    const actionTd = row.insertCell();
-                    actionTd.className = 'action-cell'; // Add class
-                    actionTd.style.textAlign = 'center'; // Center the button
-                    actionTd.style.verticalAlign = 'middle';
-
-                    const detailBtn = document.createElement('a');
-                    // Assuming overview page uses book ID
-                    detailBtn.href = `/books/details.html?id=${book.id}`;
-                    detailBtn.textContent = 'Обзор';
-                    // Add Bootstrap button classes if using Bootstrap
-                    detailBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'details-link'); // Consistent button styling
-
-                    // Prevent row click when clicking the button
-                    detailBtn.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                    });
-                    actionTd.appendChild(detailBtn);
-
-                    // --- Append row to table body is done automatically by insertRow ---
-                    // tbody.appendChild(row); // Not needed with insertRow
-                });
-            }
-
-            if (loadingIndicator) loadingIndicator.style.display = 'none';
-        } else {
-            // Handle case where data or items array is missing/empty after fetch
-             const row = tbody.insertRow();
-             const cell = row.insertCell();
-             const headerRow = tbody.previousElementSibling?.rows?.[0];
-             const columnCount = headerRow ? headerRow.cells.length : 8; // Default to 8 columns if header not found
-             cell.colSpan = columnCount;
-             cell.textContent = 'Could not load book data or no books found.';
-             cell.style.textAlign = 'center';
-             cell.style.padding = '2rem';
-             cell.style.color = '#dc3545'; // Error-like color
-             if (loadingIndicator) loadingIndicator.style.display = 'none';
-             // Only display error message if catch block hasn't already
-             if (!errorContainer?.classList.contains('visible')) {
-                 displayErrorMessage(errorContainerId, 'Could not load book data.');
-             }
-        }
-
-    } catch (error) {
-        console.error("Failed to load books:", error);
-        if (loadingIndicator) loadingIndicator.style.display = 'none';
-        // Assume displayErrorMessage is a helper function
-        displayErrorMessage(errorContainerId, `Error loading books: ${error.message}`);
-        tbody.innerHTML = ''; // Clear tbody on error
     }
-}
-
-
-/**
- * Renders a single book card.
- * Assumes BookRead schema: { id, name, logo_url, overall_average_rating, total_review_count, year, author, topic, amazon_link }
- * @param {object} book - The book data object.
- * @returns {HTMLElement|null} - The created card element or null if book is invalid.
- */
-export function renderBookCard(book) {
-    if (!book || !book.id) return null;
-
-    const card = document.createElement('div');
-    card.className = 'book-card'; // Use a specific class for styling, but structure will be similar to exchange-card
-
-    // Use logo_url for consistency with table view, fallback to placeholder
-    const imageUrl = book.logo_url || '../assets/images/book-placeholder.png';
-    const title = book.name || 'Untitled Book'; // Use name field
-    const author = book.author || 'Unknown Author';
-    const year = book.year || 'N/A';
-    const ratingValue = parseFloat(book.overall_average_rating);
-    const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
-    const reviewCount = book.total_review_count?.toLocaleString() ?? '0';
-    const topicName = book.topic?.name || 'General';
-
-    // Use amazon_link for the primary action, link to details page otherwise
-    const actionButton = book.amazon_link
-        ? `<a href="${book.amazon_link}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary btn-sm external-link">View on Amazon</a>`
-        : `<a href="/books/details.html?id=${book.id}" class="btn btn-secondary btn-sm details-link">Обзор</a>`;
-
-    card.innerHTML = `
-        <div class="card-header">
-             <img src="${imageUrl}" alt="${title} Cover" class="card-cover-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/book-placeholder.png';">
-             <h3 class="card-title">${title}</h3>
-        </div>
-        <div class="card-body">
-            <div class="card-info-row">
-                <div class="card-info-label">Author:</div>
-                <div class="card-info-value">${author}</div>
-            </div>
-             <div class="card-info-row">
-                <div class="card-info-label">Year:</div>
-                <div class="card-info-value">${year}</div>
-            </div>
-            <div class="card-info-row">
-                <div class="card-info-label">Rating:</div>
-                <div class="card-info-value card-rating">
-                    ${formattedRating !== 'N/A' ? `★ ${formattedRating}` : 'N/A'}
-                    <span class="review-count">(${reviewCount} reviews)</span>
-                </div>
-            </div>
-            <div class="card-info-row">
-                <div class="card-info-label">Topic:</div>
-                <div class="card-info-value">${topicName}</div>
-            </div>
-        </div>
-        <div class="card-footer">
-            <div class="card-action">
-                ${actionButton}
-            </div>
-        </div>
-    `;
-
-    // Add event listener to external link if needed (e.g., for analytics)
-    const externalLink = card.querySelector('.external-link');
-    externalLink?.addEventListener('click', (event) => {
-        // Optional: Add analytics tracking here
-        console.log(`Clicked external link for book ID: ${book.id}`);
-        // Allow default link behavior
-    });
-
-    // Add event listener for internal details link to prevent card click if needed
-    const detailsLink = card.querySelector('.details-link');
-    detailsLink?.addEventListener('click', (event) => {
-        // Prevent card click handler if card itself becomes clickable later
-        event.stopPropagation();
-        console.log(`Clicked details link for book ID: ${book.id}`);
-    });
-
-
-    return card;
 }
 
 
@@ -500,15 +336,27 @@ async function loadBooks(filterParams = {}) {
     const paginationContainerId = 'pagination-controls';
 
     const loadingIndicator = document.getElementById(loadingIndicatorId);
-    const tbody = document.getElementById(tbodyId);
+    const tbody = document.getElementById(tbodyId); // Get tbody DOM element
     const cardContainer = document.getElementById(cardContainerId);
     const errorContainer = document.getElementById(errorContainerId);
     const paginationContainer = document.getElementById(paginationContainerId);
 
+    // Early exit if critical display areas are missing
+    // If your page might sometimes have only one view (e.g. only table or only cards), adjust this check.
+    if (!tbody && !cardContainer) {
+        console.error("Neither table body nor card container found. Cannot display books.");
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+        // Ensure errorContainer exists before trying to use it
+        if (errorContainer) displayErrorMessage(errorContainerId, "Book display area not found.");
+        else console.error("Error container not found to display message: Book display area not found.");
+        return;
+    }
+
+
     // Show loading, clear previous state
     if (loadingIndicator) loadingIndicator.style.display = 'block';
-    if (tbody) tbody.innerHTML = '';
-    if (cardContainer) cardContainer.innerHTML = '';
+    if (tbody) tbody.innerHTML = ''; // Clear tbody content
+    if (cardContainer) cardContainer.innerHTML = ''; // Clear card container content
     if (paginationContainer) paginationContainer.innerHTML = ''; // Clear old pagination
     if (errorContainer) errorContainer.classList.remove('visible');
 
@@ -530,18 +378,24 @@ async function loadBooks(filterParams = {}) {
         });
 
         console.log("Loading books with params:", queryParams);
-        const data = await fetchBooks(queryParams); // Assume fetchBooks returns { items: [], total: number, page: number, limit: number }
+        const data = await fetchBooks(queryParams); // Single fetch call
         console.log("Books received:", data);
 
         if (data && data.items) {
-            // Render table view
-            renderBookTable(data.items, tbodyId, loadingIndicatorId, errorContainerId, (currentPage - 1) * booksPerPage); // Pass offset for numbering
+            // Render table view if tbody exists
+            if (tbody) {
+                renderBookTable(data.items, tbody, (currentPage - 1) * booksPerPage);
+            }
 
-            // Render card view (assuming renderBookCard exists in ui.js)
-            renderBookCardView(data.items, cardContainerId); // New function needed
-
-            // Render pagination
-            renderPaginationControls(paginationContainerId, data.total, data.page, data.limit);
+            // Render card view if cardContainer exists
+            if (cardContainer) {
+                renderBookCardView(data.items, cardContainerId); // renderBookCardView uses ID
+            }
+            
+            // Render pagination if container exists
+            if (paginationContainer) {
+                renderPaginationControls(paginationContainerId, data.total, data.page, data.limit);
+            }
 
             // Ensure sort indicators are correct
             updateSortIndicators();
@@ -549,23 +403,106 @@ async function loadBooks(filterParams = {}) {
             if (loadingIndicator) loadingIndicator.style.display = 'none';
         } else {
             // Handle case where data or data.items is missing
-            renderBookTable([], tbodyId, loadingIndicatorId, errorContainerId, 0);
-            renderBookCardView([], cardContainerId);
+            if (tbody) {
+                renderBookTable([], tbody, 0); // Pass empty array and tbody element
+            }
+            if (cardContainer) {
+                renderBookCardView([], cardContainerId); // Pass empty array
+            }
             if (loadingIndicator) loadingIndicator.style.display = 'none';
-            if (!errorContainer?.classList.contains('visible')) {
-                displayErrorMessage(errorContainerId, 'Could not load book data.');
+            if (errorContainer && !errorContainer.classList.contains('visible')) {
+                displayErrorMessage(errorContainerId, 'Could not load book data or no books found.');
             }
         }
 
     } catch (error) {
         console.error("Failed to load books:", error);
         if (loadingIndicator) loadingIndicator.style.display = 'none';
-        displayErrorMessage(errorContainerId, `Error loading books: ${error.message}`);
-        if (tbody) tbody.innerHTML = '';
-        if (cardContainer) cardContainer.innerHTML = '';
-        if (paginationContainer) paginationContainer.innerHTML = ''; // Clear pagination on error too
+        if (errorContainer) displayErrorMessage(errorContainerId, `Error loading books: ${error.message}`);
+        // tbody, cardContainer, paginationContainer are already cleared at the start of loadBooks or on error.
     }
 }
+
+/**
+ * Renders a single book card.
+ * Assumes BookRead schema: { id, name, logo_url, overall_average_rating, total_review_count, year, author, topic, amazon_link }
+ * @param {object} book - The book data object.
+ * @returns {HTMLElement|null} - The created card element or null if book is invalid.
+ */
+export function renderBookCard(book) {
+    if (!book || !book.id) return null;
+
+    const card = document.createElement('div');
+    card.className = 'book-card'; // Use a specific class for styling, but structure will be similar to exchange-card
+
+    // Use logo_url for consistency with table view, fallback to placeholder
+    const imageUrl = book.logo_url || '../assets/images/book-placeholder.png';
+    const title = book.name || 'Untitled Book'; // Use name field
+    const author = book.author || 'Unknown Author';
+    const year = book.year || 'N/A';
+    const ratingValue = parseFloat(book.overall_average_rating);
+    const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
+    const reviewCount = book.total_review_count?.toLocaleString() ?? '0';
+    const topicName = book.topic?.name || 'General';
+
+    // Use amazon_link for the primary action, link to details page otherwise
+    const actionButton = book.amazon_link
+        ? `<a href="${book.amazon_link}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary btn-sm external-link">View on Amazon</a>`
+        : `<a href="/books/details.html?id=${book.id}" class="btn btn-secondary btn-sm details-link">Обзор</a>`;
+
+    card.innerHTML = `
+        <div class="card-header">
+             <img src="${imageUrl}" alt="${title} Cover" class="card-cover-image" loading="lazy" onerror="this.onerror=null; this.src='../assets/images/book-placeholder.png';">
+             <h3 class="card-title">${title}</h3>
+        </div>
+        <div class="card-body">
+            <div class="card-info-row">
+                <div class="card-info-label">Author:</div>
+                <div class="card-info-value">${author}</div>
+            </div>
+             <div class="card-info-row">
+                <div class="card-info-label">Year:</div>
+                <div class="card-info-value">${year}</div>
+            </div>
+            <div class="card-info-row">
+                <div class="card-info-label">Rating:</div>
+                <div class="card-info-value card-rating">
+                    ${formattedRating !== 'N/A' ? `★ ${formattedRating}` : 'N/A'}
+                    <span class="review-count">(${reviewCount} reviews)</span>
+                </div>
+            </div>
+            <div class="card-info-row">
+                <div class="card-info-label">Topic:</div>
+                <div class="card-info-value">${topicName}</div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="card-action">
+                ${actionButton}
+            </div>
+        </div>
+    `;
+
+    // Add event listener to external link if needed (e.g., for analytics)
+    const externalLink = card.querySelector('.external-link');
+    externalLink?.addEventListener('click', (event) => {
+        // Optional: Add analytics tracking here
+        console.log(`Clicked external link for book ID: ${book.id}`);
+        // Allow default link behavior
+    });
+
+    // Add event listener for internal details link to prevent card click if needed
+    const detailsLink = card.querySelector('.details-link');
+    detailsLink?.addEventListener('click', (event) => {
+        // Prevent card click handler if card itself becomes clickable later
+        event.stopPropagation();
+        console.log(`Clicked details link for book ID: ${book.id}`);
+    });
+
+
+    return card;
+}
+
 
 /**
  * Renders books as cards in the card container.

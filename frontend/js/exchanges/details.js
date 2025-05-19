@@ -4,7 +4,7 @@ import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../reviews.js';
 import { isLoggedIn, handleLogout } from '../auth.js';
 
-const BASE_API_URL = 'https://humble-garbanzo-q7pqgwwxr97rh4wgg-8300.app.github.dev/api/v1'
+const BASE_API_URL = 'http://localhost:8300/api/v1'
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];

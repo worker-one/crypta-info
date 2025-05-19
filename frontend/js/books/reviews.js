@@ -1,4 +1,4 @@
-import { getBookDetails, submitItemReview } from '../api.js';
+import { getBookDetails, submitItemReview, listItemReviews } from '../api.js';
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { setupSortingButtons, renderReviewsList, updateSortButtonCounts, setupReviewVoting } from '../reviews.js'; // Import all needed
 import { updateHeaderNav } from '../header.js'; // Import from header.js
@@ -18,6 +18,11 @@ let pageLoadingIndicator;
 let reviewSectionContainer;
 let guestNameGroup; // Added for guest name input
 let guestNameInput; // Added for guest name input
+
+// Added declarations for DOM elements related to the reviews list
+let reviewsListContainer;
+let reviewsLoadingIndicator;
+let reviewsErrorContainer;
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -132,7 +137,7 @@ export const handleReviewSubmit = async (event, bookId) => { // Added export
     try {
         console.log('Attempting to submit book review via API...');
         // Assuming submitItemReview takes ID and type
-        await submitItemReview(bookId, reviewData, 'book'); // Added type 'book'
+        await submitItemReview(bookId, reviewData); // Removed superfluous 'book' argument
         console.log('Book review submission successful (API call).');
         showElement(reviewSubmitSuccess);
         reviewSubmitSuccess.textContent = 'Review submitted successfully! It is pending moderation.';
@@ -220,6 +225,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         showElement(pageLoadingIndicator);
         hideElement(pageErrorContainer);
+        hideElement(reviewsErrorContainer); // Hide reviews error initially
+        showElement(reviewsLoadingIndicator); // Show reviews loading indicator
 
         // Fetch book details to get name and confirm ID exists
         const book = await getBookDetails(bookId);
@@ -234,14 +241,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         showElement(reviewSectionContainer);
         showElement(addReviewSection); // Ensure add review section is visible
 
-        // Fetch reviews for this book and store in currentReviews
-        // Assume you have a function to fetch reviews, e.g., getBookReviews(bookId)
-        // Replace with your actual fetch logic if different
-        currentReviews = await window.getBookReviews(bookId); // You may need to import or define getBookReviews
-        renderReviewsList(currentReviews);
-        updateSortButtonCounts(currentReviews);
-        setupSortingButtons(currentReviews);
-        setupReviewVoting();
+        // Fetch reviews for this book
+        try {
+            console.log(`Fetching reviews for book ID: ${bookId}`);
+            const reviewsResponse = await listItemReviews(bookId, { limit: 100, sort_by: 'created_at', direction: 'desc' }); // Fetch up to 100 reviews, newest first
+            currentReviews = reviewsResponse.items || [];
+            console.log('Fetched reviews:', currentReviews);
+            renderReviewsList(currentReviews, reviewsListContainer);
+            updateSortButtonCounts(currentReviews);
+            setupSortingButtons(currentReviews); // Pass currentReviews here
+            setupReviewVoting(); // Setup voting listeners
+            hideElement(reviewsLoadingIndicator);
+        } catch (reviewError) {
+            console.error('Failed to fetch book reviews:', reviewError);
+            displayErrorMessage('reviews-error', `Could not load reviews: ${reviewError.message}`);
+            showElement(reviewsErrorContainer);
+            hideElement(reviewsLoadingIndicator);
+            // Still render an empty list or a specific message in the reviews list container
+            renderReviewsList([], reviewsListContainer); 
+            updateSortButtonCounts([]);
+            // Setup sorting buttons even if reviews fail to load, so UI is consistent
+            setupSortingButtons([]); 
+        }
+
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);
