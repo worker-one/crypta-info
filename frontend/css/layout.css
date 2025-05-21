@@ -66,6 +66,7 @@
     align-items: center;
     gap: 0.75rem; /* Adjust gap between nav items */
     white-space: nowrap;
+    margin-bottom: -10;
 }
 
 #main-nav > * {
@@ -75,9 +76,29 @@
 #main-nav a {
     color: #495057; /* Muted nav link color */
     font-size: 0.95rem;
-    font-weight: 500; /* Slightly bolder nav links */
+    font-weight: 400; /* Slightly bolder nav links */
     text-decoration: none;
     transition: color 0.2s ease;
+    position: relative; /* Needed for pseudo-element underline */
+}
+
+#main-nav a::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #007bff;
+    bottom: -55px; /* Move underline down by 5px */
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-bottom: -10px; /* Adjusted margin */
+}
+
+#main-nav a:hover::after,
+#main-nav a.active::after {
+    opacity: 1;
 }
 
 #main-nav a:hover,
@@ -86,41 +107,40 @@
     text-decoration: none;
 }
 
-/* Styles for the main site navigation container (below header) */
-.site-nav-container {
-    background-color: #f8f9fa; /* Light background */
-    border-bottom: 0.75px solid #dee2e6; /* Separator line */
-    margin-bottom: 0.1rem; /* Space below the nav */
-}
-
-/* Styles for the main site navigation (Exchanges, Books) */
+/* Styles for the main site navigation (Exchanges, Books) - now within .main-header */
 .site-nav {
     display: flex;
     align-items: center; /* Align items vertically */
-    padding: 0; /* Remove padding if container handles it */
+    margin-right: auto; /* Pushes subsequent elements (e.g., #main-nav) to the right */
+    gap: 0.5rem; /* Gap between navigation links like "КРИПТОБИРЖИ" and "КНИГИ" */
+    padding: 0; 
 }
 
 .site-nav .nav-link {
-    padding: 0.75rem 1rem; /* Padding similar to tabs */
-    margin: 0 0.25rem; /* Small horizontal margin between tabs */
-    color: #495057; /* Muted text color */
-    font-size: 0.95rem;
-    font-weight: 500;
+    padding: 0.25rem 0.5rem; /* Adjusted padding for header */
+    color: #343a40; /* Darker color for primary navigation */
+    font-size: 0.95rem; /* Consistent font size */
+    font-weight: 500; /* Standard font weight */
     text-decoration: none;
-    border-bottom: 3px solid transparent; /* Invisible border for spacing */
-    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+    border-bottom: 2px solid transparent; /* Reserve space for underline and keep alignment */
+    transition: color 0.2s ease, border-bottom-color 0.2s ease; /* Add border-bottom-color to transition */
     white-space: nowrap; /* Prevent wrapping */
-    position: relative; /* For potential future pseudo-elements */
-    text-transform: uppercase; /* Common tab style */
-    letter-spacing: 0.5px; /* Slight letter spacing */
-    margin-bottom: -1px; /* Overlap the container's border */
+    text-transform: none; /* Remove uppercase styling */
+    letter-spacing: normal; /* Reset letter spacing */
+    margin-bottom: 0; /* Reset any bottom margin */
 }
 
-.site-nav .nav-link:hover,
-.site-nav .nav-link.active { /* Style for active/hovered link */
-    color: #007bff; /* Primary color */
-    border-bottom-color: #007bff; /* Primary color underline */
+.site-nav .nav-link:hover {
+    color: #007bff; /* Primary color on hover */
     text-decoration: none;
+    /* border-bottom-color: #007bff; Optionally underline on hover too */
+}
+
+.site-nav .nav-link.active {
+    color: #007bff; /* Primary color for active link */
+    font-weight: 600; /* Make active link bolder */
+    text-decoration: none;
+    border-bottom-color: #007bff; /* Active link underline */
 }
 
 /* --- Main Content Area --- */
