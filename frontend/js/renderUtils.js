@@ -2,7 +2,7 @@
 
 // Define the API base URL directly. For production, consider a configuration approach.
 // TODO: Move BASE_URL_API to a config.js file
-const BASE_URL_API = 'http://localhost:8300/api/v1';
+const BASE_URL_API = 'http://176.124.219.116:8300/api/v1';
 
 
 /**

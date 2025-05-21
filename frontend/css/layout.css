@@ -89,7 +89,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: #007bff;
+    background: #f0f0f0;
     bottom: -55px; /* Move underline down by 5px */
     opacity: 0;
     transition: opacity 0.2s;

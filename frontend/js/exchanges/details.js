@@ -4,7 +4,7 @@ import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../reviews.js';
 import { isLoggedIn, handleLogout } from '../auth.js';
 
-const BASE_API_URL = 'http://localhost:8300/api/v1'
+const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
