@@ -22,9 +22,9 @@
     padding: 2rem 0;
 }
 
-/* --- Description --- */
-.exchange-detail .description,
-.description {
+/* --- Описание --- */
+.exchange-detail .Описание,
+.Описание {
     margin-bottom: 2.5rem;
     font-size: 1.05rem;
     line-height: 1.7;

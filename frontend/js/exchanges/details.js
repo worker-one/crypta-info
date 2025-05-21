@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             </div>
 
-            <p class="description">${exchange.overview || 'No overview available for this exchange.'}</p>
+            <p class="Описание">${exchange.overview || 'No overview available for this exchange.'}</p>
             
             <div class="details">
             <div class="detail-card">
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             </div>
             <br>
-            <p class="description">${exchange.description || 'No description available for this exchange.'}</p>
+            <p class="Описание">${exchange.Описание || 'No Описание available for this exchange.'}</p>
             
             
         `;

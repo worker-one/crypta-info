@@ -115,9 +115,9 @@ export function renderGuideCard(guideItem, slug) {
     card.className = 'guide-card'; // Use a specific class for styling
 
     const imageUrl = guideItem.image_url || '../assets/images/guide-placeholder.png'; // Adjust placeholder path
-    // const excerpt = guideItem.excerpt || 'No description available.'; // Use excerpt or fallback
+    // const excerpt = guideItem.excerpt || 'No Описание available.'; // Use excerpt or fallback
     // except is the first 200 characters of the content
-    const excerpt = guideItem.content ? guideItem.content.substring(0, 200) + '...' : 'No description available.';
+    const excerpt = guideItem.content ? guideItem.content.substring(0, 200) + '...' : 'No Описание available.';
     const title = guideItem.title || 'Untitled Инструкции';
 
     // Decide on the link - does clicking a guide card go somewhere?

@@ -94,7 +94,7 @@
 }
 
 /* --- Book Body Styles --- */
-.book-detail-body { /* Container for description, details, etc. */
+.book-detail-body { /* Container for Описание, details, etc. */
     margin-top: 2rem; /* Space above body content */
 }
 
@@ -106,7 +106,7 @@
     padding-bottom: 0.75rem;
 }
 
-.book-detail .description { /* Reusing description style */
+.book-detail .Описание { /* Reusing Описание style */
     margin-bottom: 2.5rem;
     font-size: 1.05rem;
     line-height: 1.7;

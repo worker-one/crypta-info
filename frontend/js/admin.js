@@ -153,7 +153,7 @@ async function editExchange(slug) {
             editForm.querySelector('[name="slug"]').value = exchange.slug;
             editForm.querySelector('[name="website_url"]').value = exchange.website_url || '';
             editForm.querySelector('[name="logo_url"]').value = exchange.logo_url || '';
-            editForm.querySelector('[name="description"]').value = exchange.description || '';
+            editForm.querySelector('[name="Описание"]').value = exchange.Описание || '';
             // Add other fields as necessary
 
             // Show the modal using Bootstrap's JavaScript API if available, or fallback

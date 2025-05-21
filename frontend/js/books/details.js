@@ -204,15 +204,15 @@ function renderBookDetails(book, container) {
         </div>
     `;
 
-    // --- Populate Book Description ---
-    const descriptionElement = document.getElementById('book-description-text');
-    if (descriptionElement) {
-        descriptionElement.textContent = book.description || 'No description available.';
-        console.log('Book description populated.');
+    // --- Populate Book Описание ---
+    const ОписаниеElement = document.getElementById('book-Описание-text');
+    if (ОписаниеElement) {
+        ОписаниеElement.textContent = book.Описание || 'No Описание available.';
+        console.log('Book Описание populated.');
     } else {
-        console.warn('Book description element not found.');
+        console.warn('Book Описание element not found.');
     }
-    // --- End Populate Book Description ---
+    // --- End Populate Book Описание ---
 
     const addReviewLink = document.getElementById('add-review-link');
     if (addReviewLink && book && book.id) {
