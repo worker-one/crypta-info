@@ -10,38 +10,31 @@
     <link rel="stylesheet" href="../css/pages/books/index.css?v=1.0"> <!-- New CSS for books -->
 </head>
 <body>
-    <!-- Header Section (Same as exchanges) -->
+    <!-- Header Section -->
     <header class="main-header">
         <div class="container">
-            <!-- Logo Литература (left) -->
+            <!-- Logo Title (left) -->
             <a href="/" class="logo">
-                <img src="../assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40"> <!-- Adjusted path -->
+                <img src="./assets/images/logo-placeholder.png" alt="Crypta.Info Logo" height="40">
                 <div>
                     <span class="logo-text">Crypta.Info</span>
                 </div>
             </a>
 
-            <!-- Sign Up and Sign In (Now directly in container) -->
-            <nav id="main-nav">
-                <a href="../register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Sign Up</a> <!-- Adjusted path -->
-                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Sign In</a> <!-- Adjusted path -->
-                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Adjusted path -->
-                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Adjusted path -->
-                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button>
+            <nav class="site-nav">
+                <a href="/exchanges" class="nav-link active">КРИПТОБИРЖИ</a> <!-- Example: Add 'active' class dynamically -->
+                <a href="/books" class="nav-link">КНИГИ</a>
+            </nav>
+
+            <!-- Sign Up and Вход (Now directly in container) -->
+                <a href="../login.html" class="btn btn-secondary btn-sm" id="nav-login-btn">Вход</a>
+                <a href="../profile.html" class="nav-link hidden" id="nav-profile-link">My Profile</a> <!-- Added Profile Link -->
+                <a href="../admin.html" class="nav-link hidden" id="nav-admin-link">Admin Panel</a> <!-- Added Admin Link (optional, handled by ui.js) -->
+                <button class="btn btn-secondary hidden" id="nav-logout-btn">Logout</button> <!-- Added Logout Button -->
             </nav>
 
         </div>
     </header>
-
-    <!-- Site Navigation - Added Below Header -->
-    <div class="site-nav-container">
-        <div class="container">
-            <nav class="site-nav">
-                <a href="/exchanges" class="nav-link">КРИПТОБИРЖИ</a>
-                <a href="/books" class="nav-link active">КНИГИ</a> <!-- Set active class -->
-            </nav>
-        </div>
-    </div>
 
     <main>
 
