@@ -412,9 +412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Load exchange reviews and set up sorting/voting
         console.log(`Loading reviews for exchange ID: ${exchange.id}`);
-        await loadExchangeReviews(exchange.id);
-        setupSortingButtons();
-        setupReviewVoting(); // Renamed from setupVoteButtons and uses delegation
+        await loadExchangeReviews(exchange.id); // This function already calls setupSortingButtons(currentReviews) and setupReviewVoting()
 
     } catch (error) {
         console.error("Error fetching exchange details:", error);
@@ -488,8 +486,8 @@ async function loadExchangeReviews(exchangeId) {
         }
 
         // Setup sorting and voting after rendering
-        setupSortingButtons(currentReviews);
-        setupReviewVoting();
+        setupSortingButtons(currentReviews); // Correct call with currentReviews
+        setupReviewVoting(); // Correct call
 
     } catch (error) {
         console.error("Error loading exchange reviews:", error);

@@ -100,26 +100,5 @@
     </footer>
 
     <script type="module" src="../js/exchanges/details.js"></script>
-    <script>
-        // Basic JS to set tab links based on slug
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const slug = urlParams.get('slug');
-            const overviewTabLink = document.getElementById('tab-overview');
-            const newsTabLink = document.getElementById('tab-news');
-            const guideTabLink = document.getElementById('tab-guide');
-
-            if (slug) {
-                // Update links for sibling pages
-                if (overviewTabLink) overviewTabLink.href = `#`; // Current page
-                if (newsTabLink) newsTabLink.href = `news.html?slug=${slug}`;
-                if (guideTabLink) guideTabLink.href = `guide.html?slug=${slug}`;
-            } else {
-                console.error("Exchange slug is missing from URL. Tab links may be incorrect.");
-                // Optionally disable or hide tabs if slug is missing
-            }
-
-        });
-    </script>
 </body>
 </html>

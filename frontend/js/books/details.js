@@ -5,6 +5,8 @@ import { renderReviewsList, setupSortingButtons, updateSortButtonCounts, setupRe
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
+let reviewsTabLink;
+window.currentReviews = currentReviews; // Make it available globally
 
 // --- DOM Elements for Отзывы (assuming these IDs exist in the HTML) ---
 const reviewsList = document.getElementById('reviews-list');
@@ -39,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const reviewSection = document.getElementById('review-section');
     const additionalInfoContainer = document.getElementById('additional-info-content'); // Container for additional details
     const whereToBuyContainer = document.getElementById('where-to-buy-content'); // Container for buy links
-
+    reviewsTabLink = document.getElementById('tab-reviews'); // Assign to module-scoped variable
     console.log('DOM elements retrieved');
 
     if (!bookId) {
@@ -124,6 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Load book reviews using the new function
             await loadBookReviews(book.id);
             // Setup sorting buttons (now uses global currentReviews)
+            window.currentReviews = currentReviews; // Ensure global is set
             setupSortingButtons(currentReviews);
         } else {
             console.log('Review section not found or book ID missing, skipping review load.');
@@ -229,9 +232,6 @@ function renderBookDetails(book, container) {
 async function loadBookReviews(bookId) {
     console.log(`Loading reviews for book ID: ${bookId}`);
 
-    // Find the reviews tab link (assumes it has id 'reviews-tab-link')
-    const reviewsTabLink = document.getElementById('reviews-tab-link');
-
     if (reviewsTabLink) {
         reviewsTabLink.textContent = 'Отзывы (...)'; // Indicate loading
     }
@@ -246,6 +246,7 @@ async function loadBookReviews(bookId) {
     reviewsList.innerHTML = '';
     if (reviewsPagination) reviewsPagination.innerHTML = '';
     currentReviews = []; // Reset reviews before fetch
+    window.currentReviews = currentReviews; // Update global
     updateSortButtonCounts(currentReviews); // Update counts to 0 initially
 
     try {
@@ -263,6 +264,7 @@ async function loadBookReviews(bookId) {
 
         // Filter out reviews with null comments
         currentReviews = response.items.filter(review => review.comment !== null);
+        window.currentReviews = currentReviews; // Update global
         console.log(`Filtered ${response.items.length - currentReviews.length} reviews with null comments`);
 
         updateSortButtonCounts(currentReviews); // Update counts after fetching
@@ -279,21 +281,19 @@ async function loadBookReviews(bookId) {
             renderReviewsList(currentReviews); // Render reviews sorted by date initially
         }
 
-        // Setup sorting and voting after rendering
+        // Setup sorting and voting after
         setupSortingButtons(currentReviews);
-        setupReviewVoting();
-
-        // TODO: Implement pagination if response.total > response.limit
-
-    } catch (error) {
-        console.error("Error loading book reviews:", error);
+        setupReviewVoting(currentReviews); // Pass currentReviews to setupReviewVoting
+        console.log('Review voting and sorting setup complete');
+    }
+    catch (error) {
+        console.error('Error loading reviews:', error);
         reviewsLoading.classList.add('hidden');
-        reviewsError.textContent = error.message || 'Failed to load reviews.';
+        reviewsError.textContent = 'Ошибка загрузки отзывов. Пожалуйста, попробуйте позже.';
         reviewsError.classList.add('visible');
-        currentReviews = [];
-        updateSortButtonCounts(currentReviews); // Update counts on error (to 0)
-        if (reviewsTabLink) {
-            reviewsTabLink.textContent = 'Отзывы (0)';
-        }
+    }
+    finally {
+        if (reviewsLoading) reviewsLoading.classList.add('hidden');
+        if (reviewsError) reviewsError.classList.remove('visible');
     }
 }

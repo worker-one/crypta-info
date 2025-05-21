@@ -2,7 +2,7 @@ import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } f
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
-import { setupReviewVoting, setupSortingButtons } from '../reviews.js'; // Import setupReviewVoting
+import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
 
 // --- DOM Elements ---
 const reviewsListContainer = document.getElementById('reviews-list');
@@ -37,15 +37,16 @@ const hideElement = (el) => el?.classList.add('hidden');
  * @param {string} exchangeName - The name of the exchange.
  * @param {string} exchangeSlug - The slug of the exchange.
  * @param {string} reviewsPageContent - The HTML content for the reviews page.
+ * @param {Array<object>} [reviews] - Optional array of reviews to compute count.
  */
-function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent) {
+function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, reviews = []) {
     const overviewPageUrl = `details.html?slug=${exchangeSlug}`;
     if (exchangeNameHeading) exchangeNameHeading.textContent = `Отзывы о криптобирже ${exchangeName}`;
     if (exchangeLinkBreadcrumb) {
         exchangeLinkBreadcrumb.textContent = exchangeName;
         exchangeLinkBreadcrumb.href = overviewPageUrl;
     }
-    exchangeReviewsPageContent.innerHTML = reviewsPageContent || 'EMpty'; // Added
+    exchangeReviewsPageContent.innerHTML = reviewsPageContent || 'Empty'; // Added
     document.title = `Отзывы ${exchangeName}  - Crypta.Info`;
 
     const overviewTabLink = document.getElementById('tab-overview');
@@ -53,46 +54,18 @@ function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent) {
     const guideTabLink = document.getElementById('tab-guide');
     const reviewsTabLink = document.getElementById('tab-reviews');
 
+    if (reviewsTabLink) {
+        reviewsTabLink.textContent = `Отзывы (${Array.isArray(currentReviews) ? currentReviews.length : 0})`;
+    }
+
     if (overviewTabLink) overviewTabLink.href = `details.html?slug=${exchangeSlug}`;
     if (newsTabLink) newsTabLink.href = `news.html?slug=${exchangeSlug}`;
     if (guideTabLink) guideTabLink.href = `guide.html?slug=${exchangeSlug}`;
     if (reviewsTabLink) {
         reviewsTabLink.classList.add('active');
+        reviewsTabLink.href = `reviews.html?slug=${exchangeSlug}`;
     }
 }
-
-/**
- * Updates the text content of sorting buttons to include review counts.
- * Counts based on the single 'rating' property.
- */
-const updateSortButtonCounts = () => {
-    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
-    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
-
-    if (!sortPositiveBtn || !sortNegativeBtn) {
-        console.warn("Sorting buttons not found during count update.");
-        return;
-    }
-
-    let positiveCount = 0;
-    let negativeCount = 0;
-
-    // Filter reviews based on those that have comments
-    const reviewsWithComments = currentReviews.filter(review => review.comment && review.comment.trim() !== '');
-    
-    // Count positive and negative ratings from reviews with comments
-    reviewsWithComments.forEach(review => {
-        const rating = review.rating;
-        if (rating >= 4) {
-            positiveCount++;
-        } else if (rating > 0 && rating < 4) {
-            negativeCount++;
-        }
-    });
-
-    sortPositiveBtn.textContent = `Хорошие (${positiveCount})`;
-    sortNegativeBtn.textContent = `Плохие (${negativeCount})`;
-};
 
 /**
  * Renders a rating histogram based on the current reviews.
@@ -165,67 +138,12 @@ const renderRatingHistogram = (reviews) => {
     reviewsHistogramContainer.appendChild(statContainer);
 };
 
-/**
- * Renders a list of reviews into the DOM.
- * Displays the single 'rating' property.
- * Assumes the API returns 'rating' instead of 'ratings'.
- * @param {Array<object>} reviews - The array of review objects to render.
- */
-const renderReviewsList = (reviews) => {
-    if (!reviewsListContainer) return;
-    reviewsListContainer.innerHTML = '';
-
-    if (reviews && reviews.length > 0) {
-        const reviewsWithComments = reviews.filter(review => review.comment !== null);
-        
-        if (reviewsWithComments.length > 0) {
-            reviewsWithComments.forEach(review => {
-            const reviewElement = document.createElement('div');
-            reviewElement.classList.add('review-item');
-            const ratingValue = review.rating || 0;
-
-            // Generate stars based on rating value 
-            let starsHtml = '<div class="review-rating">';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= ratingValue) {
-                starsHtml += '<span class="star filled" style="color: #ffc107;">★</span>';
-                } else {
-                starsHtml += '<span class="star empty" style="color: #e4e5e9;">☆</span>';
-                }
-            }
-            starsHtml += '</div>';
-
-            reviewElement.innerHTML = `
-                <div class="review-header">
-                <span class="review-author">${review.user && review.user.nickname ? review.user.nickname : review.guest_name || 'Anonymous'}</span>
-                <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                </div>
-                <div class="review-rating">${starsHtml}</div>
-                <div class="review-content">
-                <p>${review.comment}</p>
-                </div>
-                <div class="review-footer" style="margin-top: 5px;">
-                <button class="vote-btn useful transparent-btn" data-review-id="${review.id}" data-vote="true" style="background: transparent; outline: none; border: none;">👍 ${review.useful_votes_count}</button>
-                <button class="vote-btn not-useful transparent-btn" data-review-id="${review.id}" data-vote="false" style="background: transparent; outline: none; border: none;">👎 ${review.not_useful_votes_count}</button>
-                <span class="vote-feedback" data-review-id="${review.id}"></span>
-                </div>
-            `;
-            reviewsListContainer.appendChild(reviewElement);
-            });
-            setupVoteButtons();
-        } else {
-            reviewsListContainer.innerHTML = '<p>No reviews with comments available.</p>';
-        }
-    } else {
-        reviewsListContainer.innerHTML = '<p>No reviews match the criteria or none available.</p>';
-    }
-};
 
 /**
  * Loads and displays reviews for a given exchange ID.
  * @param {number} exchangeId - The ID of the exchange.
  */
-const loadReviews = async (exchangeId) => {
+const loadReviews = async (exchangeId, exchangeName, exchangeSlug, reviewsPageContent) => {
     if (!reviewsListContainer || !reviewsLoadingIndicator || !reviewsErrorContainer) return;
 
     showElement(reviewsLoadingIndicator);
@@ -233,31 +151,34 @@ const loadReviews = async (exchangeId) => {
     if (reviewsHistogramContainer) reviewsHistogramContainer.innerHTML = ''; // Clear histogram
     reviewsListContainer.innerHTML = '';
     currentReviews = [];
-    updateSortButtonCounts();
+    updateSortButtonCounts(currentReviews);
+    updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, currentReviews); // Update UI with 0 reviews initially
 
     try {
         const reviewsData = await listItemReviews(exchangeId, { limit: 100, sort_by: 'created_at', direction: 'desc' });
         hideElement(reviewsLoadingIndicator);
 
         if (reviewsData && reviewsData.items) {
-            currentReviews = reviewsData.items;
-            renderReviewsList(currentReviews);
+            currentReviews = reviewsData.items.filter(review => review.comment !== null);
+            renderReviewsList(currentReviews, reviewsListContainer);
             renderRatingHistogram(currentReviews); // Add this call
         } else {
             currentReviews = [];
             reviewsListContainer.innerHTML = '<p>No reviews yet. Be the first to add one!</p>';
             renderRatingHistogram([]); // Render empty/message for histogram
         }
-        updateSortButtonCounts();
+        updateSortButtonCounts(currentReviews);
+        updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, currentReviews); // Pass reviews array
     } catch (error) {
         console.error('Failed to load reviews:', error);
         hideElement(reviewsLoadingIndicator);
         currentReviews = [];
-        updateSortButtonCounts();
+        updateSortButtonCounts(currentReviews);
         renderRatingHistogram([]); // Render empty/message for histogram
         reviewsListContainer.innerHTML = '';
         displayErrorMessage('reviews-error', `Failed to load reviews. ${error.message}`);
         showElement(reviewsErrorContainer);
+        updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, []); // Ensure UI is updated with 0 reviews
     }
 };
 
@@ -360,52 +281,6 @@ const handleReviewSubmit = async (event, exchangeId) => {
     }
 };
 
-/**
- * Sets up event listeners for vote buttons.
- */
-function setupVoteButtons() {
-    const voteButtons = document.querySelectorAll('.vote-btn');
-    voteButtons.forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-    document.querySelectorAll('.vote-btn').forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const reviewId = event.target.dataset.reviewId;
-            const isUseful = event.target.dataset.vote === 'true';
-
-            if (!isLoggedIn()) {
-                alert('Please log in to vote on reviews.');
-                return;
-            }
-
-            const feedbackElement = document.querySelector(`.vote-feedback[data-review-id="${reviewId}"]`);
-            const footer = event.target.closest('.review-footer');
-            footer.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = true);
-            feedbackElement.textContent = 'Voting...';
-            feedbackElement.classList.remove('error');
-
-            try {
-                const updatedReview = await voteOnReview(reviewId, isUseful);
-
-                const usefulBtn = footer.querySelector(`.vote-btn.useful`);
-                const notUsefulBtn = footer.querySelector(`.vote-btn.not-useful`);
-                usefulBtn.textContent = `👍 (${updatedReview.useful_votes_count})`;
-                notUsefulBtn.textContent = `👎 (${updatedReview.not_useful_votes_count})`;
-                feedbackElement.textContent = 'Voted!';
-
-                setTimeout(() => { feedbackElement.textContent = ''; }, 2000);
-            } catch (error) {
-                console.error(`Vote failed for review ${reviewId}:`, error);
-                feedbackElement.textContent = `Error: ${error.message || 'Vote failed'}`;
-                feedbackElement.classList.add('error');
-                setTimeout(() => { feedbackElement.textContent = ''; feedbackElement.classList.remove('error'); }, 3000);
-            } finally {
-                footer.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = false);
-            }
-        });
-    });
-}
-
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
     updateHeaderNav();
@@ -459,15 +334,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const exchangeId = exchange.id;
-        updatePageUI(exchange.name, slug, exchange.reviews_page_content); // Pass content
+        // Initial call to updatePageUI. currentReviews is empty here, so tab count will be 0.
+        updatePageUI(exchange.name, slug, exchange.reviews_page_content, []); // Pass empty array initially
         if (exchangeReviewsPageContent && exchange.reviews_page_content) { // Show if content exists
             showElement(exchangeReviewsPageContent);
         }
 
         showElement(reviewSectionContainer);
 
-        await loadReviews(exchangeId);
-        setupSortingButtons();
+        await loadReviews(exchangeId, exchange.name, slug, exchange.reviews_page_content); // Pass info for updatePageUI
+
+        // The call to updatePageUI inside loadReviews will now correctly update the count
+        // after reviews are fetched.
+
+        setupSortingButtons(currentReviews); // Pass currentReviews
         setupReviewVoting();
 
         // Pre-select rating if passed in URL and scroll to form

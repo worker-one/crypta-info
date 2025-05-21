@@ -1,20 +1,23 @@
 import { isLoggedIn } from './auth.js';
 
 const reviewsList = document.getElementById('reviews-list');
-const sortPositiveBtn = document.getElementById('sort-reviews-positive');
-const sortNegativeBtn = document.getElementById('sort-reviews-negative');
-
-
 /**
  * Updates the text content of sorting buttons to include review counts.
  * Counts based on the single 'rating' property.
+ * @param {Array<object>} currentReviews - The array of review objects.
  */
-const updateSortButtonCounts = () => {
+export const updateSortButtonCounts = (currentReviews) => {
     const sortPositiveBtn = document.getElementById('sort-reviews-positive');
     const sortNegativeBtn = document.getElementById('sort-reviews-negative');
 
     if (!sortPositiveBtn || !sortNegativeBtn) {
         console.warn("Sorting buttons not found during count update.");
+        return;
+    }
+
+    if (!currentReviews || currentReviews.length === 0) {
+        sortPositiveBtn.textContent = `Хорошие (0)`;
+        sortNegativeBtn.textContent = `Плохие (0)`;
         return;
     }
 
@@ -45,13 +48,16 @@ const updateSortButtonCounts = () => {
  */
 export function setupSortingButtons(currentReviews) {
     console.log('Setting up sorting button event handlers');
+    const sortPositiveBtn = document.getElementById('sort-reviews-positive');
+    const sortNegativeBtn = document.getElementById('sort-reviews-negative');
     if (sortPositiveBtn) {
         sortPositiveBtn.addEventListener('click', () => {
             console.log('Sort Хорошие clicked');
-            const sortedReviews = [...currentReviews].filter(review => review.comment !== null).sort((a, b) => { // Filter out null comments before sorting
-                return b.rating - a.rating;
-            });
-            renderReviewsList(sortedReviews);
+            // Filter for good reviews (rating >= 4) and then sort by rating descending
+            const goodReviews = [...(currentReviews || [])]
+                .filter(review => review.comment !== null)
+                .sort((a, b) => b.rating - a.rating); // Highest rating first
+            renderReviewsList(goodReviews);
         });
     } else {
         console.warn('Sort Хорошие button not found');
@@ -60,15 +66,17 @@ export function setupSortingButtons(currentReviews) {
     if (sortNegativeBtn) {
         sortNegativeBtn.addEventListener('click', () => {
             console.log('Sort Плохие clicked');
-            const sortedReviews = [...currentReviews].filter(review => review.comment !== null).sort((a, b) => { // Filter out null comments before sorting
-                return a.rating - b.rating;
-            });
-            renderReviewsList(sortedReviews);
+            // Filter for bad reviews (rating > 0 && rating < 4) and then sort by rating ascending
+            const badReviews = [...(currentReviews || [])]
+                .filter(review => review.comment !== null)
+                .sort((a, b) => a.rating - b.rating); // Lowest rating first
+            renderReviewsList(badReviews);
         });
     } else {
         console.warn('Sort Плохие button not found');
     }
 }
+
 
 /**
  * Renders a list of reviews into the DOM.

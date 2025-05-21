@@ -40,9 +40,10 @@
                 <nav class="details-tabs" id="book-tabs">
                     <a href="#" class="tab-link active" id="tab-overview">Обзор</a>
                     <a href="#" class="tab-link" id="tab-reviews">Отзывы</a>
+                    <a href="#" class="tab-link" id="tab-buy">Где купить</a>
                 </nav>
 
-                <div id="book-detail-loading" class="loading-message">Loading book details...</div> <!-- Changed ID -->
+                <div id="book-detail-loading" class="loading-message">Загрузка описания книги...</div> <!-- Changed ID -->
                 <div id="book-detail-error" class="error-message"></div> <!-- Changed ID -->
 
                 <!-- Main Content Area -->
@@ -134,15 +135,18 @@
             const bookId = urlParams.get('id'); // Assuming 'id' is used
             const overviewTabLink = document.getElementById('tab-overview');
             const reviewsTabLink = document.getElementById('tab-reviews');
+            const buyTabLink = document.getElementById('tab-buy'); // Added
 
             if (bookId) {
                 // Update links for sibling pages
                 if (overviewTabLink) overviewTabLink.href = `#`; // Current page
                 if (reviewsTabLink) reviewsTabLink.href = `reviews.html?id=${bookId}`; // Link to reviews page
+                if (buyTabLink) buyTabLink.href = `buy.html?id=${bookId}`; // Added
             } else {
                 console.error("Book identifier is missing from URL. Tab links may be incorrect.");
                 // Optionally disable or hide tabs if identifier is missing
                 if (reviewsTabLink) reviewsTabLink.href = '#'; // Prevent navigation without ID
+                if (buyTabLink) buyTabLink.href = '#'; // Added
             }
         });
     </script>

@@ -21,6 +21,56 @@
             padding-top: 1.5rem;
             border-top: 1px solid #eee;
         }
+
+        /* Styles for Rating Histogram */
+        .reviews-histogram-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .stat-item__stars {
+            display: flex;
+            margin-right: 10px;
+            width: 100px; /* Adjust as needed */
+        }
+        .stat-item__star {
+            width: 16px; /* Size of a star */
+            height: 16px;
+            background-color: #f39c12; /* Filled star color */
+            margin-right: 2px;
+            /* Basic star shape using clip-path, or use an SVG/font icon */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .stat-item__star--empty {
+            background-color: #ddd; /* Empty star color */
+        }
+        .stat-item__progress {
+            flex-grow: 1;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-right: 10px;
+            overflow: hidden; /* Ensures progress bar stays within bounds */
+        }
+        .stat-item__progress-bar {
+            height: 100%;
+            background-color: #f39c12; /* Progress bar color */
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+        .stat-item__percents {
+            width: 50px; /* Adjust as needed */
+            text-align: right;
+            font-size: 0.9em;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -56,55 +106,69 @@
                 <nav class="details-tabs" id="book-tabs"> <!-- Reusing class, added ID -->
                     <a href="#" class="tab-link" id="tab-overview">Обзор</a>
                     <a href="#" class="tab-link active" id="tab-reviews">Отзывы (...)</a>
+                    <a href="#" class="tab-link" id="tab-buy">Где купить</a>
                 </nav>
 
                 <h1 id="book-name-heading">Book Отзывы</h1> <!-- JS will populate this -->
 
-                <!-- Отзывы Section -->
+                <!-- Reviews Section -->
                 <div id="review-section">
                     <div id="reviews-container">
-                        <div id="reviews-loading" class="loading-message">Loading reviews...</div>
+                        <div id="reviews-loading" class="loading-message">Загрузка отзывов...</div>
                         <div id="reviews-error" class="error-message"></div>
                         <!-- Add container for sort buttons -->
-                        <div id="review-sort-controls-container">
-                            <!-- Sorting buttons will be dynamically added here by JS if not present -->
+                        
+                        <!-- Histogram Container -->
+                        <div id="reviews-histogram-container" class="reviews-histogram-container">
+                            <!-- Histogram will be loaded here by JS -->
                         </div>
-                        <div id="reviews-list">
-                            <!-- Отзывы will be loaded here -->
+
+                        <div id="add-review-section"> <!-- Always shown, guest_name field toggled by JS -->
+                            <h3>Оставить отзыв</h3>
+                            <form id="review-form">
+                                <!-- Container for the single rating input -->
+                                <div id="review-rating-input-container" class="form-group">
+                                    <label>Общая оценка</label>
+                                    <div class="star-rating single-rating" data-rating-group="overall">
+                                        <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
+                                        <label for="star-overall-5"></label>
+                                        <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
+                                        <label for="star-overall-4"></label>
+                                        <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
+                                        <label for="star-overall-3"></label>
+                                        <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
+                                        <label for="star-overall-2"></label>
+                                        <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
+                                        <label for="star-overall-1"></label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="review-text">Текст отзыва</label>
+                                    <textarea id="review-text" name="review-text" rows="5" placeholder="Поделитесь своим мнением — это поможет другим сделать правильный выбор!"></textarea>
+                                </div>
+                                <div id="guest-name-input-container" class="form-group hidden"> <!-- Hidden by default -->
+                                    <label for="guest-name">Ваше Имя</label>
+                                    <input type="text" id="guest-name" name="guest-name" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Опубликовать</button>
+                                <div id="review-submit-error" class="error-message"></div>
+                                <div id="review-submit-success" class="success-message"></div>
+                            </form>
+                        </div>
+                        
+                        <div id="review-sort-controls-container" style="margin-bottom: 15px; margin-top: 15px;">
+                            <!-- Sorting buttons will be dynamically added here by JS if not present -->
+                            <!-- Or you can add them directly here if preferred -->
+                        </div>
+                        <div id="reviews-list" style="margin-top: 10px;"></div>
+                            <!-- Reviews will be loaded here -->
                         </div>
                     </div>
 
-                    <div id="add-review-section" class="hidden"> <!-- Initially hidden, shown for logged-in users -->
-                        <h3>Оставить отзыв</h3>
-                        <form id="review-form">
-                            <!-- Container for the single rating input -->
-                            <div id="review-rating-input-container" class="form-group">
-                                <label>Общая оценка</label>
-                                <div class="star-rating single-rating" data-rating-group="overall">
-                                    <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
-                                    <label for="star-overall-5"></label>
-                                    <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
-                                    <label for="star-overall-4"></label>
-                                    <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
-                                    <label for="star-overall-3"></label>
-                                    <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
-                                    <label for="star-overall-2"></label>
-                                    <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
-                                    <label for="star-overall-1"></label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="review-text">Текст отзыва</label>
-                                <textarea id="review-text" name="review-text" rows="5" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Опубликовать</button>
-                            <div id="review-submit-error" class="error-message"></div>
-                            <div id="review-submit-success" class="success-message"></div>
-                        </form>
-                    </div>
-                    <!-- Login Prompt -->
+                    
+                    <!-- Login Prompt - Now hidden as guests can also review -->
                     <div id="login-prompt-review" class="message info-message hidden">
-                        You need to <a href="../login.html">sign in</a> to add your review. <!-- Adjusted path -->
+                        You need to <a href="login.html">sign in</a> to add your review.
                     </div>
 
                 </div>
@@ -146,6 +210,7 @@
             const bookLinkBreadcrumb = document.getElementById('book-link-breadcrumb');
             const overviewTabLink = document.getElementById('tab-overview');
             const reviewsTabLink = document.getElementById('tab-reviews');
+            const buyTabLink = document.getElementById('tab-buy'); // Added
 
             let bookName = 'Book'; // Default placeholder
 
@@ -154,6 +219,7 @@
 
                 const overviewPageUrl = `details.html?id=${bookId}`;
                 const reviewsPageUrl = `#`; // Current page
+                const buyPageUrl = `buy.html?id=${bookId}`; // Added
 
                 if (bookLinkBreadcrumb) {
                     bookLinkBreadcrumb.href = overviewPageUrl;
@@ -166,6 +232,7 @@
                 // Set tab links
                 if (overviewTabLink) overviewTabLink.href = overviewPageUrl;
                 if (reviewsTabLink) reviewsTabLink.href = reviewsPageUrl; // Current page
+                if (buyTabLink) buyTabLink.href = buyPageUrl; // Added
 
                 console.log("Initial tab links set.");
 
@@ -175,6 +242,7 @@
                 // Disable tabs or show error state
                 if (overviewTabLink) overviewTabLink.href = '#';
                 if (reviewsTabLink) reviewsTabLink.href = '#'; // Current page, but ID missing
+                if (buyTabLink) buyTabLink.href = '#'; // Added
                 document.getElementById('review-section').classList.add('hidden');
                 document.getElementById('page-error').textContent = 'Cannot load page: Book identifier (ID) is missing.';
                 document.getElementById('page-error').classList.remove('hidden');
