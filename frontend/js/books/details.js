@@ -196,11 +196,7 @@ function renderBookDetails(book, container) {
                 <p><strong>ISBN:</strong> ${book.isbn || book.number || 'N/A'}</p>
                 <p><strong>Pages:</strong> ${book.pages || 'N/A'}</p>
             </div>
-            
-            <div class="detail-card">
-                <h3>Where to buy</h3>
-                <p><a href="${book.website_url || '#'}" target="_blank">${book.website_url ? 'Link 1' : 'Not available'}</a></p>
-            </div>
+
         </div>
     `;
 
