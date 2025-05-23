@@ -52,16 +52,25 @@ export function handleStarClick(event) { // Made non-async, removed direct submi
     }
     
     const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug'); 
+    const slug = urlParams.get('slug');
 
-    if (!slug) {
-        console.error("Slug not found in current URL. Cannot redirect to reviews page with rating.");
+    const id = urlParams.get('id');
+    
+
+    if (!slug && !id) {
+        console.error("Slug nor ID not found in current URL. Cannot redirect to reviews page with rating.");
         // Optionally, display an error message to the user or disable star clicking if slug is missing.
         return;
     }
-    
-    // Construct the redirect URL, including a hash to scroll to the review form
-    const redirectUrl = `/exchanges/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
+
+    if (slug) {
+        // Construct the redirect URL, including a hash to scroll to the review form
+        const redirectUrl = `/exchanges/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
+    }
+    if (id) {
+        // Construct the redirect URL, including a hash to scroll to the review form
+        const redirectUrl = `/exchanges/reviews.html?id=${id}&rating=${rating}#add-review-section`;
+    }
     
     console.log(`Redirecting to: ${redirectUrl}`);
     window.location.href = redirectUrl;
