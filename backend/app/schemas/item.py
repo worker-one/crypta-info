@@ -9,6 +9,27 @@ class ItemBase(BaseModel):
 # Schema for reading item data (e.g., in API responses)
 class ItemRead(ItemBase):
     id: int
+    item_type: str
+    slug: str
+    overview: str
+    description: str
+    logo_url: str
+    website_url: str
+    overall_average_rating: float  # Overall average rating
+    created_at: str  # Creation date
+    total_review_count: int  # Number of reviews with comments
+    total_rating_count: int  # Number of reviews with ratings
+
+    class Config:
+        orm_mode = True # Enable ORM mode for compatibility with SQLAlchemy models
+
+class ItemReadBrief(ItemBase):
+    id: int
+    slug: str
+    logo_url: str
+    overall_average_rating: float  # Overall average rating
+    total_review_count: int  # Number of reviews with comments
+    total_rating_count: int  # Number of reviews with ratings
 
     class Config:
         orm_mode = True # Enable ORM mode for compatibility with SQLAlchemy models

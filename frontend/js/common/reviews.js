@@ -1,4 +1,5 @@
 import { isLoggedIn } from '../auth.js';
+import { voteOnReview } from '../api/reviews.js';
 
 const reviewForm = document.getElementById('review-form');
 const reviewsList = document.getElementById('reviews-list');

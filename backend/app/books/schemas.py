@@ -4,6 +4,8 @@ from typing import Optional, List, Literal
 from datetime import datetime
 from decimal import Decimal
 
+from app.schemas.item import ItemReadBrief, ItemRead, ItemBase
+
 # --- Topic Schema ---
 class TopicRead(BaseModel):
     id: int
@@ -15,17 +17,8 @@ class TopicRead(BaseModel):
         from_attributes = True
 
 # --- Book Schemas ---
-class BookBase(BaseModel):
-    # Inherited fields from Item (represented here for clarity)
-    name: str = Field(..., min_length=2, max_length=255, description="Title of the book")
-    slug: str = Field(..., min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$", description="URL-friendly slug")
-    overview: Optional[str] = None
-    description: Optional[str] = None
-    logo_url: Optional[HttpUrl] = Field(None, description="Cover image URL")
-    website_url: Optional[HttpUrl] = Field(None, description="Link to buy or learn more")
-    referral_link: Optional[HttpUrl] = Field(None, description="Affiliate link for the book")
+class BookBase(ItemBase):
 
-    
     # Book-specific fields
     # topic: Optional[str] = Field(None, max_length=255, index=True) # Replaced by M2M topics
     year: Optional[int] = Field(None, ge=1500, le=datetime.now().year)
@@ -53,13 +46,9 @@ class BookUpdate(BookBase):
     pass
 
 # Schema for brief list view (inherits from ItemReadBrief essentially)
-class BookReadBrief(BaseModel):
-    id: int
-    name: str # Title
-    slug: str
-    logo_url: Optional[HttpUrl] = None # Cover URL
-    overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    total_review_count: int
+class BookReadBrief(ItemReadBrief):
+
+    # Book-specific fields
     year: Optional[int] = None
     author: Optional[str] = None
 
@@ -67,15 +56,7 @@ class BookReadBrief(BaseModel):
         from_attributes = True
 
 # Schema for detailed view
-class BookRead(BookBase):
-    id: int
-    # Inherited Item fields
-    overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    total_review_count: int
-    author: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
-
+class BookRead(ItemRead):
     # Nested related data
     topics: List[TopicRead] = []
     # reviews: List[ReviewRead] = [] # Assuming ReviewRead exists elsewhere
