@@ -63,15 +63,14 @@ export function handleStarClick(event) { // Made non-async, removed direct submi
         return;
     }
 
+    let redirectUrl = null;
     if (slug) {
         // Construct the redirect URL, including a hash to scroll to the review form
-        const redirectUrl = `/exchanges/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
-    }
-    elif (id) {
+        redirectUrl = `/exchanges/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
+    } else if (id) {
         // Construct the redirect URL, including a hash to scroll to the review form
-        const redirectUrl = `/exchanges/reviews.html?id=${id}&rating=${rating}#add-review-section`;
-    }
-    else {
+        redirectUrl = `/exchanges/reviews.html?id=${id}&rating=${rating}#add-review-section`;
+    } else {
         console.error("Neither slug nor ID found in current URL. Cannot redirect to reviews page with rating.");
         return;
     }
