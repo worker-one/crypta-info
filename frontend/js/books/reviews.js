@@ -16,12 +16,13 @@ const pageErrorContainer = document.getElementById('page-error');
 const pageLoadingIndicator = document.getElementById('page-loading');
 const reviewSectionContainer = document.getElementById('review-section');
 const guestNameGroup = document.getElementById('guest-name-input-container'); // <-- Fix: use correct ID
-const guestNameInput = document.getElementById('guest-name');
 
 const reviewsListContainer = document.getElementById('reviews-list');
 const reviewsLoadingIndicator = document.getElementById('reviews-loading');
 const reviewsErrorContainer = document.getElementById('reviews-error');
 const reviewsHistogramContainer = document.getElementById('reviews-histogram-container'); // Added
+const reviewSubmitSuccess = document.getElementById('review-submit-success');
+const guestNameInputContainer = document.getElementById('guest-name-input-container');
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
