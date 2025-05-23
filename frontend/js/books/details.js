@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const breadcrumbBookName = document.getElementById('book-name-breadcrumb');
     const reviewSection = document.getElementById('review-section');
     const additionalInfoContainer = document.getElementById('additional-info-content'); // Container for additional details
-    const whereToBuyContainer = document.getElementById('where-to-buy-content'); // Container for buy links
+    const whereToBuyContainer = document.getElementById('where-to-buy-content'); // Now always present
     reviewsTabLink = document.getElementById('tab-reviews'); // Assign to module-scoped variable
     console.log('DOM elements retrieved');
 
@@ -71,36 +71,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update page title and breadcrumb
         if (book && book.name) {
-            console.log(`Updating page title to: ${book.name} - Crypta.Info`);
-            document.name = `${book.name} - Crypta.Info`;
+            document.title = `${book.name} - Crypta.Info`; // Fix: set document.title, not document.name
             if (breadcrumbBookName) breadcrumbBookName.textContent = book.name;
         } else {
-             if (breadcrumbBookName) breadcrumbBookName.textContent = "Book Обзор";
+            if (breadcrumbBookName) breadcrumbBookName.textContent = "Book Обзор";
         }
 
-        // Render book details
+        // Render book details using exchange layout
         renderBookDetails(book, detailContainer);
-        console.log('Book detail HTML built and inserted into DOM');
 
-        // --- Populate Additional Information ---
-        if (additionalInfoContainer) {
-            additionalInfoContainer.innerHTML = `
-                <div class="details">
-                    <div class="detail-card">
-                        <h3>Обзор</h3>
-                        <p><strong>ISBN:</strong> ${book.isbn || 'N/A'}</p>
-                        <p><strong>Publisher:</strong> ${book.publisher || 'N/A'}</p>
-                        <p><strong>Pages:</strong> ${book.pages || 'N/A'}</p>
-                        <p><strong>Language:</strong> ${book.language || 'N/A'}</p>
-                        <p><strong>Categories:</strong> ${book.categories?.map(c => c.name).join(', ') || 'N/A'}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- Populate Where to Buy ---
+        // --- Populate Where to Buy (reuse detail-card style) ---
         if (whereToBuyContainer) {
-            let buyLinksHtml = '<p>No purchase links available.</p>';
+            let buyLinksHtml = '<p>Нет ссылок для покупки.</p>';
             if (book.purchase_links && book.purchase_links.length > 0) {
                 buyLinksHtml = '<ul>';
                 book.purchase_links.forEach(link => {
@@ -108,13 +90,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 buyLinksHtml += '</ul>';
             }
-
             whereToBuyContainer.innerHTML = `
-                <div class="details">
-                    <div class="detail-card">
-                        <h3>Purchase Options</h3>
-                        ${buyLinksHtml}
-                    </div>
+                <div class="detail-card">
+                    <h3>Где купить</h3>
+                    ${buyLinksHtml}
                 </div>
             `;
         }
@@ -145,14 +124,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * Renders the fetched book details into the specified container.
+ * Renders the fetched book details into the specified container using exchange layout.
  * @param {object} book - The book data object.
  * @param {HTMLElement} container - The DOM element to render into.
  */
 function renderBookDetails(book, container) {
     if (!container || !book) {
-        console.error('Cannot render book details: Invalid book data or container.');
-        if (container) container.innerHTML = '<p>Could not display book details.</p>';
+        container.innerHTML = '<p>Could not display book details.</p>';
         return;
     }
 
@@ -164,58 +142,59 @@ function renderBookDetails(book, container) {
         ? book.topics.map(topic => `<span class="topic-tag">${topic.name}</span>`).join(' ')
         : 'N/A';
 
+    // Adopt exchange layout: .stats-overview, .stat-grid, .stat-item, .detail-card
     container.innerHTML = `
-        <div class="book-detail-header">
-            <div class="book-cover">
-                <img src="${book.logo_url || '../assets/images/book-cver-placeholder.png'}" alt="${book.name} Cover">
-            </div>
-            <div class="book-meta">
-                <h1>${book.name || 'N/A'}</h1>
-                <p class="author">By: ${book.author || 'N/A'}</p>
-                <p class="year">Published: ${book.year || 'N/A'}</p>
-                <div class="stats-overview">
-                    <div class="stat-item">
-                        <div class="value">${formattedRating}</div>
-                        <div class="label">Overall Rating</div>
+        <div class="stats-overview">
+            <div class="stat-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+                <div class="header-with-logo" style="display: flex; align-items: center; margin-bottom: 0px;">
+                    <div class="logo" style="margin-right: 15px;">
+                        <img src="${book.logo_url || '../assets/images/book-cver-placeholder.png'}" alt="${book.name} Cover">
                     </div>
-                    <div class="stat-item">
-                        <div class="value">${reviewCount}</div>
-                        <div class="label">Отзывы</div>
-                    </div>
+                    <h1 style="margin: 0;">${book.name || 'N/A'}</h1>
                 </div>
-                 <div class="topics">
-                    <strong>Topics:</strong> ${topics}
+                <div class="stat-item">
+                    <div class="value">${formattedRating}</div>
+                    <div class="label">Рейтинг</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">${reviewCount}</div>
+                    <div class="label">Отзывы</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">${book.year || 'N/A'}</div>
+                    <div class="label">Год издания</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">${book.author || 'N/A'}</div>
+                    <div class="label">Автор</div>
                 </div>
             </div>
         </div>
-
         <div class="details">
             <div class="detail-card">
                 <h3>Общая информация</h3>
-                <p><strong>Publisher:</strong> ${book.publisher || 'N/A'}</p>
+                <p><strong>Издатель:</strong> ${book.publisher || 'N/A'}</p>
                 <p><strong>ISBN:</strong> ${book.isbn || book.number || 'N/A'}</p>
-                <p><strong>Pages:</strong> ${book.pages || 'N/A'}</p>
+                <p><strong>Страниц:</strong> ${book.pages || 'N/A'}</p>
+                <p><strong>Язык:</strong> ${book.language || 'N/A'}</p>
+                <p><strong>Категории:</strong> ${book.categories?.map(c => c.name).join(', ') || 'N/A'}</p>
+                <div class="topics" style="margin-top: 10px;">
+                    <strong>Темы:</strong> ${topics}
+                </div>
             </div>
-
         </div>
     `;
 
     // --- Populate Book Описание ---
     const ОписаниеElement = document.getElementById('book-Описание-text');
     if (ОписаниеElement) {
-        ОписаниеElement.textContent = book.Описание || 'No Описание available.';
-        console.log('Book Описание populated.');
-    } else {
-        console.warn('Book Описание element not found.');
+        ОписаниеElement.textContent = book.Описание || 'Нет описания.';
     }
-    // --- End Populate Book Описание ---
 
     const addReviewLink = document.getElementById('add-review-link');
     if (addReviewLink && book && book.id) {
         addReviewLink.href = `./reviews.html?id=${book.id}#add-review-section`;
-        console.log(`Add review link updated to: ${addReviewLink.href}`);
     } else if (addReviewLink) {
-        console.warn('Could not set Add Review link: Book ID missing or link element not found.');
         addReviewLink.classList.add('hidden');
     }
 }

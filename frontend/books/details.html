@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Обзор - Crypta.Info</title> <!-- Changed title -->
+    <title>Book Обзор - Crypta.Info</title>
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/pages/books/details.css"> <!-- Assuming a similar CSS structure -->
     <link rel="stylesheet" href="../css/components/button.css">
+    <link rel="stylesheet" href="../css/pages/exchanges/details.css"><!-- Reuse exchange details CSS -->
     <link rel="stylesheet" href="../css/components/rating.css">
     <link rel="stylesheet" href="../css/components/reviews.css">
 </head>
@@ -31,75 +31,52 @@
     </header>
 
     <main>
-        <section class="book-detail-section"> <!-- Changed class name -->
-            
+        <section class="exchange-detail-section"><!-- Reuse class for consistent styling -->
             <div class="container">
                 <div id="breadcrumb">
                     <a href="/books">Книги</a> / <span id="book-name-breadcrumb">Обзор книги</span>
                 </div>
-                <!-- Added Tab Navigation -->
+                <!-- Tab Navigation (reuse style) -->
                 <nav class="details-tabs" id="book-tabs">
                     <a href="#" class="tab-link active" id="tab-overview">Обзор</a>
                     <a href="#" class="tab-link" id="tab-reviews">Отзывы</a>
                     <a href="#" class="tab-link" id="tab-buy">Где купить</a>
                 </nav>
 
-                <div id="book-detail-loading" class="loading-message">Загрузка описания книги...</div> <!-- Changed ID -->
-                <div id="book-detail-error" class="error-message"></div> <!-- Changed ID -->
+                <div id="book-detail-loading" class="loading-message">Загрузка описания книги...</div>
+                <div id="book-detail-error" class="error-message"></div>
 
-                <!-- Main Content Area -->
-                <div id="book-detail-content"> <!-- Wrapper for details and reviews -->
-                    <div id="book-detail" class="book-detail hidden"> <!-- Changed ID and class -->
-                        <!-- Book details (like title, author, Описание) will be loaded here via JavaScript -->
-                        <div id="book-main-info">
-                            <!-- Placeholder for main info like title, author, Описание -->
-                        </div>
-
-                        <!-- New Horizontal Section for Additional Автор and Where to Buy -->
-                        <div class="book-extra-info-container">
-                            <div class="additional-info-section">
-                                <h2>Additional Information</h2>
-                                <!-- Content loaded by JS -->
-                                <div id="additional-info-content">
-                                    <!-- Placeholder: Additional details loaded here -->
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End New Horizontal Section -->
+                <!-- Main Content Area (adopt exchange layout) -->
+                <div id="overview-content">
+                    <div id="book-detail" class="exchange-detail hidden">
+                        <!-- Book details will be loaded here via JS, using exchange layout -->
                     </div>
-
                     <!-- Book Описание Section -->
                     <div id="book-Описание-content" class="book-description-section">
                         <h2>Описание</h2>
-                        <!-- Описание loaded by JS -->
                         <p id="book-Описание-text">Загрузка описания...</p>
                     </div>
-                    <!-- End Book Описание Section -->
-
+                    <!-- Review Section (reuse exchange markup) -->
                     <div id="review-section" class="hidden">
                         <h2>Отзывы о книге</h2>
                         <div id="reviews-container">
-                            <!-- Reviews will be loaded here -->
                             <div id="reviews-loading" class="loading-message">Загрузка отзывов...</div>
                             <div id="reviews-error" class="error-message"></div>
-                            <!-- Add Sorting Buttons -->
                             <div class="review-sort-controls" style="margin-bottom: 15px; display: flex; align-items: center;">
                                 <div>
                                     <button id="sort-reviews-positive" class="btn btn-success btn-sm" style="min-width: 100px;">Хорошие</button>
                                     <button id="sort-reviews-negative" class="btn btn-danger btn-sm" style="min-width: 100px;">Плохие</button>
                                 </div>
-                                <!-- The href will be set dynamically by JS -->
                                 <a href="#" id="add-review-link" class="btn btn-primary" style="margin-left: auto; min-width: 150px; text-align: center;">Оставить отзыв</a>
                             </div>
-                             
                             <div id="reviews-list"></div>
-
                         </div>
                     </div>
-                </div> <!-- End #book-detail-content -->
-
-                <!-- Removed Новости биржи/Инструкции content placeholders -->
-
+                </div>
+                <!-- Where to Buy Section (adopt exchange detail-card style) -->
+                <div id="where-to-buy-content" class="details" style="margin-top: 30px;">
+                    <!-- Populated by JS -->
+                </div>
             </div>
         </section>
     </main>
@@ -119,9 +96,7 @@
         </div>
     </footer>
 
-    <!-- Changed script import -->
     <script type="module" src="../js/books/details.js"></script>
-    <!-- Added inline script for tabs -->
     <script>
         // Basic JS to set tab links based on book identifier (e.g., 'id')
         document.addEventListener('DOMContentLoaded', () => {
