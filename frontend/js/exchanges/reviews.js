@@ -2,7 +2,7 @@ import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } f
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
-import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
+import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../common/reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
 
 // --- DOM Elements ---
 const reviewsListContainer = document.getElementById('reviews-list');
