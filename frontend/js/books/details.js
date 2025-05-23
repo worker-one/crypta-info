@@ -14,6 +14,43 @@ const reviewsLoading = document.getElementById('reviews-loading');
 const reviewsError = document.getElementById('reviews-error');
 const reviewsPagination = document.getElementById('reviews-pagination');
 
+
+/**
+ * Renders a star rating display with clickable stars.
+ * @param {string|number} ratingString - The rating value (e.g., "4.5" or 4.5).
+ * @param {number} maxStars - The maximum number of stars to display (default 5).
+ * @param {boolean} interactive - Whether the stars should be interactive (for hover/click).
+ * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
+ */
+function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
+    const rating = parseFloat(ratingString);
+    if (isNaN(rating) || rating < 0) {
+        return 'N/A'; // Return N/A if rating is not a valid number
+    }
+
+    let starsHtml = '';
+    const simpleRoundedRating = Math.round(rating);
+    
+    const clickableClass = interactive ? 'clickable-star' : ''; // Use interactive flag
+    
+    // Create a container for stars to make hover effect targeting easier
+    starsHtml = `<span class="stars-container" ${interactive ? 'data-interactive="true"' : ''}>`; // Use interactive flag
+    
+    for (let i = 1; i <= maxStars; i++) {
+        // data-rating is always added for hover/click logic
+        if (i <= simpleRoundedRating) {
+            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}">★</span>`; // Filled star
+        } else {
+            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}">☆</span>`; // Empty star
+        }
+    }
+    
+    starsHtml += `</span>`;
+
+    return `<span style="font-weight: bold; color: #007bff;">${rating.toFixed(1)}</span> ${starsHtml} <span class="numerical-rating"></span>`;
+}
+
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Book detail page initializing...');
     // Check login status and update navigation
@@ -157,26 +194,21 @@ function renderBookDetails(book, container) {
                     <div class="label">Рейтинг</div>
                 </div>
                 <div class="stat-item">
-                    <div class="value">${reviewCount}</div>
-                    <div class="label">Отзывы</div>
+                    <div class="value">${renderStarRating(book.overall_average_rating, 5, true)}</div>
+                    <div class="label">${book.total_rating_count} голосов</div>
                 </div>
                 <div class="stat-item">
                     <div class="value">${book.year || 'N/A'}</div>
-                    <div class="label">Год издания</div>
+                    <div class="label">Издание</div>
                 </div>
                 <div class="stat-item">
-                    <div class="value">${book.author || 'N/A'}</div>
-                    <div class="label">Автор</div>
+                    <div class="value">${book.pages || 'N/A'}</div>
+                    <div class="label">Страниц</div>
                 </div>
             </div>
         </div>
         <div class="details">
             <div class="detail-card">
-                <h3>Общая информация</h3>
-                <p><strong>Издатель:</strong> ${book.publisher || 'N/A'}</p>
-                <p><strong>ISBN:</strong> ${book.isbn || book.number || 'N/A'}</p>
-                <p><strong>Страниц:</strong> ${book.pages || 'N/A'}</p>
-                <p><strong>Язык:</strong> ${book.language || 'N/A'}</p>
                 <p><strong>Категории:</strong> ${book.categories?.map(c => c.name).join(', ') || 'N/A'}</p>
                 <div class="topics" style="margin-top: 10px;">
                     <strong>Темы:</strong> ${topics}
