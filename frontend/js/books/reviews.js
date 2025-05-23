@@ -22,7 +22,7 @@ const reviewsLoadingIndicator = document.getElementById('reviews-loading');
 const reviewsErrorContainer = document.getElementById('reviews-error');
 const reviewsHistogramContainer = document.getElementById('reviews-histogram-container'); // Added
 const reviewSubmitSuccess = document.getElementById('review-submit-success');
-const guestNameInputContainer = document.getElementById('guest-name-input-container');
+const guestNameInput = document.getElementById('guest-name');
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
