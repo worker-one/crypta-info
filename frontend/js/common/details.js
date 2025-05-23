@@ -6,7 +6,7 @@
  * @param {boolean} interactive - Whether the stars should be interactive (for hover/click).
  * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
  */
-function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
+export function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
     const rating = parseFloat(ratingString);
     if (isNaN(rating) || rating < 0) {
         return 'N/A'; // Return N/A if rating is not a valid number
@@ -131,7 +131,7 @@ function handleStarLeave(event) {
 /**
  * Attaches all event handlers to clickable stars on the page.
  */
-function attachStarClickHandlers() {
+export function attachStarClickHandlers() {
     const stars = document.querySelectorAll('.clickable-star');
     stars.forEach(star => {
         // Remove existing listeners to prevent duplicates

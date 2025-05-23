@@ -22,7 +22,7 @@ const reviewsPagination = document.getElementById('reviews-pagination');
  * @param {boolean} interactive - Whether the stars should be interactive (for hover/click).
  * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
  */
-function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
+export function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
     const rating = parseFloat(ratingString);
     if (isNaN(rating) || rating < 0) {
         return 'N/A'; // Return N/A if rating is not a valid number
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  * @param {object} book - The book data object.
  * @param {HTMLElement} container - The DOM element to render into.
  */
-function renderBookDetails(book, container) {
+export function renderBookDetails(book, container) {
     if (!container || !book) {
         container.innerHTML = '<p>Could not display book details.</p>';
         return;
