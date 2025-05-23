@@ -56,7 +56,7 @@ class BookReadBrief(ItemReadBrief):
         from_attributes = True
 
 # Schema for detailed view
-class BookRead(ItemRead):
+class BookRead(BookReadBrief):
     # Nested related data
     topics: List[TopicRead] = []
     # reviews: List[ReviewRead] = [] # Assuming ReviewRead exists elsewhere
