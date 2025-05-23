@@ -2,6 +2,7 @@
 import { getBookDetails, listItemReviews, voteOnReview } from '../api.js'; // Added listItemReviews, voteOnReview
 import { checkAndCacheUserProfile, handleLogout, isLoggedIn } from '../auth.js'; // Added isLoggedIn
 import { renderReviewsList, setupSortingButtons, updateSortButtonCounts, setupReviewVoting } from '../reviews.js';
+import { renderStarRating, attachStarClickHandlers } from '../common/details.js'; // Import the star rating function
 
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
@@ -14,41 +15,6 @@ const reviewsLoading = document.getElementById('reviews-loading');
 const reviewsError = document.getElementById('reviews-error');
 const reviewsPagination = document.getElementById('reviews-pagination');
 
-
-/**
- * Renders a star rating display with clickable stars.
- * @param {string|number} ratingString - The rating value (e.g., "4.5" or 4.5).
- * @param {number} maxStars - The maximum number of stars to display (default 5).
- * @param {boolean} interactive - Whether the stars should be interactive (for hover/click).
- * @returns {string} HTML string for the star rating, e.g., "★★★★☆ (4.5)".
- */
-export function renderStarRating(ratingString, maxStars = 5, interactive = false) { // Changed exchangeId to interactive
-    const rating = parseFloat(ratingString);
-    if (isNaN(rating) || rating < 0) {
-        return 'N/A'; // Return N/A if rating is not a valid number
-    }
-
-    let starsHtml = '';
-    const simpleRoundedRating = Math.round(rating);
-    
-    const clickableClass = interactive ? 'clickable-star' : ''; // Use interactive flag
-    
-    // Create a container for stars to make hover effect targeting easier
-    starsHtml = `<span class="stars-container" ${interactive ? 'data-interactive="true"' : ''}>`; // Use interactive flag
-    
-    for (let i = 1; i <= maxStars; i++) {
-        // data-rating is always added for hover/click logic
-        if (i <= simpleRoundedRating) {
-            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}">★</span>`; // Filled star
-        } else {
-            starsHtml += `<span class="star ${clickableClass}" data-rating="${i}">☆</span>`; // Empty star
-        }
-    }
-    
-    starsHtml += `</span>`;
-
-    return `<span style="font-weight: bold; color: #007bff;">${rating.toFixed(1)}</span> ${starsHtml} <span class="numerical-rating"></span>`;
-}
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -216,6 +182,9 @@ export function renderBookDetails(book, container) {
             </div>
         </div>
     `;
+
+    // Attach click handlers to the stars
+    attachStarClickHandlers();
 
     // --- Populate Book Описание ---
     const ОписаниеElement = document.getElementById('book-Описание-text');
