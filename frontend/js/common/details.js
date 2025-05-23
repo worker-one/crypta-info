@@ -40,7 +40,7 @@ export function renderStarRating(ratingString, maxStars = 5, interactive = false
  * Handles click on a star. Redirects to the review page with the selected rating.
  * @param {Event} event - The click event
  */
-function handleStarClick(event) { // Made non-async, removed direct submission
+export function handleStarClick(event) { // Made non-async, removed direct submission
     const starElement = event.target.closest('.clickable-star');
     if (!starElement) return;
     
@@ -71,7 +71,7 @@ function handleStarClick(event) { // Made non-async, removed direct submission
  * Handles hover on a star to preview rating.
  * @param {Event} event - The mouseover/focus event
  */
-function handleStarHover(event) {
+export function handleStarHover(event) {
     const starElement = event.target.closest('.clickable-star');
     if (!starElement) return;
     
@@ -98,7 +98,7 @@ function handleStarHover(event) {
  * Handles mouse leaving the star rating area to reset preview.
  * @param {Event} event - The mouseleave/blur event
  */
-function handleStarLeave(event) {
+export function handleStarLeave(event) {
     const starsContainer = event.target.closest('.stars-container');
     if (!starsContainer || starsContainer.getAttribute('data-interactive') !== 'true') return;
     

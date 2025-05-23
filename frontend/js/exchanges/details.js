@@ -3,7 +3,7 @@ import { getExchangeDetails, listItemReviews, voteOnReview, submitItemReview } f
 import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../reviews.js';
 import { handleLogout } from '../auth.js';
-import { renderStarRating } from '../common/details.js'; // Import the star rating function
+import { renderStarRating, attachStarClickHandlers } from '../common/details.js'; // Import the star rating function
 
 const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
 
