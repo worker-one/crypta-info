@@ -1,5 +1,6 @@
 import { isLoggedIn } from '../auth.js';
 
+const reviewForm = document.getElementById('review-form');
 const reviewsList = document.getElementById('reviews-list');
 /**
  * Updates the text content of sorting buttons to include review counts.
