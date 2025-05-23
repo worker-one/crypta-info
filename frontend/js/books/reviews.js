@@ -2,7 +2,7 @@ import { getBookDetails, submitItemReview, listItemReviews, voteOnReview } from 
 import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
-import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts, handleReviewSubmit } from '../common/reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
+import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../common/reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
 import { getAccessToken } from '../auth.js'; // Import the auth function
 
 // --- DOM Elements (Changed to global const/let assignments) ---
@@ -199,6 +199,106 @@ const loadReviews = async (bookId, bookName, bookReviewsPageContent) => { // Add
         displayErrorMessage('reviews-error', `Failed to load reviews. ${error.message}`);
         showElement(reviewsErrorContainer);
         updatePageUI(bookName, bookId, bookReviewsPageContent, []); // Update UI with 0 reviews on error
+    }
+};
+
+
+/**
+ * Handles the submission of the review form.
+ * Reads the single rating value.
+ * @param {Event} event - The form submission event.
+ * @param {number} bookId - The ID of the exchange being reviewed.
+ */
+const handleReviewSubmit = async (event, bookId) => {
+    console.log('handleReviewSubmit called for bookId:', bookId);
+    event.preventDefault();
+    if (!reviewForm) {
+        console.error('Review form element not found in handleReviewSubmit.');
+        return;
+    }
+    console.log('Review form found:', reviewForm);
+
+    clearErrorMessage('review-submit-error');
+    hideElement(reviewSubmitError);
+    hideElement(reviewSubmitSuccess);
+    const submitButton = reviewForm.querySelector('button[type="submit"]');
+    if (!submitButton) {
+        console.error('Submit button not found within the form.');
+        return;
+    }
+    console.log('Disabling submit button');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+
+    const commentText = document.getElementById('review-text').value;
+    let ratingValue = null;
+
+    const selectedRatingInput = reviewRatingInputContainer?.querySelector('.single-rating input[type="radio"]:checked');
+
+    if (selectedRatingInput) {
+        ratingValue = parseInt(selectedRatingInput.value, 10);
+        console.log('Rating selected:', ratingValue);
+    } else {
+        console.log('No rating selected.');
+    }
+
+    if (!commentText || commentText.trim().length < 3) {
+         displayErrorMessage('review-submit-error', 'Please provide a review text (at least 3 characters).');
+         showElement(reviewSubmitError);
+         submitButton.disabled = false;
+         submitButton.textContent = 'Опубликовать';
+         return;
+    }
+    if (ratingValue === null) {
+        displayErrorMessage('review-submit-error', 'Please select a star rating.');
+        showElement(reviewSubmitError);
+        submitButton.disabled = false;
+        submitButton.textContent = 'Опубликовать';
+        return;
+    }
+
+    const reviewData = {
+        comment: commentText.trim(),
+        rating: ratingValue,
+    };
+
+    if (!isLoggedIn()) {
+        const guestName = guestNameInput.value.trim();
+        if (!guestName) {
+            displayErrorMessage('review-submit-error', 'Пожалуйте, укажите ваше имя.');
+            showElement(reviewSubmitError);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Опубликовать';
+            guestNameInput.focus();
+            return;
+        }
+        if (guestName.length > 50) {
+            displayErrorMessage('review-submit-error', 'Иямя не должно превышать 50 символов.');
+            showElement(reviewSubmitError);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Опубликовать';
+            guestNameInput.focus();
+            return;
+        }
+        reviewData.guest_name = guestName;
+    }
+    console.log('Review data prepared:', reviewData);
+
+    try {
+        console.log('Attempting to submit review via API...');
+        await submitItemReview(bookId, reviewData);
+        console.log('Review submission successful (API call).');
+        showElement(reviewSubmitSuccess);
+        reviewSubmitSuccess.textContent = 'Review submitted successfully! It is pending moderation.';
+        reviewForm.reset();
+    } catch (error) {
+        console.error('Failed to submit review (API error):', error);
+        displayErrorMessage('review-submit-error', `Failed to submit review: ${error.message}`);
+        showElement(reviewSubmitError);
+    } finally {
+        console.log('Re-enabling submit button.');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Опубликовать';
     }
 };
 
