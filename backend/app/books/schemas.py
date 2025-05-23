@@ -51,6 +51,7 @@ class BookReadBrief(ItemReadBrief):
     # Book-specific fields
     year: Optional[int] = None
     author: Optional[str] = None
+    pages: Optional[int] = None
 
     class Config:
         from_attributes = True
