@@ -182,20 +182,20 @@ function renderBookDetails(book, container) {
     // Adopt exchange layout: .stats-overview, .stat-grid, .stat-item, .detail-card
     container.innerHTML = `
         <div class="stats-overview">
+            <h1 style="margin: 0;">${book.name || 'N/A'}</h1>
             <div class="stat-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
                 <div class="header-with-logo" style="display: flex; align-items: center; margin-bottom: 0px;">
                     <div class="logo" style="margin-right: 15px;">
                         <img src="${book.logo_url || '../assets/images/book-cver-placeholder.png'}" alt="${book.name} Cover">
                     </div>
-                    <h1 style="margin: 0;">${book.name || 'N/A'}</h1>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${formattedRating}</div>
-                    <div class="label">Рейтинг</div>
                 </div>
                 <div class="stat-item">
                     <div class="value">${renderStarRating(book.overall_average_rating, 5, true)}</div>
                     <div class="label">${book.total_rating_count} голосов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value">${formattedRating}</div>
+                    <div class="label">Рейтинг</div>
                 </div>
                 <div class="stat-item">
                     <div class="value">${book.year || 'N/A'}</div>

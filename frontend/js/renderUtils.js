@@ -2,6 +2,7 @@
 
 // Define the API base URL directly. For production, consider a configuration approach.
 // TODO: Move BASE_URL_API to a config.js file
+//const BASE_URL_API = 'https://humble-garbanzo-q7pqgwwxr97rh4wgg-8300.app.github.dev/api/v1';
 const BASE_URL_API = 'http://176.124.219.116:8300/api/v1';
 
 
@@ -239,8 +240,8 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             p2pTd.className = 'p2p-cell'; // Add specific class
             p2pTd.setAttribute('data-label', 'P2P');
             p2pTd.innerHTML = exchange.has_p2p ?
-                '<img src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" alt="Yes" width="25" height="25" style="vertical-align: middle;">' :
-                '<img src="https://img.icons8.com/?size=100&id=8112&format=png&color=FA5252" alt="No" width="25" height="25" style="vertical-align: middle;">';
+                '<img src="http://img.icons8.com/?size=100&id=11849&format=png&color=000000" alt="Yes" width="25" height="25" style="vertical-align: middle;">' :
+                '<img src="http://img.icons8.com/?size=100&id=8112&format=png&color=FA5252" alt="No" width="25" height="25" style="vertical-align: middle;">';
             p2pTd.style.textAlign = 'center';
             tr.appendChild(p2pTd);
 
@@ -249,8 +250,8 @@ export function renderExchangeList(exchanges, tbodyId, loadingElementId, errorCo
             kycTd.className = 'kyc-cell'; // Add specific class
             kycTd.setAttribute('data-label', 'KYC');
             kycTd.innerHTML = exchange.has_kyc ?
-                '<img src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" alt="Yes" width="25" height="25" style="vertical-align: middle;">' :
-                '<img src="https://img.icons8.com/?size=100&id=8112&format=png&color=FA5252" alt="No" width="25" height="25" style="vertical-align: middle;">';
+                '<img src="http://img.icons8.com/?size=100&id=11849&format=png&color=000000" alt="Yes" width="25" height="25" style="vertical-align: middle;">' :
+                '<img src="http://img.icons8.com/?size=100&id=8112&format=png&color=FA5252" alt="No" width="25" height="25" style="vertical-align: middle;">';
             kycTd.style.textAlign = 'center';
             tr.appendChild(kycTd);
 
