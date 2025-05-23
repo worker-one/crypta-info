@@ -3,19 +3,19 @@ import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
 import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../common/reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
-import { getAccessToken } from '../auth.js'; // Import the auth function
 
 // --- DOM Elements (Changed to global const/let assignments) ---
 const addReviewSection = document.getElementById('add-review-section');
 const reviewForm = document.getElementById('review-form');
 const reviewRatingInputContainer = document.getElementById('review-rating-input-container');
+const reviewSubmitError = document.getElementById('review-submit-error');
 const loginPrompt = document.getElementById('login-prompt-review');
 const bookNameHeading = document.getElementById('book-name-heading');
 const bookLinkBreadcrumb = document.getElementById('book-link-breadcrumb');
 const pageErrorContainer = document.getElementById('page-error');
 const pageLoadingIndicator = document.getElementById('page-loading');
 const reviewSectionContainer = document.getElementById('review-section');
-const guestNameGroup = document.getElementById('guest-name-group');
+const guestNameGroup = document.getElementById('guest-name-input-container'); // <-- Fix: use correct ID
 const guestNameInput = document.getElementById('guest-name');
 
 const reviewsListContainer = document.getElementById('reviews-list');
@@ -263,6 +263,7 @@ const handleReviewSubmit = async (event, bookId) => {
     };
 
     if (!isLoggedIn()) {
+        showElement(guestNameGroup); // Always show guest name input for guests
         const guestName = guestNameInput.value.trim();
         if (!guestName) {
             displayErrorMessage('review-submit-error', 'Пожалуйте, укажите ваше имя.');
@@ -395,11 +396,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isLoggedIn()) {
             hideElement(loginPrompt);
-            hideElement(guestNameGroup);
+            hideElement(guestNameGroup); // Hide guest name input for logged-in users
             reviewForm.addEventListener('submit', (event) => handleReviewSubmit(event, bookId));
             console.log('Submit event listener added to review form for logged-in user.');
         } else {
-            showElement(guestNameGroup);
+            showElement(guestNameGroup); // Show guest name input for guests
             hideElement(loginPrompt);
             reviewForm.addEventListener('submit', (event) => handleReviewSubmit(event, bookId));
             console.log('Submit event listener added to review form for guest.');
