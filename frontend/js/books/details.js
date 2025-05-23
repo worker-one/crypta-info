@@ -1,7 +1,7 @@
 // Book Detail Page Logic
 import { getBookDetails, listItemReviews, voteOnReview } from '../api.js'; // Added listItemReviews, voteOnReview
 import { checkAndCacheUserProfile, handleLogout, isLoggedIn } from '../auth.js'; // Added isLoggedIn
-import { renderReviewsList, setupSortingButtons, updateSortButtonCounts, setupReviewVoting } from '../reviews.js';
+import { renderReviewsList, setupSortingButtons, updateSortButtonCounts, setupReviewVoting } from '../common/reviews.js';
 import { renderStarRating, attachStarClickHandlers } from '../common/details.js'; // Import the star rating function
 
 // --- Global variable to store fetched reviews ---

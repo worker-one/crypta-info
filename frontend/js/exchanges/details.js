@@ -1,7 +1,7 @@
 // Exchange Detail Page Logic
 import { getExchangeDetails, listItemReviews, voteOnReview, submitItemReview } from '../api.js';
 import { updateHeaderNav } from '../header.js'; // Import from new header module
-import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../reviews.js';
+import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../common/reviews.js';
 import { handleLogout } from '../auth.js';
 import { renderStarRating, attachStarClickHandlers } from '../common/details.js'; // Import the star rating function
 
