@@ -1,9 +1,12 @@
 // Main Application Logic for Login/Register Pages
 import { handleLogin, handleRegister } from './auth.js';
-import { displayErrorMessage } from './renderUtils.js'; // Import only necessary UI functions
+import { displayErrorMessage, loadHTML } from './renderUtils.js'; // Import only necessary UI functions
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed - main.js");
+
+    loadHTML('../components/header.html', 'header-placeholder');
+    loadHTML('../components/footer.html', 'footer-placeholder');
 
     const pathname = window.location.pathname;
 

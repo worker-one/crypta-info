@@ -1,7 +1,7 @@
 // filepath: /home/verner/crypta-info/frontend/js/static-page.js
 import { fetchStaticPage } from './api.js';
 import { checkAndCacheUserProfile } from './auth.js'; // To update header nav
-import { displayErrorMessage, clearErrorMessage } from './renderUtils.js'; // Assuming ui.js has these
+import { displayErrorMessage, clearErrorMessage, loadHTML } from './renderUtils.js'; // Assuming ui.js has these
 
 // Helper to show/hide elements using the 'hidden' class
 const showElement = (element) => element?.classList.remove('hidden');
@@ -45,6 +45,8 @@ async function loadStaticPage() {
         bodyElement.innerHTML = pageData.content; // Render HTML content
         document.title = `${pageData.title} - CryptaInfo`; // Update browser tab title
 
+        
+
     } catch (error) {
         // 5. Handle errors
         console.error(`Error fetching static page content for '${slug}':`, error);
@@ -57,8 +59,14 @@ async function loadStaticPage() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+
+    
     // Update header navigation based on login status
     await checkAndCacheUserProfile();
+
+    loadHTML('./components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('./components/footer.html', 'footer-placeholder'); // Load footer HTML
+
     // Load the static page content
     await loadStaticPage();
 });

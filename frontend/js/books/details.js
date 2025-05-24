@@ -2,6 +2,7 @@
 import { getBookDetails, listItemReviews, voteOnReview } from '../api.js'; // Added listItemReviews, voteOnReview
 import { checkAndCacheUserProfile, handleLogout, isLoggedIn } from '../auth.js'; // Added isLoggedIn
 import { renderReviewsList, setupSortingButtons, updateSortButtonCounts, setupReviewVoting } from '../common/reviews.js';
+import { loadHTML } from '../renderUtils.js'; // Import utility for loading HTML components
 import { renderStarRating, attachStarClickHandlers } from '../common/details.js'; // Import the star rating function
 
 // --- Global variable to store fetched reviews ---
@@ -19,6 +20,31 @@ const reviewsPagination = document.getElementById('reviews-pagination');
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Book detail page initializing...');
+
+    // Load header and wait for it to complete
+    await loadHTML('../components/header.html', 'header-placeholder');
+    await loadHTML('../components/footer.html', 'footer-placeholder');
+
+    // Now set active tab after header is loaded
+    setTimeout(() => {
+        const navLinks = document.querySelectorAll('.site-nav .nav-link');
+        console.log(`Found ${navLinks.length} nav links`);
+        
+        // Log all nav links for debugging
+        navLinks.forEach((link, index) => {
+            console.log(`Nav link ${index}: ${link.textContent}, Active: ${link.classList.contains('active')}`);
+            link.classList.remove('active'); // Remove active from all
+        });
+        
+        // Add active class to the books tab (second nav link, index 1)
+        if (navLinks.length > 1) {
+            navLinks[1].classList.add('active'); // "КНИГИ" is the second link
+            console.log('Active tab set to "books"');
+        } else {
+            console.warn('Not enough nav links found to set "books" as active.');
+        }
+    }, 100); // Small delay to ensure DOM is updated
+
     // Check login status and update navigation
     checkAndCacheUserProfile(); // This calls updateHeaderNav internally
     console.log('Header navigation updated.');
@@ -83,23 +109,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Render book details using exchange layout
         renderBookDetails(book, detailContainer);
 
-        // --- Populate Where to Buy (reuse detail-card style) ---
-        if (whereToBuyContainer) {
-            let buyLinksHtml = '<p>Нет ссылок для покупки.</p>';
-            if (book.purchase_links && book.purchase_links.length > 0) {
-                buyLinksHtml = '<ul>';
-                book.purchase_links.forEach(link => {
-                    buyLinksHtml += `<li><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.store}</a></li>`;
-                });
-                buyLinksHtml += '</ul>';
-            }
-            whereToBuyContainer.innerHTML = `
-                <div class="detail-card">
-                    <h3>Где купить</h3>
-                    ${buyLinksHtml}
-                </div>
-            `;
-        }
+        // // --- Populate Where to Buy (reuse detail-card style) ---
+        // if (whereToBuyContainer) {
+        //     let buyLinksHtml = '<p>Нет ссылок для покупки.</p>';
+        //     if (book.purchase_links && book.purchase_links.length > 0) {
+        //         buyLinksHtml = '<ul>';
+        //         book.purchase_links.forEach(link => {
+        //             buyLinksHtml += `<li><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.store}</a></li>`;
+        //         });
+        //         buyLinksHtml += '</ul>';
+        //     }
+        //     whereToBuyContainer.innerHTML = `
+        //         <div class="detail-card">
+        //             <h3>Где купить</h3>
+        //             ${buyLinksHtml}
+        //         </div>
+        //     `;
+        // }
 
         // --- Load Reviews ---
         if (reviewSection && book && book.id) {
@@ -140,46 +166,46 @@ export function renderBookDetails(book, container) {
     // Format data for display
     const ratingValue = parseFloat(book.overall_average_rating);
     const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1) + ' ★';
-    const reviewCount = book.total_review_count?.toLocaleString() ?? '0';
     const topics = book.topics && book.topics.length > 0
         ? book.topics.map(topic => `<span class="topic-tag">${topic.name}</span>`).join(' ')
-        : 'N/A';
+        : '<span class="topic-tag">N/A</span>';
 
-    // Adopt exchange layout: .stats-overview, .stat-grid, .stat-item, .detail-card
+    // New tile-style layout
     container.innerHTML = `
-        <div class="stats-overview">
-            <h1 style="margin: 0;">${book.name || 'N/A'}</h1>
-            <div class="stat-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
-                <div class="header-with-logo" style="display: flex; align-items: center; margin-bottom: 0px;">
-                    <div class="logo" style="margin-right: 15px;">
-                        <img src="${book.logo_url || '../assets/images/book-cver-placeholder.png'}" alt="${book.name} Cover">
+        <div class="book-tile">
+            
+            <div class="book-content">
+                <img src="${book.logo_url || '../assets/images/book-cver-placeholder.png'}" 
+                     alt="${book.name} Cover" 
+                     class="book-cover"
+                     loading="lazy">
+                <div class="book-info">
+                    <div class="book-title">${book.name || 'N/A'}</div>
+                    <div class="info-grid">
+                        <div class="stat-item">
+                            <div class="value">${renderStarRating(book.overall_average_rating, 5, true)}</div>
+                            <div class="info-sublabel">${book.total_rating_count || 0} голосов</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">${book.total_review_count || 0}</div>
+                            <span class="label">Отзывы</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">${book.year || 'N/A'}</div>
+                            <span class="label">Издание</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">${book.pages || 'N/A'}</div>
+                            <span class="label">Страниц</span>
+                        </div>
+                    </div>
+                    <div class="topics-section">
+                            <span class="topics-label">Тематика:</span>
+                            ${topics}
                     </div>
                 </div>
-                <div class="stat-item">
-                    <div class="value">${renderStarRating(book.overall_average_rating, 5, true)}</div>
-                    <div class="label">${book.total_rating_count} голосов</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${formattedRating}</div>
-                    <div class="label">Рейтинг</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${book.year || 'N/A'}</div>
-                    <div class="label">Издание</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value">${book.pages || 'N/A'}</div>
-                    <div class="label">Страниц</div>
-                </div>
             </div>
-        </div>
-        <div class="details">
-            <div class="detail-card">
-                <p><strong>Категории:</strong> ${book.categories?.map(c => c.name).join(', ') || 'N/A'}</p>
-                <div class="topics" style="margin-top: 10px;">
-                    <strong>Темы:</strong> ${topics}
-                </div>
-            </div>
+            
         </div>
     `;
 

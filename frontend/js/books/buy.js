@@ -1,7 +1,7 @@
 import { getBookDetails } from '../api.js';
 import { updateHeaderNav } from '../header.js';
 import { handleLogout } from '../auth.js';
-import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
+import { displayErrorMessage, clearErrorMessage, loadHTML } from '../renderUtils.js';
 
 const showElement = (el) => el?.classList.remove('hidden');
 const hideElement = (el) => el?.classList.add('hidden');
@@ -79,6 +79,28 @@ function renderPurchaseLinks(purchaseLinks, bookName) {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("Book 'Where to Buy' page DOMContentLoaded.");
 
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
+
+    // Now set active tab after header is loaded
+    setTimeout(() => {
+        const navLinks = document.querySelectorAll('.site-nav .nav-link');
+        console.log(`Found ${navLinks.length} nav links`);
+        
+        // Log all nav links for debugging
+        navLinks.forEach((link, index) => {
+            console.log(`Nav link ${index}: ${link.textContent}, Active: ${link.classList.contains('active')}`);
+            link.classList.remove('active'); // Remove active from all
+        });
+        
+        // Add active class to the books tab (second nav link, index 1)
+        if (navLinks.length > 1) {
+            navLinks[1].classList.add('active'); // "КНИГИ" is the second link
+            console.log('Active tab set to "books"');
+        } else {
+            console.warn('Not enough nav links found to set "books" as active.');
+        }
+    }, 100); // Small delay to ensure DOM is updated
     updateHeaderNav();
 
     const logoutBtn = document.getElementById('nav-logout-btn');

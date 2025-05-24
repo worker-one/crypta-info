@@ -82,6 +82,10 @@ async function loadUserReviews() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
+    
     // Get references to elements
     const profileContentWrapper = document.getElementById('profile-content-wrapper');
     const profileLoading = document.getElementById('profile-loading');

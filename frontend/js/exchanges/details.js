@@ -1,6 +1,7 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, listItemReviews, voteOnReview, submitItemReview } from '../api.js';
+import { getExchangeDetails, listItemReviews } from '../api.js';
 import { updateHeaderNav } from '../header.js'; // Import from new header module
+import { loadHTML } from '../renderUtils.js';
 import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../common/reviews.js';
 import { handleLogout } from '../auth.js';
 import { renderStarRating, attachStarClickHandlers } from '../common/details.js'; // Import the star rating function
@@ -19,6 +20,10 @@ const reviewsErrorElement = document.getElementById('reviews-error');
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Exchange detail page initializing...');
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
+    
     // Update navigation based on login status
     console.log('Updating header navigation...');
     updateHeaderNav(); // This function is now imported from header.js

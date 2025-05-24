@@ -1,6 +1,6 @@
 // Main Application Logic and Initialization for Homepage/Exchanges
 import { handleLogout, checkAndCacheUserProfile } from '../auth.js';
-import { displayErrorMessage } from '../renderUtils.js';
+import { displayErrorMessage, loadHTML } from '../renderUtils.js';
 import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from '../api.js';
 import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggle function
 
@@ -17,6 +17,9 @@ const BASE_URL_API = 'http://176.124.219.116:8200/api/v1';
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed - exchanges-main.js");
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
 
     // Check login status and update UI immediately
     // Also fetches profile if logged in but not cached

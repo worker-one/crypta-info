@@ -1,5 +1,5 @@
 import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Removed getRatingCategories
-import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
+import { displayErrorMessage, clearErrorMessage, loadHTML } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
 import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../common/reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
@@ -283,6 +283,10 @@ const handleReviewSubmit = async (event, exchangeId) => {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
+
     updateHeaderNav();
 
     const logoutBtn = document.getElementById('nav-logout-btn');

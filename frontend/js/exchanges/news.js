@@ -1,5 +1,5 @@
 import { listNews, getNewsItem } from '../api.js'; // Import getNewsItem
-import { renderNewsCard, renderNewsDetail, displayErrorMessage, clearErrorMessage } from '../renderUtils.js'; // Import renderNewsDetail
+import { renderNewsCard, renderNewsDetail, displayErrorMessage, clearErrorMessage, loadHTML } from '../renderUtils.js'; // Import renderNewsDetail
 import { handleLogout, checkAndCacheUserProfile } from '../auth.js'; // Import handleLogout and checkAndCacheUserProfile
 
 // --- DOM Elements ---
@@ -169,6 +169,10 @@ const loadSingleNewsItem = async (newsId, slug) => {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
+
     // Check login status and update header nav
     checkAndCacheUserProfile();
 

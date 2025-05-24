@@ -53,9 +53,8 @@ export function handleStarClick(event) { // Made non-async, removed direct submi
     
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
-
     const id = urlParams.get('id');
-    
+
 
     if (!slug && !id) {
         console.error("Slug nor ID not found in current URL. Cannot redirect to reviews page with rating.");
@@ -63,13 +62,27 @@ export function handleStarClick(event) { // Made non-async, removed direct submi
         return;
     }
 
+    // get the item type from the URL or context: http://176.124.219.116:8080/exchanges/details.html?slug=exchange-slug
+    // exchanges or books
+    let itemType;
+    if (window.location.pathname.includes('exchanges')) {
+        itemType = 'exchanges';
+    }
+    else if (window.location.pathname.includes('books')) {
+        itemType = 'books';
+    }
+    else {
+        console.error("Unknown item type. Cannot redirect to reviews page with rating.");
+        return;
+    }
+
     let redirectUrl = null;
     if (slug) {
         // Construct the redirect URL, including a hash to scroll to the review form
-        redirectUrl = `/exchanges/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
+        redirectUrl = `/${itemType}/reviews.html?slug=${slug}&rating=${rating}#add-review-section`;
     } else if (id) {
         // Construct the redirect URL, including a hash to scroll to the review form
-        redirectUrl = `/exchanges/reviews.html?id=${id}&rating=${rating}#add-review-section`;
+        redirectUrl = `/${itemType}/reviews.html?id=${id}&rating=${rating}#add-review-section`;
     } else {
         console.error("Neither slug nor ID found in current URL. Cannot redirect to reviews page with rating.");
         return;

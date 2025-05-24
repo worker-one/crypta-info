@@ -2,7 +2,8 @@
 import { handleLogout, checkAndCacheUserProfile } from '../auth.js';
 import {
     renderPaginationControls, // New function needed in ui.js
-    displayErrorMessage
+    displayErrorMessage,
+    loadHTML, // Import the book card view rendering function
 } from '../renderUtils.js'; // Assuming this file exists for rendering
 import { fetchBooks, fetchBookTopics } from '../api.js'; // Assuming these exist
 import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggle function
@@ -17,6 +18,29 @@ const booksPerPage = 10; // Or get from API/config
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Books page DOM fully loaded and parsed");
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer
+
+    // Now set active tab after header is loaded
+    setTimeout(() => {
+        const navLinks = document.querySelectorAll('.site-nav .nav-link');
+        console.log(`Found ${navLinks.length} nav links`);
+        
+        // Log all nav links for debugging
+        navLinks.forEach((link, index) => {
+            console.log(`Nav link ${index}: ${link.textContent}, Active: ${link.classList.contains('active')}`);
+            link.classList.remove('active'); // Remove active from all
+        });
+        
+        // Add active class to the books tab (second nav link, index 1)
+        if (navLinks.length > 1) {
+            navLinks[1].classList.add('active'); // "КНИГИ" is the second link
+            console.log('Active tab set to "books"');
+        } else {
+            console.warn('Not enough nav links found to set "books" as active.');
+        }
+    }, 100); // Small delay to ensure DOM is updated
 
     // Check login status and update UI immediately
     checkAndCacheUserProfile(); // This calls updateHeaderNav internally
@@ -220,6 +244,7 @@ function renderBookTable(items, tbodyElement, startIndex = 0) {
             // Info Cell (Author)
             cell = row.insertCell();
             cell.textContent = book.author || 'Unknown Author';
+            cell.style.textAlign = 'center';
             cell.style.verticalAlign = 'middle';
             cell.className = 'info-cell';
 

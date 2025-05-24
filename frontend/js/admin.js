@@ -14,6 +14,8 @@ import {
 import { checkAndCacheUserProfile } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
     // First, check login status and update the header navigation accordingly
     // This function from auth.js handles fetching/caching the profile and calling updateHeaderNav
     await checkAndCacheUserProfile();

@@ -444,3 +444,14 @@ export function clearErrorMessage(elementId) {
         errorElement.classList.remove('visible'); // Hide it
     }
 }
+
+
+// Function to load HTML content into a placeholder
+export function loadHTML(filename, id) {
+    fetch(filename)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById(id).innerHTML = data;
+        })
+        .catch(error => console.error('Error loading HTML:', error));
+}

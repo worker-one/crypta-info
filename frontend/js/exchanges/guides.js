@@ -2,6 +2,7 @@ import { getExchangeDetails, listGuides, getGuideItem } from '../api.js'; // Imp
 import { renderGuideCard, renderGuideDetail, displayErrorMessage, clearErrorMessage } from '../renderUtils.js'; // Import renderGuideDetail
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout } from '../auth.js'; // Import handleLogout
+import { loadHTML } from '../renderUtils.js'; // Import loadHTML for header/footer
 
 // --- DOM Elements ---
 const guideListContainer = document.getElementById('guide-list');
@@ -201,6 +202,9 @@ const loadSingleGuideItem = async (guideId, slug) => {
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
     updateHeaderNav(); // Update header login/logout state
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
 
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');

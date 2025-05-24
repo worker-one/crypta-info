@@ -1,5 +1,5 @@
 import { getBookDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Removed getRatingCategories
-import { displayErrorMessage, clearErrorMessage } from '../renderUtils.js';
+import { displayErrorMessage, clearErrorMessage, loadHTML } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
 import { setupReviewVoting, setupSortingButtons, renderReviewsList, updateSortButtonCounts } from '../common/reviews.js'; // Import setupReviewVoting and updateSortButtonCounts
@@ -316,6 +316,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Other elements are also assigned globally.
 
     console.log('Initializing dedicated book reviews page...');
+
+    loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
+    loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
+    // Now set active tab after header is loaded
+    setTimeout(() => {
+        const navLinks = document.querySelectorAll('.site-nav .nav-link');
+        console.log(`Found ${navLinks.length} nav links`);
+        
+        // Log all nav links for debugging
+        navLinks.forEach((link, index) => {
+            console.log(`Nav link ${index}: ${link.textContent}, Active: ${link.classList.contains('active')}`);
+            link.classList.remove('active'); // Remove active from all
+        });
+        
+        // Add active class to the books tab (second nav link, index 1)
+        if (navLinks.length > 1) {
+            navLinks[1].classList.add('active'); // "КНИГИ" is the second link
+            console.log('Active tab set to "books"');
+        } else {
+            console.warn('Not enough nav links found to set "books" as active.');
+        }
+    }, 100); // Small delay to ensure DOM is updated
 
     updateHeaderNav();
 
