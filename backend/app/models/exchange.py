@@ -60,7 +60,7 @@ class Exchange(Item):
     headquarters_country_id = Column(Integer, ForeignKey('countries.id', ondelete='SET NULL'), nullable=True)
 
     has_kyc = Column(Boolean, nullable=True, default=False, server_default=expression.false())  # Changed from nullable=False
-    has_p2p = Column(Boolean, nullable=False, default=False)  # SQL: bool NOT NULL
+    has_p2p = Column(Boolean, nullable=True, default=False)  # SQL: bool NOT NULL
     has_copy_trading = Column(Boolean, nullable=True, default=False, server_default=expression.false())
     has_staking = Column(Boolean, nullable=True, default=False, server_default=expression.false())
     has_futures = Column(Boolean, nullable=True, default=False, server_default=expression.false())

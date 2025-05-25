@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
     loadHTML('../components/footer.html', 'footer-placeholder'); // Load footer HTML
 
-    // Now set active tab after header is loaded
+    // Now set active tab after header is loaded 
     setTimeout(() => {
         const navLinks = document.querySelectorAll('.site-nav .nav-link');
         console.log(`Found ${navLinks.length} nav links`);
