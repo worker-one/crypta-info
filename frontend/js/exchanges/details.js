@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </a>
             </div>
             <div class="stat-item">
-            <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}B</div>
+            <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}</div>
             <div class="label">Объем (24ч)</div>
             </div>
             <div class="stat-item">
