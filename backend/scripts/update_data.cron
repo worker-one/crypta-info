@@ -1,0 +1,1 @@
+0 0 * * * cd /home/konstantin/workspace/crypta-info/backend/scripts && /usr/bin/python3 update_data.py >> /home/konstantin/workspace/crypta-info/backend/scripts/update_data.log 2>&1

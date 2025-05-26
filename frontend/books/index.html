@@ -96,6 +96,14 @@
 
     <div id="footer-placeholder"></div>
 
+    <div class="container">
+        <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+            <button id="prev-page-btn" class="btn btn-sm btn-secondary" disabled>Предыдущая</button>
+            <span style="margin: 0 10px;">Страница <span id="current-page">1</span> из <span id="total-pages">1</span></span>
+            <button id="next-page-btn" class="btn btn-sm btn-secondary">Следующая</button>
+        </div>
+    </div>
+
     <!-- Reference the new books JS file -->
     <script type="module" src="../js/books/main.js?v=1.0"></script> <!-- Changed script reference -->
 </body>

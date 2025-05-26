@@ -18,41 +18,30 @@ from app.models.common import Country
 COINGECKO_URL = "https://api.coingecko.com/api/v3/exchanges"
 HEADERS = {"accept": "application/json", "x-cg-api-key": "CG-FG5pGMB4HyncXHpq8YzvJ4Eg"}
 
-def fetch_exchanges():
-    params = {
-        "per_page": 100,  # Max per page
-        "page": 5,        # Start from the first page
-    }
-    resp = requests.get(COINGECKO_URL, headers=HEADERS, params=params)
-    resp.raise_for_status()
-    return resp.json()
+def fetch_exchanges_all_pages(start_page=1, end_page=5):
+    all_exchanges = []
+    for page in range(start_page, end_page + 1):
+        params = {
+            "per_page": 100,  # Max per page
+            "page": page,
+        }
+        resp = requests.get(COINGECKO_URL, headers=HEADERS, params=params)
+        resp.raise_for_status()
+        exchanges = resp.json()
+        if not exchanges:
+            break
+        all_exchanges.extend(exchanges)
+    return all_exchanges
 
-def map_api_to_exchange(api_data, country_id):
+def map_api_to_exchange(api_data):
     return {
         "name": api_data.get("name"),
         "slug": api_data.get("id"),
         "description": api_data.get("description"),
         "logo_url": api_data.get("image"),
         "website_url": api_data.get("url"),
-        "year_founded": api_data.get("year_established"),
-        "trading_volume_24h": api_data.get("trade_volume_24h_btc")*107500,
-        "registration_country_id": country_id
+        "trading_volume_24h": api_data.get("trade_volume_24h_btc")*107500
     }
-
-async def get_country_id_by_name(session, country_name):
-    if not country_name:
-        return None
-    # Try exact match first
-    stmt = select(Country).where(Country.name == country_name)
-    result = await session.execute(stmt)
-    country = result.scalars().first()
-    if country:
-        return country.id
-    # Fuzzy search: case-insensitive and partial match
-    stmt = select(Country).where(func.lower(Country.name).like(f"%{country_name.lower()}%"))
-    result = await session.execute(stmt)
-    country = result.scalars().first()
-    return country.id if country else None
 
 async def upsert_exchange(session, data):
     # Try to find by slug
@@ -62,6 +51,8 @@ async def upsert_exchange(session, data):
     if exchange:
         for k, v in data.items():
             setattr(exchange, k, v)
+        # Update the updated_at timestamp
+        exchange.updated_at = func.now()
     else:
         exchange = Exchange(**data)
         session.add(exchange)
@@ -69,23 +60,11 @@ async def upsert_exchange(session, data):
 async def main():
     await init_db()
     # Check if exchanges.json already exists
-    if os.path.exists("exchanges.json"):
-        with open("exchanges.json", "r") as f:
-            import json
-            exchanges = json.load(f)
-        print("Exchanges data already exists. Skipping fetch.")
-    else:
-        exchanges = fetch_exchanges()
-        # save exhcnages as a json file
-        with open("exchanges.json", "w") as f:
-            import json
-            json.dump(exchanges, f, indent=2)
+    exchanges = fetch_exchanges_all_pages(1, 5)
     print(f"Fetched {len(exchanges)} exchanges from CoinGecko API.")
     async with AsyncSessionFactory() as session:
         for api_ex in exchanges:
-            country_name = api_ex.get("country")
-            country_id = await get_country_id_by_name(session, country_name)
-            ex_data = map_api_to_exchange(api_ex, country_id)
+            ex_data = map_api_to_exchange(api_ex)
             try:
                 await upsert_exchange(session, ex_data)
             except IntegrityError as e:
