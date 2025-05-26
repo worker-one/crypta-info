@@ -5,6 +5,13 @@ import { fetchExchanges, fetchCountries, fetchFiatCurrencies } from '../api.js';
 import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggle function
 import { updatePaginationControls } from '../common/pagination.js'; // Import pagination controls
 
+// --- Global State for Sorting ---
+let currentSortKey = 'overall_average_rating'; // Default sort
+let currentSortDirection = 'desc'; // Default direction
+let currentPage = 1; // Initial page number
+let totalPagesG = 1; // Global state for total pages
+
+const ITEMS_PER_PAGE = 20; // Define items per page
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
