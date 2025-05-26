@@ -12,7 +12,7 @@ const ITEMS_PER_PAGE = 20; // Define items per page
  * Updates the pagination controls based on the total number of items.
  * @param {number} totalItems - The total number of items.
  */
-function updatePaginationControls(totalItems) {
+export function updatePaginationControls(totalItems) {
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1; // Ensure totalPages is at least 1, use constant
     totalPagesG = totalPages; // Update global total pages
 
