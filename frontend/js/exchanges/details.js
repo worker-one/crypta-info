@@ -8,6 +8,16 @@ import { renderStarRating, attachStarClickHandlers } from '../common/details.js'
 
 const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
 
+
+// --- Global State for Sorting ---
+let currentSortKey = 'overall_average_rating'; // Default sort
+let currentSortDirection = 'desc'; // Default direction
+let currentPage = 1; // Initial page number
+let totalPagesG = 1; // Global state for total pages
+
+const ITEMS_PER_PAGE = 20; // Define items per page
+
+
 // --- Global variable to store fetched reviews ---
 let currentReviews = [];
 let reviewsTabLink; // Declare reviewsTabLink in module scope
