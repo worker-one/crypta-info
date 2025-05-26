@@ -39,7 +39,7 @@ class ExchangeSocialLinkRead(BaseModel):
 # --- Exchange Schemas ---
 class ExchangeBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=255)
-    slug: str = Field(..., min_length=2, max_length=255, pattern=r"^[a-z0-9-]+$")  # Basic slug pattern
+    slug: str = Field(..., min_length=2, max_length=255)  # Basic slug pattern
     description: Optional[str] = None
     overview: Optional[str] = None
     logo_url: Optional[str] = None

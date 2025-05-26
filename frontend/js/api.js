@@ -93,14 +93,28 @@ export async function fetchStaticPage(slug) {
  * }
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
-export async function fetchExchanges(params = { skip: 0, limit: 10 }) {
-    // Clean up empty parameters before creating query string
-    const cleanedParams = Object.entries(params).reduce((acc, [key, value]) => {
-        if (value !== null && value !== undefined && value !== '') {
-            acc[key] = value;
+export async function fetchExchanges(params = { page: 1, limit: 10 }) {
+    // Clean up empty parameters and convert page to skip
+    const cleanedParams = {};
+    let skip = params.skip !== undefined ? params.skip : 0; // Default skip
+    const limit = params.limit !== undefined ? params.limit : 10; // Default limit
+
+    if (params.page !== undefined && params.page !== null) {
+        const page = parseInt(params.page, 10);
+        if (page > 0) {
+            skip = (page - 1) * limit;
         }
-        return acc;
-    }, {});
+    }
+
+    for (const [key, value] of Object.entries(params)) {
+        if (value !== null && value !== undefined && value !== '' && key !== 'page') {
+            cleanedParams[key] = value;
+        }
+    }
+    // Ensure skip and limit are part of the cleanedParams for the query string
+    cleanedParams.skip = skip;
+    cleanedParams.limit = limit;
+
     const query = new URLSearchParams(cleanedParams).toString();
     console.log("Fetching exchanges with query:", query); // Log the actual query
     return fetchApi(`/exchanges/?${query}`);

@@ -7,6 +7,10 @@ import { initTableViewToggle } from '../viewToggle.js'; // Import the view toggl
 // --- Global State for Sorting ---
 let currentSortKey = 'overall_average_rating'; // Default sort
 let currentSortDirection = 'desc'; // Default direction
+let currentPage = 1; // Initial page number
+let totalPagesG = 1; // Global state for total pages
+
+const ITEMS_PER_PAGE = 20; // Define items per page
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
@@ -65,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSortKey = 'overall_average_rating';
         currentSortDirection = 'desc';
         updateSortIndicators(); // Update visual indicators
+        currentPage = 1; // Reset to the first page
         renderExchangeTable(); // Reload with default filters and sort
     });
 
@@ -101,6 +106,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set initial sort indicators
     updateSortIndicators();
 
+    // Setup pagination button event listeners once
+    const prevButton = document.getElementById('prev-page-btn');
+    const nextButton = document.getElementById('next-page-btn');
+
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilters();
+            }
+        });
+    }
+
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPagesG) {
+                currentPage++;
+                applyFilters();
+            }
+        });
+    }
 
     // == Global Event Listeners ==
     const logoutBtn = document.getElementById('nav-logout-btn');
@@ -111,6 +137,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
+/**
+ * Formats the trading volume.
+ * @param {number|null|undefined} volume - The trading volume.
+ * @returns {string} - The formatted volume string.
+ */
+function formatVolume(volume) {
+    if (volume === null || volume === undefined || isNaN(parseFloat(volume))) {
+        return 'N/A';
+    }
+
+    const numVolume = parseFloat(volume);
+
+    if (numVolume >= 1000000000) {
+        return `$${Math.round(numVolume / 1000000000)} млрд`;
+    } else if (numVolume >= 1000000) {
+        return `$${Math.round(numVolume / 1000000)} млн`;
+    } else {
+        return `$${numVolume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+}
 
 /**
  * Fetches data and populates filter select options.
@@ -231,6 +278,9 @@ function applyFilters() {
     params.field = currentSortKey;
     params.direction = currentSortDirection;
 
+    // Add pagination parameter
+    params.page = currentPage;
+
     console.log("Applying filters and sort:", params);
     renderExchangeTable(params);
 }
@@ -297,7 +347,8 @@ async function renderExchangeTable(params = {}) {
         const queryParams = {
             field: currentSortKey, // Use global state as default
             direction: currentSortDirection, // Use global state as default
-            limit: 25,
+            limit: ITEMS_PER_PAGE, // Use constant
+            page: currentPage,
             ...params // Params passed in will override defaults
         };
 
@@ -330,8 +381,7 @@ async function renderExchangeTable(params = {}) {
                     const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
                     const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
                     const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
-                    const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined,
-                        { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
+                    const formattedVolume = formatVolume(volumeValue); // Use new formatter
                     const p2pIcon = exchange.has_p2p ? 
                         '<div style="display: inline-block; text-align: center;"><img src="../assets/images/green-check.png" alt="Yes" width="25" height="25"></div>' : 
                         '<div style="display: inline-block; text-align: center;"><img src="../assets/images/red-cross.png" alt="No" width="25" height="25"></div>';
@@ -344,7 +394,7 @@ async function renderExchangeTable(params = {}) {
 
                     // # Cell
                     cell = row.insertCell();
-                    cell.textContent = index + 1;
+                    cell.textContent = (currentPage - 1) * ITEMS_PER_PAGE + index + 1; // Adjusted for continuous numbering
                     cell.style.textAlign = 'center';
                     cell.style.verticalAlign = 'middle';
 
@@ -445,6 +495,10 @@ async function renderExchangeTable(params = {}) {
             updateSortIndicators();
 
             if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+            // Update pagination controls
+            updatePaginationControls(data.total); // Changed from data.total_items to data.total
+
         } else {
             // Handle case where data or tbody is missing, or items array is empty
              if (tbody) { // Check if tbody exists before trying to insert
@@ -460,6 +514,7 @@ async function renderExchangeTable(params = {}) {
                 // Display error only if one wasn't already shown by the catch block
                 displayErrorMessage(errorContainerId, 'Could not load exchange data.');
             }
+            updatePaginationControls(0); // Reset pagination if data is invalid or missing
         }
 
     } catch (error) {
@@ -468,6 +523,34 @@ async function renderExchangeTable(params = {}) {
         displayErrorMessage(errorContainerId, `Error loading exchanges: ${error.message}`);
         if (tbody) tbody.innerHTML = ''; // Clear tbody on error
         if (cardContainer) cardContainer.innerHTML = '';
+        updatePaginationControls(0); // Reset pagination on error
+    }
+}
+
+/**
+ * Updates the pagination controls based on the total number of items.
+ * @param {number} totalItems - The total number of items.
+ */
+function updatePaginationControls(totalItems) {
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1; // Ensure totalPages is at least 1, use constant
+    totalPagesG = totalPages; // Update global total pages
+
+    const prevButton = document.getElementById('prev-page-btn');
+    const nextButton = document.getElementById('next-page-btn');
+    const currentPageSpan = document.getElementById('current-page');
+    const totalPagesSpan = document.getElementById('total-pages');
+
+    if (currentPageSpan) currentPageSpan.textContent = currentPage;
+    if (totalPagesSpan) totalPagesSpan.textContent = totalPagesG;
+
+    if (prevButton) {
+        prevButton.disabled = currentPage <= 1;
+        // Event listener moved to DOMContentLoaded
+    }
+
+    if (nextButton) {
+        nextButton.disabled = currentPage >= totalPagesG;
+        // Event listener moved to DOMContentLoaded
     }
 }
 
@@ -492,8 +575,7 @@ function renderCardView(exchanges, containerId) {
             const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
             const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
             const volumeValue = exchange.trading_volume_24h ? parseFloat(exchange.trading_volume_24h) : null;
-            const formattedVolume = volumeValue ? '$' + volumeValue.toLocaleString(undefined,
-                { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A';
+            const formattedVolume = formatVolume(volumeValue); // Use new formatter
             // Format booleans for card view as well (optional, but consistent)
             const p2pText = exchange.has_p2p ? 'Yes' : 'No'; // Using text for card view might be better
             const kycText = exchange.has_kyc ? 'Required' : 'Not Required'; // Example text

@@ -17,6 +17,27 @@ const reviewsList = document.getElementById('reviews-list');
 const reviewsLoadingElement = document.getElementById('reviews-loading');
 const reviewsErrorElement = document.getElementById('reviews-error');
 
+/**
+ * Formats the trading volume.
+ * @param {number|null|undefined} volume - The trading volume.
+ * @returns {string} - The formatted volume string.
+ */
+function formatVolume(volume) {
+    if (volume === null || volume === undefined || isNaN(parseFloat(volume))) {
+        return 'N/A';
+    }
+
+    const numVolume = parseFloat(volume);
+
+    if (numVolume >= 1000000000) {
+        return `$${Math.round(numVolume / 1000000000)} млрд`;
+    } else if (numVolume >= 1000000) {
+        return `$${Math.round(numVolume / 1000000)} млн`;
+    } else {
+        return `$${numVolume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Exchange detail page initializing...');
@@ -150,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </a>
             </div>
             <div class="stat-item">
-            <div class="value">${exchange.trading_volume_24h ? '$' + parseFloat(exchange.trading_volume_24h).toLocaleString() : 'N/A'}</div>
+            <div class="value">${formatVolume(exchange.trading_volume_24h)}</div>
             <div class="label">Объем (24ч)</div>
             </div>
             <div class="stat-item">
