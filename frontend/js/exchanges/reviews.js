@@ -1,4 +1,4 @@
-import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview } from '../api.js'; // Removed getRatingCategories
+import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview, fetchExchangeNews } from '../api.js'; // Removed getRatingCategories, Added fetchExchangeNews
 import { displayErrorMessage, clearErrorMessage, loadHTML } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
@@ -50,7 +50,7 @@ function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, reviews = 
     document.title = `Отзывы ${exchangeName}  - Crypta.Info`;
 
     const overviewTabLink = document.getElementById('tab-overview');
-    const newsTabLink = document.getElementById('tab-news');
+    // const newsTabLink = document.getElementById('tab-news'); // News tab link handled in DOMContentLoaded
     const guideTabLink = document.getElementById('tab-guide');
     const reviewsTabLink = document.getElementById('tab-reviews');
 
@@ -59,7 +59,7 @@ function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, reviews = 
     }
 
     if (overviewTabLink) overviewTabLink.href = `details.html?slug=${exchangeSlug}`;
-    if (newsTabLink) newsTabLink.href = `news.html?slug=${exchangeSlug}`;
+    // if (newsTabLink) newsTabLink.href = `news.html?slug=${exchangeSlug}`; // Removed: Handled conditionally in DOMContentLoaded
     if (guideTabLink) guideTabLink.href = `guide.html?slug=${exchangeSlug}`;
     if (reviewsTabLink) {
         reviewsTabLink.classList.add('active');
@@ -338,6 +338,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const exchangeId = exchange.id;
+
+        // Conditionally show/hide and configure News tab
+        const newsTabLink = document.getElementById('tab-news');
+        if (newsTabLink) {
+            try {
+                console.log(`Fetching news for exchange ID: ${exchange.id} to determine tab visibility on reviews page`);
+                const newsResponse = await fetchExchangeNews(exchange.id, { limit: 1 });
+                if (newsResponse && newsResponse.items && newsResponse.items.length > 0) {
+                    newsTabLink.href = `news.html?slug=${slug}`;
+                    newsTabLink.classList.remove('hidden');
+                    console.log(`News found for ${exchange.name}. News tab configured and visible on reviews page.`);
+                } else {
+                    newsTabLink.classList.add('hidden');
+                    console.log(`No news for ${exchange.name}. News tab hidden on reviews page.`);
+                }
+            } catch (newsError) {
+                console.error(`Error fetching news for ${exchange.name} on reviews page, hiding news tab:`, newsError);
+                newsTabLink.classList.add('hidden');
+            }
+        } else {
+            console.warn('News tab link element (tab-news) not found on reviews page.');
+        }
+
+
         // Initial call to updatePageUI. currentReviews is empty here, so tab count will be 0.
         updatePageUI(exchange.name, slug, exchange.reviews_page_content, []); // Pass empty array initially
         if (exchangeReviewsPageContent && exchange.reviews_page_content) { // Show if content exists

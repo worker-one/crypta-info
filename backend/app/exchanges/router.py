@@ -8,6 +8,8 @@ from decimal import Decimal
 from app.core.database import get_async_db
 from app.exchanges import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse
+from app.news import schemas as news_schemas, service as news_service
+from app.guides import schemas as guide_schemas, service as guide_service
 
 router = APIRouter(
     prefix="/exchanges",
@@ -96,4 +98,48 @@ async def get_exchange_details(
     if db_exchange is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exchange not found")
     return db_exchange
+
+@router.get("/news/{exchange_id}", response_model=PaginatedResponse[news_schemas.NewsItemRead])
+async def list_exchange_news(
+    exchange_id: int,
+    db: AsyncSession = Depends(get_async_db),
+    pagination: PaginationParams = Depends(),
+):
+    """
+    Get a list of news items for a specific exchange.
+    """
+    print(f"Listing news for exchange ID: {exchange_id} with pagination: {pagination}")
+    news_items, total = await news_service.news_service.list_news_items(
+        db=db,
+        pagination=pagination,
+        exchange_id=exchange_id
+    )
+    print(f"Found {total} news items for exchange ID: {exchange_id}")
+    return PaginatedResponse(
+        total=total,
+        items=news_items,
+        skip=pagination.skip,
+        limit=pagination.limit,
+    )
+
+@router.get("/guides/{exchange_id}", response_model=PaginatedResponse[guide_schemas.GuideItemRead])
+async def list_exchange_guides(
+    exchange_id: int,
+    db: AsyncSession = Depends(get_async_db),
+    pagination: PaginationParams = Depends(),
+):
+    """
+    Get a list of guide items for a specific exchange.
+    """
+    guide_items, total = await guide_service.guide_service.list_guide_items(
+        db=db,
+        pagination=pagination,
+        exchange_id=exchange_id
+    )
+    return PaginatedResponse(
+        total=total,
+        items=guide_items,
+        skip=pagination.skip,
+        limit=pagination.limit,
+    )
 

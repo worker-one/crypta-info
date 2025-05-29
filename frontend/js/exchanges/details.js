@@ -1,5 +1,5 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, listItemReviews } from '../api.js';
+import { getExchangeDetails, listItemReviews, fetchExchangeNews } from '../api.js'; // Added fetchExchangeNews
 import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { loadHTML } from '../renderUtils.js';
 import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../common/reviews.js';
@@ -9,13 +9,6 @@ import { renderStarRating, attachStarClickHandlers } from '../common/details.js'
 const BASE_API_URL = 'http://176.124.219.116:8300/api/v1'
 
 
-// --- Global State for Sorting ---
-let currentSortKey = 'overall_average_rating'; // Default sort
-let currentSortDirection = 'desc'; // Default direction
-let currentPage = 1; // Initial page number
-let totalPagesG = 1; // Global state for total pages
-
-const ITEMS_PER_PAGE = 20; // Define items per page
 
 
 // --- Global variable to store fetched reviews ---
@@ -95,15 +88,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return; // Stops further execution
     }
 
-    // Set tab links dynamically
-    if (newsTabLink) {
-        newsTabLink.href = `news.html?slug=${slug}`;
-        console.log(`Set Новости биржи tab link to: ${newsTabLink.href}`);
-    }
+    // Set tab links dynamically for Guide and Reviews (News tab is handled later)
     if (guideTabLink) {
         guideTabLink.href = `guide.html?slug=${slug}`;
         console.log(`Set Инструкции tab link to: ${guideTabLink.href}`);
     }
+    // Removed newsTabLink setup from here, will be conditional later
 
     if (reviewsTabLink) {
         reviewsTabLink.href = `reviews.html?slug=${slug}`;
@@ -143,6 +133,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.title = `${exchange.name} - Crypta.Info`;
         breadcrumbExchangeName.textContent = exchange.name;
 
+        // Conditionally show/hide and configure News tab
+        if (newsTabLink) {
+            try {
+                console.log(`Fetching news for exchange ID: ${exchange.id} to determine tab visibility`);
+                const newsResponse = await fetchExchangeNews(exchange.id, { limit: 1 }); // Fetch one to check
+                if (newsResponse && newsResponse.items && newsResponse.items.length > 0) {
+                    newsTabLink.href = `news.html?slug=${slug}`; // Set href
+                    newsTabLink.classList.remove('hidden'); // Make sure it's visible
+                    console.log(`News found for ${exchange.name}. News tab configured and visible.`);
+                } else {
+                    newsTabLink.classList.add('hidden'); // Hide if no news
+                    console.log(`No news for ${exchange.name}. News tab hidden.`);
+                }
+            } catch (newsError) {
+                console.error(`Error fetching news for ${exchange.name}, hiding news tab:`, newsError);
+                newsTabLink.classList.add('hidden'); // Hide on error
+            }
+        } else {
+            console.warn('News tab link element (tab-news) not found.');
+        }
+
         // Build the HTML for the exchange details with improved layout
         console.log('Building exchange detail HTML...');
         // Helper to show first 5 and "+N more" for arrays
@@ -175,12 +186,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="label">${exchange.total_rating_count} голосов</div>
             </div>
             <div class="stat-item">
-            <a href="/exchanges/reviews.html?slug=${exchange.slug}" style="text-decoration: none; color: inherit;">
-            <div class="value">${exchange.total_review_count || '0'}</div>
-            <div class="label">Отзывы</div>
-            </a>
-            </div>
-            <div class="stat-item">
             <div class="value">${formatVolume(exchange.trading_volume_24h)}</div>
             <div class="label">Объем (24ч)</div>
             </div>
@@ -188,21 +193,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="value">${exchange.year_founded || 'N/A'}</div>
             <div class="label">Год Основания</div>
             </div>
+            <div class="stat-item">
+            <div class="value">${exchange.registration_country?.name || 'N/A'}</div>
+            <div class="label">Страна</div>
+            </div>
             </div>
             </div>
 
-            <p class="Описание">${exchange.overview || 'No overview available for this exchange.'}</p>
+            ${exchange.overview ? `<p class="Описание">${exchange.overview}</p>` : ''}
             
             <div class="details">
-            <div class="detail-card">
-            <h3>Общая информация</h3>
-            <p><strong>Юрисдикция:</strong> ${exchange.registration_country?.name || 'N/A'}</p>
-            <p style="display: flex; align-items: center; justify-content: space-between;">
-            <strong>KYC/Верификация:</strong>
-            <img src="${exchange.has_kyc ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_kyc ? 'Yes' : 'No'}" width="25" height="25">
-            </p>
-            <p><strong>Сайт:</strong> <a href="${BASE_API_URL}/exchanges/go/${exchange.slug}" target="_blank" rel="noopener noreferrer">${exchange.website_url}</a></p>
-            </div>
             
             <div class="detail-card">
             <h3>Сервисы</h3>
@@ -232,6 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </p>
             </div>
 
+            ${ (exchange.spot_taker_fee || exchange.spot_maker_fee || exchange.futures_taker_fee || exchange.futures_maker_fee) ? `
             <div class="detail-card">
             <h3>Комиссии, бонусы</h3>
             <table class="fees-table" style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
@@ -259,10 +260,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             <a href="${BASE_API_URL}/exchanges/go/${exchange.slug}" target="_blank" rel="noopener noreferrer" class="bonus-button" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; font-size: 18px; border-radius: 4px; transition: background-color 0.3s;">Получить бонус</a>
             </div>
             </div>
+            ` : '' }
             
             </div>
             <br>
-            <p class="Описание">${exchange.Описание || 'No Описание available for this exchange.'}</p>
+            ${exchange.Описание ? `<p class="Описание">${exchange.Описание}</p>` : ''}
             
             
         `;

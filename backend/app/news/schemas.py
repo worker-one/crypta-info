@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List
 from datetime import datetime
 
-from app.exchanges.schemas import ExchangeReadBrief # Optional: Link news to exchanges
+from app.schemas import common # Import the common schemas
 
 class NewsItemBase(BaseModel):
     title: str = Field(..., min_length=5, max_length=512)
@@ -25,7 +25,7 @@ class NewsItemRead(NewsItemBase):
     created_at: datetime
     updated_at: datetime
     # Optional: Include brief exchange info if linked
-    exchanges: List[ExchangeReadBrief] = []
+    exchanges: List[common.ItemReadBrief] = []
 
     class Config:
         from_attributes = True

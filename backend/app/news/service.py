@@ -1,9 +1,9 @@
 # app/news/service.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func, desc, asc
+from sqlalchemy import func, desc
 from sqlalchemy.orm import selectinload
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Optional
 
 from app.models import news as news_models
 from app.models import exchange as exchange_models
@@ -23,25 +23,36 @@ class NewsService:
         self,
         db: AsyncSession,
         pagination: PaginationParams,
+        exchange_id: Optional[int] = None # Added exchange_id parameter
     ) -> Tuple[List[news_models.NewsItem], int]:
-        # Basic listing, newest first. Add filters (e.g., by exchange) if needed.
         query = select(news_models.NewsItem).options(
-            selectinload(news_models.NewsItem.exchanges).selectinload(exchange_models.Exchange.registration_country) # Example nested load
-        ).order_by(desc(news_models.NewsItem.published_at))
+            selectinload(news_models.NewsItem.exchanges) 
+        )
+        
+        base_query_stmt = select(news_models.NewsItem.id) # For distinct counting
 
-        # Count total
-        count_query = select(func.count(news_models.NewsItem.id))
+        if exchange_id:
+            # Filter by exchange_id using the 'exchanges' relationship
+            query = query.join(news_models.NewsItem.exchanges).filter(exchange_models.Exchange.id == exchange_id)
+            base_query_stmt = base_query_stmt.join(news_models.NewsItem.exchanges).filter(exchange_models.Exchange.id == exchange_id)
+
+        # Count total items matching the criteria
+        count_subquery = base_query_stmt.distinct().subquery()
+        count_query = select(func.count()).select_from(count_subquery)
         total_result = await db.execute(count_query)
         total = total_result.scalar_one()
 
-        # Apply pagination
+        # Apply ordering and pagination for fetching items
+        query = query.order_by(desc(news_models.NewsItem.published_at)) # Default sort
         query = query.offset(pagination.skip).limit(pagination.limit)
 
-        # Execute main query
         result = await db.execute(query)
-        news_items = result.scalars().unique().all() # Use unique() because of M2M join
+        # Use .unique() because the join for filtering might create duplicates if a news item is linked to multiple exchanges
+        # and we are not filtering by a specific one, or if the selectinload itself causes issues without it.
+        # However, if filtering by a single exchange_id, .unique() primarily helps if NewsItem itself is duplicated by the join strategy.
+        items = result.scalars().unique().all() 
 
-        return news_items, total
+        return items, total
 
     async def create_news_item(
         self,
