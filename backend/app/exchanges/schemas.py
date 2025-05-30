@@ -48,13 +48,13 @@ class ExchangeBase(BaseModel):
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
     reviews_page_content: Optional[str] = None  # Placeholder for reviews page content
 
-    has_kyc: Optional[bool] = False
-    has_p2p: bool = False
-    has_copy_trading: Optional[bool] = False
-    has_staking: Optional[bool] = False
-    has_futures: Optional[bool] = False
-    has_spot_trading: Optional[bool] = False
-    has_demo_trading: Optional[bool] = False
+    has_kyc: Optional[bool] = None
+    has_p2p: Optional[bool] = None
+    has_copy_trading: Optional[bool] = None
+    has_staking: Optional[bool] = None
+    has_futures: Optional[bool] = None
+    has_spot_trading: Optional[bool] = None
+    has_demo_trading: Optional[bool] = None
 
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
 
