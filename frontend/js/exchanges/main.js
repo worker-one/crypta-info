@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = 20; // Define items per page
 
 // Define the API base URL directly here for the website link construction.
 // TODO: Move BASE_URL_API to a config.js file and import it
-const BASE_URL_API = 'http://176.124.219.116:8200/api/v1';
+const BASE_URL_API = 'http://176.124.219.116:8300/api/v1';
 // const BASE_URL_API = 'https://humble-garbanzo-q7pqgwwxr97rh4wgg-8300.app.github.dev/api/v1';
 
 // --- Initialization ---
