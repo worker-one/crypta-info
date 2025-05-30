@@ -116,13 +116,13 @@ class ExchangeReadBrief(BaseModel):
     year_founded: Optional[int] = None
     registration_country: Optional[CountryRead] = None  # Only basic info
 
-    has_kyc: bool
-    has_p2p: bool
-    has_copy_trading: bool
-    has_staking: bool
-    has_futures: bool
-    has_spot_trading: bool
-    has_demo_trading: bool
+    has_kyc: Optional[bool] = None
+    has_p2p: Optional[bool] = None
+    has_copy_trading: Optional[bool] = None
+    has_staking: Optional[bool] = None
+    has_futures: Optional[bool] = None
+    has_spot_trading: Optional[bool] = None
+    has_demo_trading: Optional[bool] = None
 
     spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
     futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
@@ -149,6 +149,14 @@ class ExchangeRead(ExchangeBase):
     supported_fiat_currencies: List[FiatCurrencyRead] = []
     licenses: List[LicenseRead] = []
     social_links: List[ExchangeSocialLinkRead] = []
+
+    has_kyc: Optional[bool] = None
+    has_p2p: Optional[bool] = None
+    has_copy_trading: Optional[bool] = None
+    has_staking: Optional[bool] = None
+    has_futures: Optional[bool] = None
+    has_spot_trading: Optional[bool] = None
+    has_demo_trading: Optional[bool] = None
 
     class Config:
         from_attributes = True
