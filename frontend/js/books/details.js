@@ -184,7 +184,7 @@ export function renderBookDetails(book, container) {
                     <div class="info-grid">
                         <div class="stat-item">
                             <div class="value">${renderStarRating(book.overall_average_rating, 5, true)}</div>
-                            <div class="info-sublabel">${book.total_rating_count || 0} голосов</div>
+                            <div class="info-sublabel">${book.total_rating_count || 0} отзывов</div>
                         </div>
                         <div class="stat-item">
                             <div class="value">${book.total_review_count || 0}</div>
