@@ -1,0 +1,31 @@
+<div id="add-review-section">
+    <h3>Оставить отзыв</h3>
+    <form id="review-form">
+        <div id="review-rating-input-container" class="form-group">
+            <label>Общая оценка</label>
+            <div class="star-rating single-rating" data-rating-group="overall">
+                <input type="radio" id="star-overall-5" name="rating-overall" value="5" required>
+                <label for="star-overall-5"></label>
+                <input type="radio" id="star-overall-4" name="rating-overall" value="4" required>
+                <label for="star-overall-4"></label>
+                <input type="radio" id="star-overall-3" name="rating-overall" value="3" required>
+                <label for="star-overall-3"></label>
+                <input type="radio" id="star-overall-2" name="rating-overall" value="2" required>
+                <label for="star-overall-2"></label>
+                <input type="radio" id="star-overall-1" name="rating-overall" value="1" required>
+                <label for="star-overall-1"></label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="review-text">Текст отзыва</label>
+            <textarea id="review-text" name="review-text" rows="5" placeholder="Поделитесь своим мнением — это поможет другим сделать правильный выбор!"></textarea>
+        </div>
+        <div id="guest-name-input-container" class="form-group hidden">
+            <label for="guest-name">Ваше Имя</label>
+            <input type="text" id="guest-name" name="guest-name" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Опубликовать</button>
+        <div id="review-submit-error" class="error-message"></div>
+        <div id="review-submit-success" class="success-message"></div>
+    </form>
+</div>

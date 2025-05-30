@@ -1,4 +1,4 @@
-import { getExchangeDetails, submitItemReview, listItemReviews, voteOnReview, fetchExchangeNews } from '../api.js'; // Removed getRatingCategories, Added fetchExchangeNews
+import { getExchangeDetails, submitItemReview, listItemReviews, fetchExchangeGuides, fetchExchangeNews } from '../api.js'; // Removed getRatingCategories, Added fetchExchangeNews
 import { displayErrorMessage, clearErrorMessage, loadHTML } from '../renderUtils.js';
 import { updateHeaderNav } from '../header.js'; // Import updateHeaderNav
 import { handleLogout, isLoggedIn } from '../auth.js';
@@ -64,6 +64,15 @@ function updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, reviews = 
     if (reviewsTabLink) {
         reviewsTabLink.classList.add('active');
         reviewsTabLink.href = `reviews.html?slug=${exchangeSlug}`;
+    }
+
+    // Update the reviews count in the tab link
+    if (reviewsTabLink && reviews.length > 0) {
+        reviewsTabLink.textContent = `Отзывы (${reviews.length})`;
+    }
+
+    if ( guideTabLink && !guideTabLink.classList.contains('hidden')) {
+        guideTabLink.classList.remove('hidden'); // Ensure Guide tab is visible if it exists
     }
 }
 
@@ -151,7 +160,11 @@ const loadReviews = async (exchangeId, exchangeName, exchangeSlug, reviewsPageCo
     if (reviewsHistogramContainer) reviewsHistogramContainer.innerHTML = ''; // Clear histogram
     reviewsListContainer.innerHTML = '';
     currentReviews = [];
-    updateSortButtonCounts(currentReviews);
+    // Get sortControlsContainer and addReviewSection once
+    const sortControlsContainer = document.getElementById('review-sort-controls-container');
+    // addReviewSection is already a global const
+
+    updateSortButtonCounts(currentReviews); // Initialize counts to 0
     updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, currentReviews); // Update UI with 0 reviews initially
 
     try {
@@ -160,22 +173,41 @@ const loadReviews = async (exchangeId, exchangeName, exchangeSlug, reviewsPageCo
 
         if (reviewsData && reviewsData.items) {
             currentReviews = reviewsData.items.filter(review => review.comment !== null);
+        } else {
+            currentReviews = []; // Ensure currentReviews is an empty array if no data
+        }
+
+        if (currentReviews.length === 0) {
+            reviewsListContainer.innerHTML = '<p> </p>';
+            renderRatingHistogram([]); // Render empty/message for histogram
+            if (sortControlsContainer) hideElement(sortControlsContainer);
+            if (addReviewSection) {
+                addReviewSection.style.margin = '20px auto'; // Center the section
+                //addReviewSection.style.textAlign = 'center'; // Center the content of the section
+            }
+        } else {
             renderReviewsList(currentReviews, reviewsListContainer);
             renderRatingHistogram(currentReviews); // Add this call
-        } else {
-            currentReviews = [];
-            reviewsListContainer.innerHTML = '<p>No reviews yet. Be the first to add one!</p>';
-            renderRatingHistogram([]); // Render empty/message for histogram
+            if (sortControlsContainer) showElement(sortControlsContainer);
+            if (addReviewSection) {
+                addReviewSection.style.margin = ''; // Revert to stylesheet default
+                addReviewSection.style.textAlign = ''; // Revert to stylesheet default
+            }
         }
         updateSortButtonCounts(currentReviews);
         updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, currentReviews); // Pass reviews array
     } catch (error) {
         console.error('Failed to load reviews:', error);
         hideElement(reviewsLoadingIndicator);
-        currentReviews = [];
+        currentReviews = []; // Reset on error
         updateSortButtonCounts(currentReviews);
         renderRatingHistogram([]); // Render empty/message for histogram
-        reviewsListContainer.innerHTML = '';
+        if (sortControlsContainer) hideElement(sortControlsContainer); // Hide sort controls on error
+        if (addReviewSection) { // Style add review section for error case as well
+            addReviewSection.style.margin = '20px auto';
+            addReviewSection.style.textAlign = 'center';
+        }
+        reviewsListContainer.innerHTML = ''; // Clear list on error
         displayErrorMessage('reviews-error', `Failed to load reviews. ${error.message}`);
         showElement(reviewsErrorContainer);
         updatePageUI(exchangeName, exchangeSlug, reviewsPageContent, []); // Ensure UI is updated with 0 reviews
@@ -330,6 +362,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         hideElement(pageErrorContainer);
         if (exchangeReviewsPageContent) hideElement(exchangeReviewsPageContent); // Hide initially
 
+        const guideTabLink = document.getElementById('tab-guide'); // Declare and initialize guideTabLink
+
         const exchange = await getExchangeDetails(slug);
         hideElement(pageLoadingIndicator);
 
@@ -359,6 +393,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             console.warn('News tab link element (tab-news) not found on reviews page.');
+        }
+
+        // Conditionally show/hide and configure Guide tab
+        if (guideTabLink) {
+            try {
+                console.log(`Setting Guide tab link to: guide.html?slug=${slug}`);
+                const guidesResponse = await fetchExchangeGuides(exchange.id, { limit: 1 }); // Fetch one to check
+                if (guidesResponse && guidesResponse.items && guidesResponse.items.length > 0) {
+                    guideTabLink.href = `guide.html?slug=${slug}`; // Set href
+                    guideTabLink.classList.remove('hidden'); // Make sure it's visible
+                    console.log(`Guides found for ${exchange.name}. Guides tab configured and visible.`);
+                } else {
+                    guideTabLink.classList.add('hidden'); // Hide if no guides
+                    console.log(`No guides for ${exchange.name}. Guides tab hidden.`);
+                }
+            } catch (guidesError) {
+                console.error(`Error fetching guides for ${exchange.name}, hiding guides tab:`, guidesError);
+                guideTabLink.classList.add('hidden'); // Hide on error
+            }
+        } else {
+            console.warn('Guide tab link element (tab-guide) not found.');
         }
 
 

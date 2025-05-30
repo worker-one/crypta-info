@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('Showing and loading review section...');
             reviewSection.classList.remove('hidden');
             // Load book reviews using the new function
-            await loadBookReviews(book.id);
+            await loadReviews(book.id);
             // Setup sorting buttons (now uses global currentReviews)
             window.currentReviews = currentReviews; // Ensure global is set
             setupSortingButtons(currentReviews);
@@ -231,8 +231,12 @@ export function renderBookDetails(book, container) {
  * Loads reviews for a specific book and updates the reviews tab count.
  * @param {string|number} bookId - The ID of the book.
  */
-async function loadBookReviews(bookId) {
+async function loadReviews(bookId) {
     console.log(`Loading reviews for book ID: ${bookId}`);
+    const reviewSortControls = document.querySelector('.review-sort-controls'); // Assuming similar class as exchanges
+    const sortButtonsContainer = reviewSortControls ? reviewSortControls.querySelector('div:first-child') : null;
+    const addReviewLinkElement = document.getElementById('add-review-link');
+
 
     if (reviewsTabLink) {
         reviewsTabLink.textContent = 'Отзывы (...)'; // Indicate loading
@@ -276,10 +280,28 @@ async function loadBookReviews(bookId) {
         }
 
         if (currentReviews.length === 0) {
-            console.log('No reviews found for this book');
-            reviewsList.innerHTML = '<p>Для этой книги отзывов пока нет.</p>';
+            console.log('No reviews found for this book. Hiding sort buttons and centering add review button.');
+            if (sortButtonsContainer) {
+                sortButtonsContainer.style.display = 'none';
+            }
+            if (reviewSortControls) {
+                reviewSortControls.style.justifyContent = 'center';
+            }
+            if (addReviewLinkElement) {
+                addReviewLinkElement.style.marginLeft = '0'; // Remove auto margin for centering
+            }
+            reviewsList.innerHTML = '<p> </p>';
         } else {
             console.log(`Rendering ${currentReviews.length} reviews initially (sorted by date)...`);
+            if (sortButtonsContainer) {
+                sortButtonsContainer.style.display = ''; // Reset to default display
+            }
+            if (reviewSortControls) {
+                reviewSortControls.style.justifyContent = ''; // Reset to default
+            }
+            if (addReviewLinkElement) {
+                addReviewLinkElement.style.marginLeft = 'auto'; // Restore auto margin
+            }
             renderReviewsList(currentReviews); // Render reviews sorted by date initially
         }
 

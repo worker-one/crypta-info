@@ -12,6 +12,7 @@ import {
 } from './api.js'; // Corrected imports
 // Import the function responsible for checking login and updating the header
 import { checkAndCacheUserProfile } from './auth.js';
+import { loadHTML } from './renderUtils.js'; // Assuming you have a utility function to load HTML components
 
 document.addEventListener('DOMContentLoaded', async function() {
     loadHTML('../components/header.html', 'header-placeholder'); // Load header HTML
@@ -41,8 +42,7 @@ async function checkAdminAccess() {
             console.log('Admin access verified.');
             if (adminAuthCheckElement) adminAuthCheckElement.style.display = 'none'; // Hide the check message
             if (adminContentElement) adminContentElement.style.display = 'block'; // Show the admin content
-            // Proceed to load admin-specific data (like exchanges, reviews)
-            loadExchangesTable();
+
             // Load pending reviews if the container exists
             if (document.getElementById('pendingReviewsList')) { // Adjusted ID based on HTML structure
                 loadPendingReviews();

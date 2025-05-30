@@ -367,6 +367,18 @@ export async function fetchExchangeNews(exchangeId, params = { skip: 0, limit: 1
 }
 
 /**
+ * Fetches a list of guides items for a specific exchange.
+ * @param {string|number} exchangeId - The ID of the exchange.
+ * @param {object} params - Pagination parameters (e.g., { skip: 0, limit: 10 })
+ * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
+ */
+export async function fetchExchangeGuides(exchangeId, params = { skip: 0, limit: 10 }) {
+    const query = new URLSearchParams(params).toString();
+    return fetchApi(`/exchanges/guides/${exchangeId}?${query}`, { method: 'GET' });
+}
+
+
+/**
  * Fetches details for a specific news item.
  * @param {string|number} newsId - The ID of the news item.
  * @returns {Promise<object>} - The news item object.

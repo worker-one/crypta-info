@@ -1,5 +1,5 @@
 // Exchange Detail Page Logic
-import { getExchangeDetails, listItemReviews, fetchExchangeNews } from '../api.js'; // Added fetchExchangeNews
+import { getExchangeDetails, listItemReviews, fetchExchangeNews, fetchExchangeGuides } from '../api.js'; // Added fetchExchangeNews
 import { updateHeaderNav } from '../header.js'; // Import from new header module
 import { loadHTML } from '../renderUtils.js';
 import { renderReviewsList, updateSortButtonCounts, setupSortingButtons, setupReviewVoting } from '../common/reviews.js';
@@ -154,6 +154,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.warn('News tab link element (tab-news) not found.');
         }
 
+        // Conditionally show/hide and configure Guide tab
+        if (guideTabLink) {
+            try {
+                console.log(`Setting Guide tab link to: guide.html?slug=${slug}`);
+                const guidesResponse = await fetchExchangeGuides(exchange.id, { limit: 1 }); // Fetch one to check
+                if (guidesResponse && guidesResponse.items && guidesResponse.items.length > 0) {
+                    guideTabLink.href = `guide.html?slug=${slug}`; // Set href
+                    guideTabLink.classList.remove('hidden'); // Make sure it's visible
+                    console.log(`Guides found for ${exchange.name}. Guides tab configured and visible.`);
+                } else {
+                    guideTabLink.classList.add('hidden'); // Hide if no guides
+                    console.log(`No guides for ${exchange.name}. Guides tab hidden.`);
+                }
+            } catch (guidesError) {
+                console.error(`Error fetching guides for ${exchange.name}, hiding guides tab:`, guidesError);
+                guideTabLink.classList.add('hidden'); // Hide on error
+            }
+        } else {
+            console.warn('Guide tab link element (tab-guide) not found.');
+        }
+
         // Build the HTML for the exchange details with improved layout
         console.log('Building exchange detail HTML...');
         // Helper to show first 5 and "+N more" for arrays
@@ -168,6 +189,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             return html;
         }
+
+        // Determine if the "Сервисы" card should be shown
+        const showServicesCard = exchange.has_copy_trading ||
+                                 exchange.has_p2p ||
+                                 exchange.has_staking ||
+                                 exchange.has_futures ||
+                                 exchange.has_spot_trading ||
+                                 exchange.has_demo_trading;
 
         detailContainer.innerHTML = `
             <div class="stats-overview">
@@ -204,6 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             <div class="details">
             
+            ${showServicesCard ? `
             <div class="detail-card">
             <h3>Сервисы</h3>
             <p style="display: flex; align-items: center; justify-content: space-between;">
@@ -231,6 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <img src="${exchange.has_demo_trading ? '../assets/images/green-check.png' : '../assets/images/red-cross.png'}" alt="${exchange.has_demo_trading ? 'Yes' : 'No'}" width="25" height="25">
             </p>
             </div>
+            ` : ''}
 
             ${ (exchange.spot_taker_fee || exchange.spot_maker_fee || exchange.futures_taker_fee || exchange.futures_maker_fee) ? `
             <div class="detail-card">
@@ -284,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Load exchange reviews and set up sorting/voting
         console.log(`Loading reviews for exchange ID: ${exchange.id}`);
-        await loadExchangeReviews(exchange.id); // This function already calls setupSortingButtons(currentReviews) and setupReviewVoting()
+        await loadReviews(exchange.id); // This function already calls setupSortingButtons(currentReviews) and setupReviewVoting()
 
     } catch (error) {
         console.error("Error fetching exchange details:", error);
@@ -294,22 +325,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-/**
- * Calculates the average rating for a review.
- * @param {object} review - The review object.
- * @returns {number} The average rating, or 0 if no ratings.
- */
-const calculateAverageRating = (review) => {
-    if (!review.ratings || review.ratings.length === 0) {
-        return 0;
-    }
-    const sum = review.ratings.reduce((acc, r) => acc + r.rating_value, 0);
-    return sum / review.ratings.length;
-};
-
-async function loadExchangeReviews(exchangeId) {
+async function loadReviews(exchangeId) {
     console.log(`Loading reviews for exchange ID: ${exchangeId}`);
     const paginationElement = document.getElementById('reviews-pagination');
+    const reviewSortControls = document.querySelector('.review-sort-controls');
+    const sortButtonsContainer = reviewSortControls ? reviewSortControls.querySelector('div:first-child') : null;
+    const addReviewLinkElement = document.getElementById('add-review-link');
 
     if (reviewsTabLink) {
         reviewsTabLink.textContent = 'Отзывы (...)'; // Indicate loading
@@ -350,10 +371,28 @@ async function loadExchangeReviews(exchangeId) {
         }
 
         if (currentReviews.length === 0) {
-            console.log('No reviews found for this exchange');
-            reviewsList.innerHTML = '<p>No reviews found for this exchange yet.</p>';
+            console.log('No reviews found for this exchange. Hiding sort buttons and centering add review button.');
+            if (sortButtonsContainer) {
+                sortButtonsContainer.style.display = 'none';
+            }
+            if (reviewSortControls) {
+                reviewSortControls.style.justifyContent = 'center';
+            }
+            if (addReviewLinkElement) {
+                addReviewLinkElement.style.marginLeft = '0'; // Remove auto margin for centering
+            }
+            reviewsList.innerHTML = '<p> </p>'; // Updated message
         } else {
             console.log(`Rendering ${currentReviews.length} reviews initially (sorted by date)...`);
+            if (sortButtonsContainer) {
+                sortButtonsContainer.style.display = ''; // Reset to default display
+            }
+            if (reviewSortControls) {
+                reviewSortControls.style.justifyContent = ''; // Reset to default (flex-start or as per CSS)
+            }
+            if (addReviewLinkElement) {
+                addReviewLinkElement.style.marginLeft = 'auto'; // Restore auto margin
+            }
             renderReviewsList(currentReviews);
         }
 
